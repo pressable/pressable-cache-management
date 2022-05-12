@@ -1,0 +1,14 @@
+# rubymine
+.idea/*
+!.idea/dictionaries
+
+# vim
+**.swp
+*.un~
+*.swo
+
+# tmux
+tmux*
+
+# mac
+.DS_Store

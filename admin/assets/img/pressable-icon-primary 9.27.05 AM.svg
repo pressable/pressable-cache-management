@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" id="body_1" width="128" height="96">
+
+<g transform="matrix(0.125 0 0 0.125 0 0)">
+	<g transform="matrix(10.620939 0 0 10.620939 128 -0)">
+	</g>
+    <path transform="matrix(10.620939 0 0 10.620939 128 -0)"  d="M0 0L0 0.03L0.03 0L0 0" stroke="none" fill="#FFFFFF" fill-rule="nonzero" />
+	<g transform="matrix(10.620939 0 0 10.620939 128 -0)">
+	</g>
+    <path transform="matrix(10.620939 0 0 10.620939 128 -0)"  d="M37 15.8L26.25 15.8L26.25 35.57L37 35.57C 45.57 35.57 47.63 33.79 47.63 26.279999L47.63 26.279999L47.63 25.06C 47.59 17.58 45.53 15.8 37 15.8z" stroke="none" fill="#FFFFFF" fill-rule="nonzero" />
+	<g transform="matrix(10.620939 0 0 10.620939 128 -0)">
+	</g>
+    <path transform="matrix(10.620939 0 0 10.620939 128 -0)"  d="M0 0L0 72.31L46.34 72.31L72.34 46.309998L72.34 0L0 0zM54.15 26.28C 54.15 37.99 49.730003 41.28 36.96 41.28L36.96 41.28L26.25 41.28L26.25 60.41C 26.298872 60.89213 26.138424 61.372047 25.80941 61.72784C 25.480394 62.083637 25.014477 62.28107 24.53 62.27C 23.03 62.27 19.830002 61.850002 19.830002 60.99L19.830002 60.99L19.830002 11.93C 19.830002 10.370001 20.610003 10.070001 21.610003 10.070001L21.610003 10.070001L37 10.070001C 50 10.070001 54.190002 13.630001 54.190002 25.07z" stroke="none" fill="#FFFFFF" fill-rule="nonzero" />
+</g>
+</svg>

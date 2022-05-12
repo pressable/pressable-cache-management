@@ -1,0 +1,13 @@
+=== Pressable Cache Management Change log ===
+
+
+= Version 3.0.1 (April 17, 2021) =
+
+Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug.
+
+
+= Version 3.0.2 (April 22, 2021) =
+
+Applied patch to prevent HTML injection from all CDN exemption features
+cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_specificfile.
+ 
