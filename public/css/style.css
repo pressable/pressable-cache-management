@@ -93,6 +93,46 @@ input:checked+.slider:before {
 }
 
 
+/**Connect API button**/
+.connect_api_nonce {
+  background-color: #FF4B49;
+  /* Pressable Orange*/
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.connect_api_nonce:hover {
+  background-color: #0AD8C7;
+  /* Pressable Blue*/
+  color: white;
+  text-decoration: none;
+}
+
+/**Disonnect API button**/
+.disconnect_api_nonce {
+  background-color: #FF4B49;
+  /* Pressable Orange*/
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+}
+
+.disconnect_api_nonce:hover {
+  background-color: #0AD8C7;
+  /* Pressable Blue*/
+  color: white;
+  text-decoration: none;
+}
+
 /**Purge Cache Button Styling**/
 
 .purgecacahe {

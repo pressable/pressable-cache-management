@@ -2,123 +2,144 @@
 
 // disable direct file access
 
-if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+if (!defined('ABSPATH'))
+{
+    exit;
 }
 
 //library that writes the batache function to wp-config.php
-require_once dirname( __FILE__ ) . '/wp-write-to-file-lib.php';
+require_once (dirname(__FILE__) . '/wp-write-to-file-lib.php');
 
-$options = get_option( 'pressable_cache_management_options' );
+$options = get_option('pressable_cache_management_options');
 
-if ( isset( $options['extend_batcache_checkbox'] ) && ! empty( $options['extend_batcache_checkbox'] ) ) {
+if (isset($options['extend_batcache_checkbox']) && !empty($options['extend_batcache_checkbox']))
+{
 
-	/*
-	 * Extend Batcache
-	 * Extend Batcache settings from wp-config.php file
-	*/
+    /*
+     * Extend Batcache
+     * Extend Batcache settings from wp-config.php file
+    */
 
-	if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
-		$global_config_file = ABSPATH . 'wp-config.php';
-	} else {
-		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
-	}
+    if (file_exists(ABSPATH . 'wp-config.php'))
+    {
+        $global_config_file = ABSPATH . 'wp-config.php';
+    }
+    else
+    {
+        $global_config_file = dirname(ABSPATH) . '/wp-config.php';
+    }
 
-	$line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
+    $line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
 
-	if ( ! is_writeable_wp_config( $global_config_file ) || ! wp_config_file_replace_line( 'global *\$batcache; if *\( *is_object', $line, $global_config_file ) ) {
-		if ( defined( 'global $batcache;' ) && constant( 'global $batcache;' ) == false ) {
-			return;
-		} else {
-			//Throw error if writing batcache cannot write to wp-config.php file
-			function cannot_write_admin_notice__success() {
+    if (!is_writeable_wp_config($global_config_file) || !wp_config_file_replace_line('global *\$batcache; if *\( *is_object', $line, $global_config_file))
+    {
+        if (defined('global $batcache;') && constant('global $batcache;') == false)
 
-				$screen = get_current_screen();
+        {
+            return;
+        }
+        else
+        {
+            //Throw error if writing batcache cannot write to wp-config.php file
+            function cannot_write_admin_notice__success()
+            {
 
-				//Display admin notice for this plugin page only
-				if ( $screen->id !== 'toplevel_page_pressable_cache_management' ) {
-					return;
-				}
+                $screen = get_current_screen();
 
-				$user = $GLOBALS['current_user']; ?>
-		<div class="notice notice-error is-dismissible">
-			<p><?php _e( 'Something went wrong cannot write to <strong>wp-config.php</strong> file.', 'sample-text-domain' ); ?></p>
-		</div>
-				<?php
-			}
-			add_action( 'admin_notices', 'cannot_write_admin_notice__success' );
-		}
-		return false;
-	} else {
-		function ext_batcache_admin_notice( $message = '', $classes = 'notice-success' ) {
+                //Display admin notice for this plugin page only
+                if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
-			if ( ! empty( $message ) ) {
-				printf( '<div class="notice %2$s">%1$s</div>', $message, $classes );
-			}
-		}
+                $user = $GLOBALS['current_user']; ?>
+        <div class="notice notice-error is-dismissible">
+            <p><?php _e('Something went wrong cannot write to <strong>wp-config.php</strong> file.', 'sample-text-domain'); ?></p>
+        </div>
+        <?php
+            }
+            add_action('admin_notices', 'cannot_write_admin_notice__success');
+        }
+        return false;
+    }
+    else
+    {
+        function ext_batcache_admin_notice($message = '', $classes = 'notice-success')
+        {
 
-		function ext_batcahe_notice() {
+            if (!empty($message))
+            {
+                printf('<div class="notice %2$s">%1$s</div>', $message, $classes);
+            }
+        }
 
-			$extend_batcache_activate_display_notice = get_option( 'extend_batcache_activate_notice', 'activating' );
+        function ext_batcahe_notice()
+        {
 
-			if ( 'activating' === $extend_batcache_activate_display_notice && current_user_can( 'manage_options' ) ) {
+            $extend_batcache_activate_display_notice = get_option('extend_batcache_activate_notice', 'activating');
 
-				add_action(
-					'admin_notices',
-					function () {
+            if ('activating' === $extend_batcache_activate_display_notice && current_user_can('manage_options'))
+            {
 
-						$screen = get_current_screen();
+                add_action('admin_notices', function ()
+                {
 
-						//Display admin notice for this plugin page only
-						if ( $screen->id !== 'toplevel_page_pressable_cache_management' ) {
-							return;
-						}
+                    $screen = get_current_screen();
 
-						$user    = $GLOBALS['current_user'];
-						$message = sprintf( '<p>Extenteding Batcache is enabled<a href="https://pressable.com/knowledgebase/modifying-cache-times-batcache/"> Troubleshooting Guide</a>.', $user->display_name );
+                    //Display admin notice for this plugin page only
+                    if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
-						ext_batcache_admin_notice( $message, 'notice notice-success is-dismissible' );
-					}
-				);
+                    $user = $GLOBALS['current_user'];
+                    $message = sprintf('<p>Extenteding Batcache is enabled<a href="https://pressable.com/knowledgebase/modifying-cache-times-batcache/"> Troubleshooting Guide</a>.', $user->display_name);
 
-				update_option( 'extend_batcache_activate_notice', 'activated' );
+                    ext_batcache_admin_notice($message, 'notice notice-success is-dismissible');
+                });
 
-			}
-		}
-		add_action( 'init', 'ext_batcahe_notice' );
+                update_option('extend_batcache_activate_notice', 'activated');
 
-	}
-	return true;
-} else {
+            }
+        }
+        add_action('init', 'ext_batcahe_notice');
 
-	/*
-	 * Remove Batcache extending
-	 * Remove Batcache extending from wp-config.php file
-	*/
+    }
+    return true;
+}
 
-	$delete_config_file = true;
+else
+{
 
-	global $wp_rewrite;
-	if ( file_exists( ABSPATH . 'wp-config.php' ) ) {
-		$global_config_file = ABSPATH . 'wp-config.php';
+    /*
+     * Remove Batcache extending
+     * Remove Batcache extending from wp-config.php file
+    */
 
-		/**Update option from the database if the connection is deactivated
-		 used by admin notice to display and remove notice**/
-		update_option( 'extend_batcache_activate_notice', 'activating' );
-	} else {
-		$global_config_file = dirname( ABSPATH ) . '/wp-config.php';
-	}
+    $delete_config_file = true;
 
-	if ( apply_filters( 'wpsc_enable_wp_config_edit', true ) ) {
-		$line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
-		if ( strpos( file_get_contents( $global_config_file ), $line ) && ( ! is_writeable_wp_config( $global_config_file ) || ! wp_config_file_replace_line( 'global *\$batcache; if *\( *is_object', '', $global_config_file ) ) ) {
-			wp_die( "Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page. orcontact Pressable Support for help" );
-		}
+    global $wp_rewrite;
+    if (file_exists(ABSPATH . 'wp-config.php'))
+    {
+        $global_config_file = ABSPATH . 'wp-config.php';
 
-		$line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
-		if ( strpos( file_get_contents( $global_config_file ), $line ) && ( ! is_writeable_wp_config( $global_config_file ) || ! wp_config_file_replace_line( 'global  *\$batcache; if *\( *is_object', '', $global_config_file ) ) ) {
-			wp_die( "Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page. orcontact Pressable Support for help" );
-		}
-	}
+        /**Update option from the database if the connection is deactivated
+         used by admin notice to display and remove notice**/
+        update_option('extend_batcache_activate_notice', 'activating');
+    }
+    else
+    {
+        $global_config_file = dirname(ABSPATH) . '/wp-config.php';
+    }
+
+    if (apply_filters('wpsc_enable_wp_config_edit', true))
+    {
+        $line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
+        if (strpos(file_get_contents($global_config_file) , $line) && (!is_writeable_wp_config($global_config_file) || !wp_config_file_replace_line('global *\$batcache; if *\( *is_object', '', $global_config_file)))
+        {
+            wp_die("Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page. orcontact Pressable Support for help");
+        }
+
+        $line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
+        if (strpos(file_get_contents($global_config_file) , $line) && (!is_writeable_wp_config($global_config_file) || !wp_config_file_replace_line('global  *\$batcache; if *\( *is_object', '', $global_config_file)))
+        {
+            wp_die("Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page. orcontact Pressable Support for help");
+        }
+
+    }
 }
 
