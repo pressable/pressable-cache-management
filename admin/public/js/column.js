@@ -33,7 +33,7 @@ function flush_object_cache_column_button_action(){
                         //
                         alert("Batcache flushed successfully :)");
                     }else{
-                        alert("Something went wrong while trying to flush object cache for this page");
+                        alert("Something went wrong while trying to flush object cache for this page.");
                     }
                 }
             });
