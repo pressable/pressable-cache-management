@@ -1,0 +1,73 @@
+.toplevel_page_pressable-automated-migration label{
+  float: left;
+  width: 200px;
+  font-weight: bold;
+  }
+
+.toplevel_page_pressable-automated-migration input, .toplevel_page_pressable-automated-migration textarea{
+  width: 300px;
+  margin-bottom: 20px;
+  }
+
+input[type=checkbox] {
+  width: initial !important;
+  margin-top: 15px;
+}
+
+.toplevel_page_pressable-automated-migration textarea{
+  width: 250px;
+  height: 150px;
+}
+
+.toplevel_page_pressable-automated-migration h1{
+  font-weight: 400;
+  font-size: 34px;
+  line-height: 40px;
+}
+
+.boxes{
+  width: 1em;
+  }
+
+#submitbutton{
+margin-left: 300px;
+margin-top: 5px;
+width: 100px;
+}
+
+br{
+clear: left;
+}
+
+#wrapper {
+  width:100%;
+  clear:both;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.logo-left {
+  max-width: 50%;
+  float: left;
+}
+.logo-right {
+  max-width: 50%;
+  float: right;
+}
+
+.video-container {
+  position:relative;
+  padding-bottom:56.25%;
+  padding-top:30px;
+  height:0;
+  overflow:hidden;
+}
+
+.video-container iframe, .video-container object, .video-container embed {
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+}

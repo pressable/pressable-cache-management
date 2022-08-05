@@ -1,0 +1,52 @@
+=== Pressable Cache Management Change log ===
+
+
+= Version 3.0.1 (April 17, 2022) =
+
+Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug.
+
+
+= Version 3.0.2 (April 22, 2022) =
+
+Applied patch to prevent HTML injection from all CDN exemption features
+cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_specificfile.
+ 
+
+= Version 3.0.2 (April 28, 2022) =
+
+Fixed ?extend_cdn appended to the word style.css which is added to blog post/page.
+
+
+= Version 3.0.3 (May 21, 2022) =
+
+Fixed issue with api_connection which adds extra time to site TTFB
+
+
+= Version 3.1.4 (May 21, 2022) =
+
+Added warning notice to CDN cache extender when enabled to notify user to disable the option if it causes any issue(The CDN extender features is buggy and know to cause some issue for website when enabled stay tuned for new update.)
+
+= Version 3.2.3 (Jul 03, 2022) =
+
+Fixed CSS conflict issue with some third-party plugin
+
+= Version 3.3.4 (Jul 10, 2022) =
+
+- Fixed TTFB performance issue that slows down WordPress admin
+- Renamed authentication button to save option
+- Rename authentication button tab button to save option
+- Hide save button if connection is successful for added security
+- Cached the API key using transient for fast performance 
+- Added new admin notice warning to alert user if CDN is flushed twice within a minute
+- Added admin notice to alert user to connect to the api if API credentials is not saved
+- Updated toggle option to enable/disable CDN to button
+- Added settings option from the plugin area
+- Added button option to connect and disconnect API
+- Added option to clear API credentials when API is disconnected
+- Added nonce to button for added security
+- Fixed bug that shows CDN option when plugin is not yet connected to the API
+- Added error message to alert user if the plugin is installed on site hosted on another platform
+
+= Version 3.3.4 (Aug 4, 2022) =
+
+Fixed bug for site id not entering on multi-network site
