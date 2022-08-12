@@ -140,7 +140,7 @@ else
         $line = 'global $batcache; if ( is_object($batcache) ) { $batcache->max_age = 86400; $batcache->seconds = 3600;  };';
         if (strpos(file_get_contents($global_config_file) , $line) && (!is_writeable_wp_config($global_config_file) || !wp_config_file_replace_line('global  *\$batcache; if *\( *is_object', '', $global_config_file)))
         {
-            wp_die("Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page. orcontact Pressable Support for help");
+            wp_die("Could not remove Extending Batcache settings from $global_config_file. Please edit that file and remove the line containing the function 'global  $batcache;'. Then refresh this page or contact Pressable Support for help");
         }
 
     }
