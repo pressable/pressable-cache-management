@@ -166,10 +166,14 @@ function wp_config_file_replace_line($old, $new, $my_file)
     rename($tmp_config_filename, $my_file);
     pressable_cache_extend('wp_config_file_replace_line: moved ' . $tmp_config_filename . ' to ' . $my_file);
 
-    if (function_exists("opcache_invalidate"))
+//     if (function_exists("opcache_invalidate"))
+//     {
+//         @opcache_invalidate($my_file);
+//     }
+    
+if (function_exists("wp_opcache_invalidate"))
     {
-        @opcache_invalidate($my_file);
+        wp_opcache_invalidate($my_file);
     }
-
     return true;
 }
