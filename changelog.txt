@@ -1,5 +1,9 @@
-
 === Pressable Cache Management Change log ===
+
+= Version 3.3.4 (Aug 12, 2022) =
+
+- Fixed Zend OPcache API is restricted by "restrict_api" configuration directive warning on extended batcache 
+- Fixed admin notice not displaying when extend batcache is enabled and disabled
 
 
 = Version 3.3.4 (Aug 4, 2022) =
