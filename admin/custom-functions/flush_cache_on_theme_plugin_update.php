@@ -23,27 +23,35 @@ if (isset($options['flush_cache_theme_plugin_checkbox']) && !empty($options['flu
         // {
         //     wp_cache_flush();
         //Check update for plugin
-        function pcm_flush_flush_cache_after_plugin_update($upgrader_object, $options)
+        if (!function_exists('pcm_flush_cache_after_plugins_update'))
         {
-            if ($options['action'] == 'update')
+            function pcm_flush_cache_after_plugins_update($upgrader_object, $options)
             {
-                if ($options['type'] == 'plugin' && isset($options['plugins']))
+                if ($options['action'] == 'update')
                 {
-                    wp_cache_flush();
+                    if ($options['type'] == 'plugin' && isset($options['plugins']))
+                    {
+                        wp_cache_flush();
+                    }
                 }
             }
         }
 
-        //Check update for themes
-        function pcm_flush_cache_after_theme_update($upgrader_object, $options)
+        if (!function_exists('pcm_flush_cache_after_theme_update'))
         {
-            if ($options['action'] == 'update')
+
+            //Check update for themes
+            function pcm_flush_cache_after_theme_update($upgrader_object, $options)
             {
-                if ($options['type'] == 'theme' && isset($options['themes']))
+                if ($options['action'] == 'update')
                 {
-                    wp_cache_flush();
+                    if ($options['type'] == 'theme' && isset($options['themes']))
+                    {
+                        wp_cache_flush();
+                    }
                 }
             }
+
         }
 
         //Save time stamp to database if cache is flushed when theme or plugin updated.
@@ -54,4 +62,3 @@ if (isset($options['flush_cache_theme_plugin_checkbox']) && !empty($options['flu
     add_action('upgrader_process_complete', 'pressable_plugins_update_completed', 10, 2);
 
 }
-
