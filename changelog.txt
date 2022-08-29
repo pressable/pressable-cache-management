@@ -2,9 +2,13 @@
 
 = Version 3.3.4 (Aug 12, 2022) =
 
+- Fixed function conflict on 
+Flush_cache_on_theme_plugin_update
+
+= Version 3.3.4 (Aug 12, 2022) =
+
 - Fixed Zend OPcache API is restricted by "restrict_api" configuration directive warning on extended batcache 
 - Fixed admin notice not displaying when extend batcache is enabled and disabled
-
 
 = Version 3.3.4 (Aug 4, 2022) =
 
@@ -47,6 +51,9 @@ Fixed ?extend_cdn appended to the word style.css which is added to blog post/pag
 
 Applied patch to prevent HTML injection from all CDN exemption features
 cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_specificfile.
+
+
+=== Pressable Cache Management Change log ===
 
 
 = Version 3.0.1 (April 17, 2022) =
