@@ -2,8 +2,7 @@
 
 = Version 3.3.4 (Aug 12, 2022) =
 
-- Fixed function conflict on 
-Flush_cache_on_theme_plugin_update
+- Fixed function conflict on Flush_cache_on_theme_plugin_update
 
 = Version 3.3.4 (Aug 12, 2022) =
 
