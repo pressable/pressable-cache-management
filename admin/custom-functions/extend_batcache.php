@@ -110,8 +110,9 @@ else
      * Remove Batcache extending from wp-config.php file
     */
 
+
     //Change admin notice status to activating
-	update_option('extend_batcache_activate_notice', 'activating');
+    update_option('extend_batcache_activate_notice', 'activating');
     
     $delete_config_file = true;
 

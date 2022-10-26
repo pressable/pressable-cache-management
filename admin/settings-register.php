@@ -37,7 +37,7 @@ function pressable_cache_management_register_settings()
     {
 
         //Object cache page
-        add_settings_section('pressable_cache_management_section_cache', esc_html__('Cache Mangement By', 'pressable_cache_management') , 'pressable_cache_management_callback_section_cache', 'pressable_cache_management',);
+        add_settings_section('pressable_cache_management_section_cache', esc_html__('Cache Management By', 'pressable_cache_management') , 'pressable_cache_management_callback_section_cache', 'pressable_cache_management',);
 
     }
 

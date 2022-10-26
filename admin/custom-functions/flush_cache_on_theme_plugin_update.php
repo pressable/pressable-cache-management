@@ -1,7 +1,7 @@
 <?php // Custom function - Flush cache automatically on theme and plugin update
 
 
-// disable direct file access
+// Disable direct file access
 if (!defined('ABSPATH'))
 {
 

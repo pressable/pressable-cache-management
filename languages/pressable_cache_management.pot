@@ -26,7 +26,7 @@ msgid ""
 msgstr ""
 
 #: admin/settings-register.php:37
-msgid "Cache Mangement By"
+msgid "Cache Management By"
 msgstr ""
 
 #: admin/settings-register.php:93
