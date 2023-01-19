@@ -63,7 +63,7 @@ if (isset($options['flush_object_cache_for_single_page']) && !empty($options['fl
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-                $message = sprintf('<p>You can Flush Cache for a sparticular page or post from page preview</p>', $user->display_name);
+                $message = sprintf('<p>You can Flush Cache for Individual page or post from page preview.</p>', $user->display_name);
 
                 flush_object_cache_for_single_page_admin_notice($message, 'notice notice-success is-dismissible');
             });

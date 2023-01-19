@@ -9,14 +9,15 @@ if (!defined('ABSPATH'))
 
 }
 
-// Get checkbox options and check if is not empty
+
 $options = get_option('pressable_cache_management_options');
 
+// Get checkbox options and check if is not empty
 if (isset($options['flush_cache_page_edit_checkbox']) && !empty($options['flush_cache_page_edit_checkbox']))
 {
 
     //Flush Batcache cache on page edit
-    function clear_batcache_on_post_save()
+    function clear_batcache_on_post_edit()
     {
         wp_cache_flush();
 
@@ -24,9 +25,8 @@ if (isset($options['flush_cache_page_edit_checkbox']) && !empty($options['flush_
         $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
         update_option('flush-cache-page-edit-time-stamp', $object_cache_flush_time);
 
-        //Set transient for admin notice for 9 seconds
-        set_transient('page_edit_notice', true, 9);
+
     }
-    add_action('save_post', 'clear_batcache_on_post_save');
+    add_action('save_post', 'clear_batcache_on_post_edit');
 
  }

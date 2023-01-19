@@ -188,6 +188,59 @@ function pressable_cache_management_callback_field_page_edit_checkbox($args)
 
 }
 
+
+// Flush site object cache when page, post and posttypes are updated checkbox
+function pressable_cache_management_callback_field_page_post_delete_checkbox($args)
+{
+
+    $options = get_option('pressable_cache_management_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    // echo '</br>';
+    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+    echo '</br>';
+    echo '</br>';
+    //Display time stamp when object cache was last flushed when page or post was deleted
+    echo '<small><strong>Last flushed at: </strong></small>' . (get_option('flush-cache-on-page-post-delete-time-stamp'));
+
+}
+
+
+// Flush cache when comment is deleted checkbox
+function pressable_cache_management_callback_field_comment_delete_checkbox($args)
+{
+
+    $options = get_option('pressable_cache_management_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    // echo '</br>';
+    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+    echo '</br>';
+    echo '</br>';
+    //Display time stamp when object cache was last flushed when comment was deleted
+    echo '<small><strong>Last flushed at: </strong></small>' . (get_option('flush-cache-on-comment-delete-time-stamp'));
+
+}
+
+
 //Flush cache for a single page
 function pressable_cache_management_callback_field_flush_batcache_particular_page_checbox($args)
 {
@@ -213,17 +266,60 @@ function pressable_cache_management_callback_field_flush_batcache_particular_pag
 
 }
 
-//TODO: exempt pages
-// // Callback: text field for exempt page from batcache
-// function pressable_cache_management_callback_field_exempt_batcache_text($args)
-// {
-//     $options = get_option('pressable_cache_management_options');
-//     $id = isset($args['id']) ? $args['id'] : '';
-//     $label = isset($args['label']) ? $args['label'] : '';
-//     $value = isset($options[$id]) ? sanitize_text_field($options[$id]) : '';
-//     echo '<input autocomplete="off" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" type="text" size="40" value="' . $value . '"><br/>';
-//     echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
-// }
+
+//Cache pages that set wpp_ cookies
+function pressable_cache_management_callback_field_cache_pages_that_sets_wpp_cookies_checkbox($args)
+{
+
+     $options = get_option('pressable_cache_management_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    // echo '</br>';
+    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+  
+}
+
+
+//Exclude Google Ads URL's with query string gclid from Batcache
+function pressable_cache_management_callback_field_exclude_query_string_gclid_checkbox($args)
+{
+
+     $options = get_option('pressable_cache_management_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    // echo '</br>';
+    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+  
+}
+
+  //Callback: text field to exempt individual page from batcache
+ function pressable_cache_management_callback_field_exempt_batcache_text($args)
+ {
+     $options = get_option('pressable_cache_management_options');
+     $id = isset($args['id']) ? $args['id'] : '';
+     $label = isset($args['label']) ? $args['label'] : '';
+     $value = isset($options[$id]) ? sanitize_text_field($options[$id]) : '';
+     echo '<input autocomplete="off" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" type="text" placeholder=" Exclude single page ex  /pagename/"  size="70" value="' . $value . '"><br/>';
+     echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+ }
 /*
   
 
@@ -392,26 +488,6 @@ function pressable_cache_management_callback_field_exclude_cdn_image_webp_checkb
 
 }
 
-//Exlude all .CSS files from CDN caching
-function pressable_cache_management_callback_field_exclude_cdn_image_css_checkbox($args)
-{
-
-    $options = get_option('cdn_settings_tab_options');
-
-    $id = isset($args['id']) ? $args['id'] : '';
-    $label = isset($args['label']) ? $args['label'] : '';
-
-    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
-
-    echo '<div class="container">';
-    echo '<label class="switch">';
-    echo '<input type="checkbox" id="cdn_settings_tab_options_' . $id . '" name="cdn_settings_tab_options[' . $id . ']" value="1"' . $checked . ' />';
-    echo '<span class="slider round"></span>
-</label>';
-    echo '<label class="rad-text for="cdn_settings_tab_options_' . $id . '">' . $label . '</label>';
-
-}
-
 //Exlude all .json and .js from CDN caching
 function pressable_cache_management_callback_field_exclude_json_checkbox($args)
 {
@@ -432,6 +508,49 @@ function pressable_cache_management_callback_field_exclude_json_checkbox($args)
     echo '<label class="rad-text for="cdn_settings_tab_options_' . $id . '">' . $label . '</label>';
 
 }
+
+//Exlude all .CSS files from CDN caching
+function pressable_cache_management_callback_field_exclude_cdn_image_css_checkbox($args)
+{
+
+    $options = get_option('cdn_settings_tab_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="cdn_settings_tab_options_' . $id . '" name="cdn_settings_tab_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    echo '<label class="rad-text for="cdn_settings_tab_options_' . $id . '">' . $label . '</label>';
+
+}
+
+//Todo:
+//Exlude font files from CDN caching
+// function pressable_cache_management_callback_field_exclude_font_files_checkbox($args)
+// {
+
+//     $options = get_option('cdn_settings_tab_options');
+
+//     $id = isset($args['id']) ? $args['id'] : '';
+//     $label = isset($args['label']) ? $args['label'] : '';
+
+//     $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+//     echo '<div class="container">';
+//     echo '<label class="switch">';
+//     echo '<input type="checkbox" id="cdn_settings_tab_options_' . $id . '" name="cdn_settings_tab_options[' . $id . ']" value="1"' . $checked . ' />';
+//     echo '<span class="slider round"></span>
+// </label>';
+//     // echo '</br>';
+//     echo '<label class="rad-text for="cdn_settings_tab_options_' . $id . '">' . $label . '</label>';
+
+// }
+
 
 // Callback: text field to exclude a particular file from CDN
 function pressable_cache_management_callback_field_exclude_partucular_file_text($args)
@@ -489,7 +608,7 @@ else
 /**
  **********************************************************
  * Update the site id with the one on the database if
- * it different from the one stored on the options
+ * it's different from the one stored on the options
  * this prevents the site id on the clone from overwriting
  * the new site id in the database if a site is cloned
  **********************************************************
@@ -532,7 +651,14 @@ if (is_multisite())
         update_option('pcm_client_id', '');
         update_option('pcm_client_secret', '');
 
-        //Disconnect API connection
+        /**
+		 ***********************************************************
+		 * Disconnect API Connection
+		 * Forces the user to re-add the API credentials if they
+		 * would like to reconnect on a cloned site
+		 ************************************************************
+		 */
+		
         update_option('pressable_api_admin_notice__status', 'activating');
         update_option('pcm_site_id_con_res', 'Not Found');
 
@@ -579,13 +705,13 @@ else
     }
 }
 
-/**
- ***********************************************************
- * Check if the Pressable site id exist in the database.
- * CSS to hide site id field is located on style CSS while
- * the function to hide the field is on settings-register.php
- ************************************************************
- */
+		/**
+		 ***********************************************************
+		 * Check if the Pressable site id exist in the database.
+		 * CSS to hide site id field is located on style CSS while
+		 * the function to hide the field is on settings-register.php
+		 ************************************************************
+		 */
 
 function pressable_cache_management_callback_field_site_id_text($args)
 {

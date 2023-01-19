@@ -1,4 +1,4 @@
-<?php //Pressable Cache Management - Flush cache for a single page from page preview
+<?php //Pressable Cache Management - Flush cache for individual page from page preview
 
 
 $options = get_option('pressable_cache_management_options');

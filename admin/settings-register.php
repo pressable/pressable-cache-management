@@ -67,25 +67,36 @@ function pressable_cache_management_register_settings()
     add_settings_field('flush_cache_button', esc_html__('Flush Object Cache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_button', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_button', 'label' => esc_html__('Flush object cache (Database)', 'pressable_cache_management') ]);
 
     //Extend batache checkbox
-    add_settings_field('extend_batcache_checkbox', esc_html__('Extend Batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_extend_cache_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'extend_batcache_checkbox', 'label' => esc_html__('Extend the length of time a Batcache render is stored', 'pressable_cache_management') ]);
+    add_settings_field('extend_batcache_checkbox', esc_html__('Extend Batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_extend_cache_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'extend_batcache_checkbox', 'label' => esc_html__('Extend the length of time Batcache render is stored for additional 24 hours', 'pressable_cache_management') ]);
 
     //Flush object cache on theme or plugin update
-    add_settings_field('flush_cache_theme_plugin_checkbox', esc_html__('Flush Cache on Update', 'pressable_cache_management') , 'pressable_cache_management_callback_field_plugin_theme_update_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_theme_plugin_checkbox', 'label' => esc_html__('Flush batcache automatically on plugin & theme update', 'pressable_cache_management') ]);
+    add_settings_field('flush_cache_theme_plugin_checkbox', esc_html__('Flush Cache on Update', 'pressable_cache_management') , 'pressable_cache_management_callback_field_plugin_theme_update_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_theme_plugin_checkbox', 'label' => esc_html__('Flush cache automatically on plugin & theme update', 'pressable_cache_management') ]);
 
-    //Flush object cache on page or post checkbox
-    add_settings_field('flush_cache_page_edit_checkbox', esc_html__('Flush Cache on Edit', 'pressable_cache_management') , 'pressable_cache_management_callback_field_page_edit_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_page_edit_checkbox', 'label' => esc_html__('Flush Batcache automatically when new page/post is updated', 'pressable_cache_management') ]);
+    //Flush object cache on page, post_types or post edit 
+    add_settings_field('flush_cache_page_edit_checkbox', esc_html__('Flush Cache on Edit', 'pressable_cache_management') , 'pressable_cache_management_callback_field_page_edit_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_page_edit_checkbox', 'label' => esc_html__('Flush cache automatically when page/post/post_types are updated', 'pressable_cache_management') ]);
+	
+	 //Flush object cache on page/post/post_types delete 
+    add_settings_field('flush_cache_on_page_post_delete_checkbox', esc_html__('Flush Cache on Page Delete', 'pressable_cache_management') , 'pressable_cache_management_callback_field_page_post_delete_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_on_page_post_delete_checkbox', 'label' => esc_html__('Flush cache automatically when published page/post/post_types are deleted', 'pressable_cache_management') ]);
+	
+	//Flush cache when comment are deleted 
+    add_settings_field('flush_cache_on_comment_delete_checkbox', esc_html__('Flush Cache on comment Delete', 'pressable_cache_management') , 'pressable_cache_management_callback_field_comment_delete_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_cache_on_comment_delete_checkbox', 'label' => esc_html__('Flush cache automatically when comment is deleted', 'pressable_cache_management') ]);
 
-    //Flush cache for a single page
-    add_settings_field('flush_object_cache_for_single_page', esc_html__('Flush Batcache for single page', 'pressable_cache_management') , 'pressable_cache_management_callback_field_flush_batcache_particular_page_checbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_object_cache_for_single_page', 'label' => esc_html__('Flush batache cache for a particular page', 'pressable_cache_management') ]);
+    //Flush Batcache for individual pages
+    add_settings_field('flush_object_cache_for_single_page', esc_html__('Flush Batcache for Individual pages', 'pressable_cache_management') , 'pressable_cache_management_callback_field_flush_batcache_particular_page_checbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_object_cache_for_single_page', 'label' => esc_html__('Flush Batcache for individual pages', 'pressable_cache_management') ]);
+	
+	 //Cache pages which sets wpp_ cookies
+    add_settings_field('cache_wpp_cookies_pages', esc_html__('Caches WPP_ Cookie Page', 'pressable_cache_management') , 'pressable_cache_management_callback_field_cache_pages_that_sets_wpp_cookies_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'cache_wpp_cookies_pages', 'label' => esc_html__('Caches pages which set wpp_ cookies', 'pressable_cache_management') ]);
+	
+     //Exclude Google Ads URL's with query string gclid from Batcache
+    add_settings_field('exclude_query_string_gclid_checkbox', esc_html__('Exclude Google Ads query string gclid', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_query_string_gclid_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exclude_query_string_gclid_checkbox', 'label' => esc_html__('Exclude Google Ads URL with query string gclid from Batcache', 'pressable_cache_management') ]);
 
-    //  //Exempt from batache textbox
-    // add_settings_field('exempt_from_batcache', esc_html__('Exclude page from batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exempt_batcache_text', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exempt_from_batcache', 'label' => esc_html__('Exempt page from Batache ', 'pressable_cache_management') ]);
+     //Exempt pages from batache textbox
+   add_settings_field('exempt_from_batcache', esc_html__('Exclude Page from Batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exempt_batcache_text', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exempt_from_batcache', 'label' => esc_html__('To exclude multiple pages separate with comma  ex /home/, /about-us/, /info/', 'pressable_cache_management') ]);
     
 
-    /*
-    CDN Management Tab
-        
-    */
+    /*****************
+    CDN Management Tab  
+    *****************/
 
     //CDN Radio button
     $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
@@ -179,6 +190,20 @@ function pressable_cache_management_register_settings()
             }
 
         }
+		
+// 		//Todo:
+// 		//Exclude font files from CDN
+//         if (!empty($api_auth_tab_options['api_client_id']))
+//         {
+
+//             //Hide CDN option if CDN is disabled
+//             if ($cdn_tab_options && $hide_cdn_options == 'enable')
+//             {
+
+//                 add_settings_field('exclude_font_files_from_cdn', esc_html__('Exclude font file', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_font_files_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_font_files_from_cdn', 'label' => esc_html__('Exclude .woff, .woff2, .otf, .ttf, .eot files from CDN Caching', 'cdn_settings_tab') ]);
+//             }
+
+//         }
 
         //Exclude a particular file from CDN caching textbox
         if (!empty($api_auth_tab_options['api_client_id']))

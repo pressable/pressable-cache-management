@@ -43,7 +43,7 @@ if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude
     
 
     //Display admin notice
-    function exclude_img_from_cdn_admin_notice($message = '', $classes = 'notice-success')
+    function  exclude_img_files_from_cdn_admin_notice($message = '', $classes = 'notice-success')
     {
 
         if (!empty($message))
@@ -71,7 +71,7 @@ if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude
                 $user = $GLOBALS['current_user'];
                 $message = sprintf('<p>Excluded all .JPG .PNG .WEBP from CDN caching.</p>', $user->display_name);
 
-                exclude_img_from_cdn_admin_notice($message, 'notice notice-success is-dismissible');
+                exclude_img_files_from_cdn_admin_notice($message, 'notice notice-success is-dismissible');
             });
 
             update_option('exclude_images_from_cdn_activate_notice', 'activated');
@@ -96,4 +96,3 @@ else
         // File not found.
     }
 }
-

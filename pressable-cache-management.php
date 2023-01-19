@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Presable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      3.3.4
+Version:      3.3.5
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
@@ -22,11 +22,15 @@ if (!defined('ABSPATH'))
 
 }
 
-//Plugin can only work for site hosted on Pressable.
-if (!defined('IS_PRESSABLE'))
-    {
-        die("This plugin can only work for sites hosted on Pressable platform.");
-    }
+//Disable plugin automatically when used on another platform
+
+if ( ! defined( 'IS_PRESSABLE' ) ) {
+    add_action( 'admin_init', 'deactivate_plugin_if_not_pressable' );
+}
+
+function deactivate_plugin_if_not_pressable() {
+    deactivate_plugins( plugin_basename( __FILE__ ) );
+}
 
 
 // load text domain
@@ -52,23 +56,27 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_cdn_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_object_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/object_cache_admin_bar.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exempt_page_from_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_jpg_png_webp_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cdn_cache_extender.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_json_js_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_css_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_particular_file_from_cdn.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_pages_from_batcache.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cache_wpp_cookie_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_batcache_for_particular_page.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_comment_delete.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_query_string_gclid_from_cache.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_font_files_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/remove_pressable_branding.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/api_connection.php';
-
-   
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/api_connection.php'; 
 
 }
 
     //Added outside the above function to allow all themes access the hook automatically
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_edit.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_single_page_toolbar.php';
 
  /***********************************************
@@ -82,4 +90,3 @@ function pcm_settings_link($links) {
 }
 $pcm_plugin = plugin_basename(__FILE__); 
 add_filter("plugin_action_links_$pcm_plugin", 'pcm_settings_link' );
-

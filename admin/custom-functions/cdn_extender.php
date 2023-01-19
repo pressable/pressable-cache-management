@@ -8,25 +8,79 @@ Author: Pressable
 Author URI: https://pressable.com
 */
 
+
 function pressablecdn_template_redirect() {
-  ob_start();
   ob_start( 'pressablecdn_ob_call' );
   ob_flush();
 }
 
+
+/*********
+* This code is a WordPress function that is used to add a query string 
+* "extend_cdn" to the registered styles and scripts of the theme.
+**********/
+
+function pcm_append_querystring_theme_scripts() {
+    $extensions = array('.css','.js');
+    $styles = wp_styles();
+    foreach ($styles->registered as &$style) {
+        if(is_null($style->src) || empty($style->src)) continue;
+        // check if the src path contains any of the extensions
+        foreach($extensions as $ext){
+            if(strpos($style->src, $ext) !== false){
+                $style->src = add_query_arg( 'extend_cdn', '', $style->src );
+                break;
+            }
+        }
+    }
+
+    $scripts = wp_scripts();
+    foreach ($scripts->registered as &$script) {
+        if(is_null($script->src) || empty($script->src)) continue;
+        // check if the src path contains any of the extensions
+        foreach($extensions as $ext){
+            if(strpos($script->src, $ext) !== false){
+                $script->src = add_query_arg( 'extend_cdn', '', $script->src );
+                break;
+            }
+        }
+    }
+}
+add_action( 'wp_enqueue_scripts', 'pcm_append_querystring_theme_scripts', PHP_INT_MAX );
+
+ 
+/*********
+* This code uses a regular expression to search for <img and src attributes in the HTML 
+* And appends the query string ?extend_cdn before the file extension of the src attribute
+* value for <img> tags.
+**********/
+
 function pressablecdn_ob_call( $html ) {
-  $cdn_extensions = array('.jpg','.jpeg','.gif','.png','.css','.bmp','.js','.ico');
-  foreach ( $cdn_extensions as $cdn_extension ) {
-    $html = str_replace($cdn_extension, $cdn_extension.'?extend_cdn', $html);
-    
+  $html = preg_replace('/(<img[^>]+src[\s]*=[\s]*["\'])([^"\']+)(["\'])/i', '$1$2?extend_cdn$3', $html);
+	
+	/********** 
+   * The code searches for any <link> tags with href attributes containing certain font file types, 
+   * and appends the same query string "extend_cdn" to the value of the href attribute.
+   **********/
+	  $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
+	  
+	 /******
+     * Rename instances of jquery.js?extend_cdnon.min.js to 
+     * jquery.json.min.js to fix Gravityform jquery.json.min.js 
+     * file from 404'ing due to extend_cdn renianming it incorrectly. 
+     ****/
+	  $html  = str_replace("jquery.js?extend_cdnon.min.js","jquery.json.min.js", $html);
+
     /* Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug */
     $html  = str_replace("gtm.js?extend_cdn","gtm.js", $html);
 
-     /* Exclude any styles.css file from Pressable CDN to remove?extend_cdn from blog post with the word style.css */
+     /* Exclude any styles.css file from Pressable CDN to remove ?extend_cdn from blog post with the word style.css */
     $html  = str_replace("style.css?extend_cdn","style.css", $html);
-  }
+
+	
   return $html;
 }
+
 
 if( !is_admin() && strpos($_SERVER['REQUEST_URI'],"wp-admin") === false && strpos($_SERVER['REQUEST_URI'],"wp-login.php") === false ) {
   add_action( 'template_redirect', 'pressablecdn_template_redirect');

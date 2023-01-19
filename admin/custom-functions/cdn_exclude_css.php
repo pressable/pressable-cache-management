@@ -16,8 +16,7 @@ if (!defined('IS_PRESSABLE'))
 
     function pcm_css_cdn_exempter($output)
     {
-        //Commented out to prevent HTML Injection
-        // $output = html_entity_decode($output);
+        
         /*
          * The line below replaces everything it finds before the comma (,) with what we define after it.
          * In this case, that is replacing any CDN URL containing a specific file type extension or name with

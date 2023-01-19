@@ -23,8 +23,7 @@ if (!defined('IS_PRESSABLE'))
         $excluded_file = '';
     }
         
-        //Commented out to prevent HTML Injection
-        // $output = html_entity_decode($output);
+
 
      
         // $excluded_file = get_option('excluded_particular_file');

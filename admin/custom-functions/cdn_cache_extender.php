@@ -13,12 +13,12 @@ $options = get_option('cdn_settings_tab_options');
 if (isset($options['cdn_cache_extender']) && !empty($options['cdn_cache_extender']))
 {
 
-    $cdn_extender_plugin_file = WP_CONTENT_DIR . '/mu-plugins/cdn_extender.php';
+    $cdn_extender_plugin_file = WP_CONTENT_DIR . '/mu-plugins/pcm_cdn_extender.php';
     if (file_exists($cdn_extender_plugin_file)) { 
         // extender plugin already installed. 
     } else {
         $cdn_extender_plugin = plugin_dir_path(__FILE__) . '/cdn_extender.php';
-        $cdn_extender_plugin_active = WP_CONTENT_DIR . '/mu-plugins/cdn_extender.php';
+        $cdn_extender_plugin_active = WP_CONTENT_DIR . '/mu-plugins/pcm_cdn_extender.php';
 
          if(!copy($cdn_extender_plugin,$cdn_extender_plugin_active))
          {
@@ -57,9 +57,9 @@ if (isset($options['cdn_cache_extender']) && !empty($options['cdn_cache_extender
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-                $message = sprintf('<p>CDN Extender Enabled - This feature is a work in progress. If you notice any issues when enabled, please deactivate temporarily.</p>', $user->display_name);
+                $message = sprintf('<p>CDN Extender Enabled.</p>', $user->display_name);
 
-                ext_cdn_admin_notice($message, 'notice notice-warning is-dismissible');
+                ext_cdn_admin_notice($message, 'notice notice-success is-dismissible');
             });
 
             update_option('extend_cdn_activate_notice', 'activated');
@@ -76,7 +76,7 @@ else
         used by admin notice to display and remove notice**/
     update_option('extend_cdn_activate_notice', 'activating');
 
-    $cdn_extender_plugin_file = WP_CONTENT_DIR . '/mu-plugins/cdn_extender.php';
+    $cdn_extender_plugin_file = WP_CONTENT_DIR . '/mu-plugins/pcm_cdn_extender.php';
     if (file_exists($cdn_extender_plugin_file)) {
         unlink($cdn_extender_plugin_file);
     } else {
