@@ -48,7 +48,7 @@ function pcm_append_querystring_theme_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'pcm_append_querystring_theme_scripts', PHP_INT_MAX );
 
- 
+
 /*********
 * This code uses a regular expression to search for <img and src attributes in the HTML 
 * And appends the query string ?extend_cdn before the file extension of the src attribute
@@ -58,13 +58,14 @@ add_action( 'wp_enqueue_scripts', 'pcm_append_querystring_theme_scripts', PHP_IN
 function pressablecdn_ob_call( $html ) {
   $html = preg_replace('/(<img[^>]+src[\s]*=[\s]*["\'])([^"\']+)(["\'])/i', '$1$2?extend_cdn$3', $html);
 	
-	/********** 
+  /********** 
    * The code searches for any <link> tags with href attributes containing certain font file types, 
    * and appends the same query string "extend_cdn" to the value of the href attribute.
    **********/
 	  $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
+	
 	  
-	 /******
+    /******
      * Rename instances of jquery.js?extend_cdnon.min.js to 
      * jquery.json.min.js to fix Gravityform jquery.json.min.js 
      * file from 404'ing due to extend_cdn renianming it incorrectly. 
@@ -73,9 +74,6 @@ function pressablecdn_ob_call( $html ) {
 
     /* Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug */
     $html  = str_replace("gtm.js?extend_cdn","gtm.js", $html);
-
-     /* Exclude any styles.css file from Pressable CDN to remove ?extend_cdn from blog post with the word style.css */
-    $html  = str_replace("style.css?extend_cdn","style.css", $html);
 
 	
   return $html;
