@@ -22,19 +22,14 @@ if (!defined('IS_PRESSABLE'))
     {
         $excluded_file = '';
     }
-        
-
-
-     
+          
         // $excluded_file = get_option('excluded_particular_file');
-
         $excluded_file = preg_replace('/\s+/', '', $excluded_file);
         stripslashes(rtrim($excluded_file,  '/'));
 
         $output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com(.*)(' . get_option('excluded_particular_file') .')/i', $_SERVER['SERVER_NAME'] . '/$1$2', $output);
         return $output;
     }
-
 
     function pcm_custom_template_redirect()
     {
