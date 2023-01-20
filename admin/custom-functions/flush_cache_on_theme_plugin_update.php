@@ -17,7 +17,7 @@ if (isset($options['flush_cache_theme_plugin_checkbox']) && !empty($options['flu
 
     function pcm_plugins_themes_update_completed($upgrader_object, $options)
     {
-
+        $type = $options['type'];
         if ($type === 'plugin' || $type === 'theme');
        
         wp_cache_flush();
