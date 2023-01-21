@@ -1,4 +1,5 @@
 <?php // Custom function - Add custom functions to flush cache on page, post and custom post_types on edit
+
 // disable direct file access
 if (!defined("ABSPATH"))
 {
@@ -17,18 +18,18 @@ if (isset($options["flush_cache_page_edit_checkbox"]) && !empty($options["flush_
         {
             if ($post->post_type === "post")
             {
-                $object_cache_flush_time_post = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit</b>";
+                $object_cache_flush_time_post = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
                 update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_post);
             }
             elseif ($post->post_type === "page")
             {
-                $object_cache_flush_time_page = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit</b>";
+                $object_cache_flush_time_page = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
                 update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_page);
             }
         }
         else
         {
-            $object_cache_flush_time_post_type = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit</b>";
+            $object_cache_flush_time_post_type = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
             update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_post_type);
         }
     }
