@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Presable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      3.3.5
+Version:      3.3.6
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
@@ -69,7 +69,7 @@ if (is_admin())
 	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_query_string_gclid_from_cache.php';
 	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_font_files_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/remove_pressable_branding.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/api_connection.php'; 
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/api_connection.php';
 
 }
 
@@ -83,10 +83,10 @@ if (is_admin())
  * Adds settings link to plugin from plugin view
  ************************************************/
 
-function pcm_settings_link($links) { 
-  $settings_link = '<a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab">Settings</a>'; 
-  array_unshift($links, $settings_link); 
-  return $links; 
+function pcm_settings_link($links) {
+  $settings_link = '<a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab">Settings</a>';
+  array_unshift($links, $settings_link);
+  return $links;
 }
-$pcm_plugin = plugin_basename(__FILE__); 
+$pcm_plugin = plugin_basename(__FILE__);
 add_filter("plugin_action_links_$pcm_plugin", 'pcm_settings_link' );
