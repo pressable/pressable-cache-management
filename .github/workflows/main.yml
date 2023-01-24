@@ -4,7 +4,14 @@ on:
     branches:
       - main
 
-permissions: write-all
+# Be sure to update these environment variables
+# before pushing a new project with these build files.
+env:
+  PROJECT_NAME: pressable-cache-management
+  VERSION_FILE_PATH: './pressable-cache-management.php'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -21,7 +28,7 @@ jobs:
           ruby-version: '3.1.3'
           bundler-cache: true
       - name: Build project zip # This would actually build your project, using zip for an example artifact
-        run: git archive --format zip --output pressable-cache-management.zip --prefix pressable-cache-management/ main -0 # Build the zip, use the excludes file for zipping.
+        run: git archive --format zip --output ${{ env.PROJECT_NAME }}.zip --prefix ${{ env.PROJECT_NAME }}/ main -0 # Build the zip, use the excludes file for zipping.
       - name: Install dependencies
         run: |-
           gem install octokit
@@ -30,7 +37,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO_NAME: ${{ github.repository }}
           REPO_SHA: ${{ github.sha }}
-          VERSION_FILE_PATH: './pressable-cache-management.php'
-          ZIP_FILE_NAME: 'pressable-cache-management.zip'
-          PROJECT_ZIP_NAME: 'pressable-cache-management.zip'
+          VERSION_FILE_PATH: ${{ env.VERSION_FILE_PATH }}
+          ZIP_FILE_NAME: ${{ env.PROJECT_NAME }}.zip
+          PROJECT_ZIP_NAME: ${{ env.PROJECT_NAME }}.zip
         run: ruby ./.github/workflows/build.rb
