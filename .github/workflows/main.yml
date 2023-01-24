@@ -1,0 +1,36 @@
+name: PackageReleasePluginCI
+on:
+  push:
+    branches:
+      - main
+
+permissions: write-all
+
+jobs:
+  build:
+    name: Package Release Project
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1.3'
+          bundler-cache: true
+      - name: Build project zip # This would actually build your project, using zip for an example artifact
+        run: git archive --format zip --output pressable-cache-management-plugin.zip main -0 # Build the zip, use the excludes file for zipping.
+      - name: Install dependencies
+        run: |-
+          gem install octokit
+      - name: Run the ruby build file
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO_NAME: ${{ github.repository }}
+          REPO_SHA: ${{ github.sha }}
+          VERSION_FILE_PATH: './pressable-cache-management.php'
+          ZIP_FILE_NAME: 'pressable-cache-management-plugin.zip'
+          PROJECT_ZIP_NAME: 'pressable-cache-management-plugin.zip'
+        run: ruby ./.github/workflows/build.rb
