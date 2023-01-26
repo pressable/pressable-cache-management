@@ -158,7 +158,7 @@ function pressable_cache_management_register_settings()
             if ($cdn_tab_options && $hide_cdn_options == 'enable')
             {
 
-                add_settings_field('exclude_jpg_png_webp_from_cdn', esc_html__('Exlude image file', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_cdn_image_webp_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_jpg_png_webp_from_cdn', 'label' => esc_html__('Exclude .JPG, .PNG, WEBP files from CDN Caching', 'cdn_settings_tab') ]);
+                add_settings_field('exclude_jpg_png_webp_from_cdn', esc_html__('Exlude Image File', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_cdn_image_webp_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_jpg_png_webp_from_cdn', 'label' => esc_html__('Exclude .JPG, .PNG, GIF, WEBP files from CDN Caching', 'cdn_settings_tab') ]);
             }
 
         }
@@ -172,7 +172,7 @@ function pressable_cache_management_register_settings()
             if ($cdn_tab_options && $hide_cdn_options == 'enable')
             {
 
-                add_settings_field('exclude_json_js_from_cdn', esc_html__('Exclude .json and .js file', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_json_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_json_js_from_cdn', 'label' => esc_html__('Exclude all .json and .js files from CDN Caching', 'cdn_settings_tab') ]);
+                add_settings_field('exclude_json_js_from_cdn', esc_html__('Exclude .JSON and .JS File', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_json_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_json_js_from_cdn', 'label' => esc_html__('Exclude all .json and .js files from CDN Caching', 'cdn_settings_tab') ]);
             }
 
         }
@@ -186,7 +186,7 @@ function pressable_cache_management_register_settings()
             if ($cdn_tab_options && $hide_cdn_options == 'enable')
             {
 
-                add_settings_field('exclude_css_from_cdn', esc_html__('Exclude .css file', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_json_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_css_from_cdn', 'label' => esc_html__('Exclude all .css files from CDN Caching', 'cdn_settings_tab') ]);
+                add_settings_field('exclude_css_from_cdn', esc_html__('Exclude .CSS File', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_json_checkbox', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_css_from_cdn', 'label' => esc_html__('Exclude all .css files from CDN Caching', 'cdn_settings_tab') ]);
             }
 
         }
@@ -214,7 +214,7 @@ function pressable_cache_management_register_settings()
             if ($cdn_tab_options && $hide_cdn_options == 'enable')
             {
 
-                add_settings_field('exclude_particular_file_from_cdn', esc_html__('Exclude a particular file', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_partucular_file_text', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_particular_file_from_cdn', 'label' => esc_html__('To exclude multiple files separate with | eg template.js|style.css', 'cdn_settings_tab') ]);
+                add_settings_field('exclude_particular_file_from_cdn', esc_html__('Exclude a Particular File', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_partucular_file_text', 'cdn_settings_tab', 'pressable_cache_management_section_cdn', ['id' => 'exclude_particular_file_from_cdn', 'label' => esc_html__('To exclude multiple files separate with | eg template.js|style.css', 'cdn_settings_tab') ]);
             }
 
         }
