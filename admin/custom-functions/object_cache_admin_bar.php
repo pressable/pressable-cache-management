@@ -76,7 +76,7 @@ if ($remove_pressable_branding_tab_options && 'disable'  == $remove_pressable_br
 
             $wp_admin_bar->add_menu(array(
                 'id' => 'cache-purge',
-                'title' => 'Purge Cache',
+                'title' => 'Purge Object Cache',
                 'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
                 'meta' => array(
                     "class" => "pcm-wp-admin-toolbar-child"
@@ -126,7 +126,7 @@ else
 
             $wp_admin_bar->add_menu(array(
                 'id' => 'cache-purge',
-                'title' => 'Purge Cache',
+                'title' => 'Purge Object Cache',
                 'parent' => 'pcm-wp-admin-toolbar-parent',
                 'meta' => array(
                     "class" => "pcm-wp-admin-toolbar-child"
