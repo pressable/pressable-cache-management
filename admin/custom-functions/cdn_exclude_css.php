@@ -14,6 +14,7 @@ if (!defined('IS_PRESSABLE'))
     }
 
 
+
     function pcm_css_cdn_exempter($output)
     {
         
@@ -29,9 +30,11 @@ if (!defined('IS_PRESSABLE'))
          * To exclude a specific file, replace (exclude_jpg_png_webp_from_cdn) with (filename.ext) - e.g. (fusion-column-bg-image.js).
          * $1$2 combines the values of (.*) and (exclude_jpg_png_webp_from_cdn) to form a complete file path (e.g. /wp-content/uploads/2021/02/fileexclude_jpg_png_webp_from_cdn).
         */
-        // $output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com(.*)(exclude_jpg_png_webp_from_cdn)/i', $_SERVER['SERVER_NAME'] . '/$1$2', $output);
-        // return $output;
+
         $output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com(.*)(exclude_css_from_cdn|.css)/i', $_SERVER['SERVER_NAME'] . '$1$2', $output);
+		
+		//Remove instances of extend_cdn query string to exempt .js from CDN once it is excluded from CDN
+    $output = str_replace("?extend_cdn&#038;", "?", $output);
         
         return $output;
     }
