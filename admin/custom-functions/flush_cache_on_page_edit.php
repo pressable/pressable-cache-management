@@ -6,6 +6,14 @@ if (!defined("ABSPATH"))
     exit();
 }
 
+
+/**
+ * This function is triggered when a post or page is edited in a Wordpress site.
+ * The function first flushes the cache using the "wp_cache_flush" function.
+ * It then checks the type of post that was edited (either "post" or "page") and sets 
+ * a time stamp for when the cache was last flushed.
+*/
+
 $options = get_option("pressable_cache_management_options");
 
 // Get checkbox options and check if is not empty
