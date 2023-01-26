@@ -1,4 +1,4 @@
-<?php // Pressable Cache Management - Exclude .JPG .PNG .WEBP from CDN caching
+<?php // Pressable Cache Management - Exclude .JPG .PNG .GIF .WEBP from CDN caching
 
 
 // disable direct file access
@@ -69,7 +69,7 @@ if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-                $message = sprintf('<p>Excluded all .JPG .PNG .WEBP from CDN caching.</p>', $user->display_name);
+                $message = sprintf('<p>Excluded all .JPG .PNG .GIF .WEBP from CDN Caching.</p>', $user->display_name);
 
                 exclude_img_files_from_cdn_admin_notice($message, 'notice notice-success is-dismissible');
             });
