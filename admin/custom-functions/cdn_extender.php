@@ -65,6 +65,8 @@ $html = preg_replace('/(<img[^>]+src[\s]*=[\s]*["\'])(https?:\/\/[^\s"\']+pressa
    **********/
    
    $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
+   //$html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])(https?:\/\/' . DB_NAME . '.v2.pressablecdn.com\/)([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2$3?extend_cdn$5', $html);
+  
   
     /******
      * Rename instances of jquery.js?extend_cdnon.min.js to 
