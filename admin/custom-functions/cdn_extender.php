@@ -13,10 +13,9 @@ function pressablecdn_template_redirect() {
   ob_start( 'pressablecdn_ob_call' );
   ob_flush();
 }
-
-
+	 
 /*********
-* This code is a WordPress function that is used to add a query string 
+* This code is a WordPress function that is used to append a query string 
 * "extend_cdn" to the registered styles and scripts of the theme.
 **********/
 
@@ -52,19 +51,21 @@ add_action( 'wp_enqueue_scripts', 'pcm_append_querystring_theme_scripts', PHP_IN
 /*********
 * This code uses a regular expression to search for <img and src attributes in the HTML 
 * And appends the query string ?extend_cdn before the file extension of the src attribute
-* value for <img> tags.
+* value for <img> tags. The code only appends the query string to  URL's with pressablecdn.com
 **********/
 
 function pressablecdn_ob_call( $html ) {
-  $html = preg_replace('/(<img[^>]+src[\s]*=[\s]*["\'])([^"\']+)(["\'])/i', '$1$2?extend_cdn$3', $html);
+
+$html = preg_replace('/(<img[^>]+src[\s]*=[\s]*["\'])(https?:\/\/[^\s"\']+pressablecdn\.com[^"\']+)(["\'])/i', '$1$2?extend_cdn$3', $html);
+
 	
   /********** 
    * The code searches for any <link> tags with href attributes containing certain font file types, 
    * and appends the same query string "extend_cdn" to the value of the href attribute.
    **********/
-	  $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
-	
-	  
+   
+   $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
+  
     /******
      * Rename instances of jquery.js?extend_cdnon.min.js to 
      * jquery.json.min.js to fix Gravityform jquery.json.min.js 
@@ -79,6 +80,7 @@ function pressablecdn_ob_call( $html ) {
   return $html;
 }
 
+// }
 
 if( !is_admin() && strpos($_SERVER['REQUEST_URI'],"wp-admin") === false && strpos($_SERVER['REQUEST_URI'],"wp-login.php") === false ) {
   add_action( 'template_redirect', 'pressablecdn_template_redirect');
