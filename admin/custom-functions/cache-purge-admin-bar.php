@@ -1,15 +1,13 @@
-<?php
-/*
-Plugin Name: Pressable Cache Purge
-Plugin URI: https://pressable.com
-Description: Adds a Cache Purge button to the admin bar
-Author: Jess Nunez
-Version: 1.0.0
-Author URI: https://pressable.com/
-License: GPL2
-*/
+<?php  //Pressable Cache Purge Adds a Cache Purge button to the admin bar
 
 
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
 
 add_action( 'admin_bar_menu', 'cache_add_item', 100 );
 
@@ -75,5 +73,3 @@ function pressable_cache_purge_callback() {
 	echo $response;
 	wp_die();
 }
-
-
