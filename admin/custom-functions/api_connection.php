@@ -10,18 +10,19 @@ if (!defined('ABSPATH'))
 }
 
 
-$authentication_options = get_option('pressable_api_authentication_tab_options');
+
+$pcm_api_authentication_options = get_option('pressable_api_authentication_tab_options');
 
 //Show warning message if credentials is not entered before connecting
 if (isset($_POST['connect_api_nonce']))
 {
-    $authentication_options = get_option('pressable_api_authentication_tab_options');
+    $pcm_api_authentication_options = get_option('pressable_api_authentication_tab_options');
 
     //Declear api_client_id and api_client_secret as null if empty in the array
-    if (!isset($authentication_options['api_client_id'])) $authentication_options['api_client_id'] = '';
-    if (!isset($authentication_options['api_client_secret'])) $authentication_options['api_client_secret'] = '';
+    if (!isset($pcm_api_authentication_options['api_client_id'])) $pcm_api_authentication_options['api_client_id'] = '';
+    if (!isset($pcm_api_authentication_options['api_client_secret'])) $pcm_api_authentication_options['api_client_secret'] = '';
 
-    if ($authentication_options['api_client_id'] == null || $authentication_options['api_client_secret'] == null)
+    if ($pcm_api_authentication_options['api_client_id'] == null || $pcm_api_authentication_options['api_client_secret'] == null)
     {
 
         function pressable_api_connection_save_response()
@@ -120,11 +121,11 @@ add_action('init', 'disconnect_api_nonce');
 //  }
 //  }
 // add_action('init','connect_api_nonce');
-if (isset($authentication_options['pressable_site_id'], $authentication_options['api_client_id'], $authentication_options['api_client_secret'], $_POST['connect_api_nonce']) && !empty($authentication_options['pressable_site_id']))
+if (isset($pcm_api_authentication_options['pressable_site_id'], $pcm_api_authentication_options['api_client_id'], $pcm_api_authentication_options['api_client_secret'], $_POST['connect_api_nonce']) && !empty($pcm_api_authentication_options['pressable_site_id']))
 {
     //Defining client id and client secret
-    $client_id = $authentication_options['api_client_id'];
-    $client_secret = $authentication_options['api_client_secret'];
+    $client_id = $pcm_api_authentication_options['api_client_id'];
+    $client_secret = $pcm_api_authentication_options['api_client_secret'];
 
     //Query the api to auto generate a bearer token
     $response = wp_remote_post('https://my.pressable.com/auth/token', array(
@@ -163,7 +164,7 @@ if (isset($authentication_options['pressable_site_id'], $authentication_options[
     set_transient('access_token', $access_token, $token_expires_in);
 
     //If connection status is empty or incorrect don't display api connection error message
-    if ($authentication_options['api_client_id'] == null || $authentication_options['api_client_secret'] == null)
+    if ($pcm_api_authentication_options['api_client_id'] == null || $pcm_api_authentication_options['api_client_secret'] == null)
     {
 
         return;
@@ -272,12 +273,12 @@ $results = $access_token;
 //Get access token from database
 $access_token = get_transient('access_token');
 
-$authentication_options = get_option('pressable_api_authentication_tab_options');
+$pcm_api_authentication_options = get_option('pressable_api_authentication_tab_options');
 
-if ($authentication_options)
+if ($pcm_api_authentication_options)
 {
 
-    $pressable_site_id = $authentication_options['pressable_site_id'];
+    $pressable_site_id = $pcm_api_authentication_options['pressable_site_id'];
 
     //Connecting to Pressable API
     $pressable_api_request_headers = array(
