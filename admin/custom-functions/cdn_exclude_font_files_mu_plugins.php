@@ -1,5 +1,13 @@
 <?php // Pressable Cache Management - Exclude .woff .woff2 .otf .ttf, eot from CDN caching
 
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
+
 
 if (!defined('IS_PRESSABLE'))
     {
