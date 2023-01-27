@@ -8,7 +8,7 @@ Version:      3.3.8
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
-Text Domain:  pressable-cache-management
+Text Domain:  pressable_cache_management
 Domain Path:  /languages
 License:      GPL v2 or later
 License URI:  https://www.gnu.org/licenses/gpl-2.0.txt
