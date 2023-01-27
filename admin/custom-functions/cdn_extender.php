@@ -1,13 +1,13 @@
-<?php
-/*
-Plugin Name: Pressable CDN Extender
-Plugin URI: https://pressable.com/knowledgebase/modify-cache-control-header-pressable/
-Description: Extend Pressable's cache-control from 7 days until 10 years for static assets
-Version: 1.0
-Author: Pressable
-Author URI: https://pressable.com
-*/
+<?php  //Extend Pressable's cache-control from 7 days until 10 years for static assets
 
+
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
 
 function pressablecdn_template_redirect() {
   ob_start( 'pressablecdn_ob_call' );
