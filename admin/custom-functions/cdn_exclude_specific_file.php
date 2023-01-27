@@ -1,12 +1,13 @@
-<?php
-/*
-Plugin Name: Exclude specific files from the CDN
-Plugin URI: https://pressable.com
-Description: Exempt specific files from the Pressable CDN
-Version: 1.0.1
-Author: Pressable
-Author URI: https://pressable.com
-*/
+<?php  //Exempt specific files from the Pressable CDN
+
+
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
 
 if (!defined('IS_PRESSABLE'))
 {
