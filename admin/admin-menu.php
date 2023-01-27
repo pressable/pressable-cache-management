@@ -27,7 +27,7 @@ function pressable_cache_management_add_sublevel_menu()
     
     */
 
-    add_submenu_page('admin.php', esc_html__('', 'pressable_cache_management') , esc_html__('Pressable Cache Management', 'pressable_cache_management') , 'manage_options', 'pressable_cache_management', 'pressable_cache_management_display_settings_page');
+	add_submenu_page('admin.php', '', 'Pressable Cache Management', 'manage_options', 'pressable_cache_management', 'pressable_cache_management_display_settings_page');
 
 }
 add_action('admin_menu', 'pressable_cache_management_add_sublevel_menu');
@@ -106,4 +106,3 @@ function plugin_admin_notice()
     }
 }
 add_action('admin_notices', 'plugin_admin_notice');
-
