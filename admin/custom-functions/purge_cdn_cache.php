@@ -158,9 +158,6 @@ elseif (isset($_POST['purge_cache_nonce']))
                     return;
                 }
 
-                //Convert array to json format
-                $results = json_decode($results, true);
-
                 /******************************************
                  * Set transient to expire access token in
                  * one hour by default the Pressable API
