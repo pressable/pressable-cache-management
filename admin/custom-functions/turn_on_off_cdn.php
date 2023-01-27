@@ -1,6 +1,15 @@
 <?php //Pressable Cache Management - Custom function to turn on/off CDN
 
 
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
+
+
 /******************************
  * Activate CDN Option
  *******************************/
@@ -133,21 +142,21 @@ if (isset($_POST['enable_cdn_nonce']))
         $client_secret = $api_auth_tab_options['api_client_secret'];
         $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
 
-        //Query the api to auto generate bearer token
-        $curl = curl_init();
-        $auth_data = array(
-            'client_id' => $client_id,
-            'client_secret' => $client_secret,
-            'grant_type' => 'client_credentials'
-        );
-        curl_setopt($curl, CURLOPT_POST, 1);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $auth_data);
-        curl_setopt($curl, CURLOPT_URL, 'https://my.pressable.com/auth/token');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-        $results = curl_exec($curl);
-        // if(!$results){die("Connection Failure");}
-        curl_close($curl);
+        $response = wp_remote_post('https://my.pressable.com/auth/token', array(
+            'body' => array(
+                'client_id' => $client_id,
+                'client_secret' => $client_secret,
+                'grant_type' => 'client_credentials'
+            )
+        ));
+
+        $results = json_decode(wp_remote_retrieve_body($response) , true);
+
+        // handle any errors returned from the API
+        if (is_wp_error($response))
+        {
+            return;
+        }
 
         //Display admin notice error messsage if connection unsuccessful
         if (!$results)
@@ -335,7 +344,7 @@ if (isset($_POST['disable_cdn_nonce']))
                         if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
                         $user = $GLOBALS['current_user'];
                         $class = 'notice notice-error is-dismissible';
-                        $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin..', 'pressable_cache_management', $user->display_name);
+                        $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin.', 'pressable_cache_management', $user->display_name);
 
                         printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
                     }
@@ -414,22 +423,24 @@ if (isset($_POST['disable_cdn_nonce']))
                     $client_id = $api_auth_tab_options['api_client_id'];
                     $client_secret = $api_auth_tab_options['api_client_secret'];
 
-                    //query the api to auto generate bearer token
-                    $curl = curl_init();
-                    $auth_data = array(
-                        'client_id' => $client_id,
-                        'client_secret' => $client_secret,
-                        'grant_type' => 'client_credentials'
-                    );
-                    curl_setopt($curl, CURLOPT_POST, 1);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $auth_data);
-                    curl_setopt($curl, CURLOPT_URL, 'https://my.pressable.com/auth/token');
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                    $results = curl_exec($curl);
+                    //Query the api to auto generate bearer token
+                    $response = wp_remote_post('https://my.pressable.com/auth/token', array(
+                        'body' => array(
+                            'client_id' => $client_id,
+                            'client_secret' => $client_secret,
+                            'grant_type' => 'client_credentials'
+                        )
+                    ));
 
-                    curl_close($curl);
-                    //If the query fails display admin notice error messsage
+                    $results = json_decode(wp_remote_retrieve_body($response) , true);
+
+                    // handle any errors returned from the API
+                    if (is_wp_error($response))
+                    {
+                        return;
+                    }
+
+                    //If the query fils display admin notice error messsage
                     if (!$results)
                     {
 
