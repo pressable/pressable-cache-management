@@ -375,7 +375,7 @@ if (isset($_POST['disable_cdn_nonce']))
                         if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
                         $user = $GLOBALS['current_user'];
                         $class = 'notice notice-warning is-dismissible';
-                        $message = __('CDN Deactivated - It is always recommended to turn on your CDN for best caching experience.', 'pressable_cache_management', $user->display_name);
+                        $message = __('CDN Deactivated - It is always recommended to turn on your CDN for best caching experience.', 'pressable_cache_management');
 
                         printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
                     }
