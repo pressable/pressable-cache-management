@@ -23,7 +23,6 @@ function pressable_cache_button() {
     
         wp_cache_flush();
      
-        set_transient( 'set_transient_button', 50);
 
     }
 }
@@ -34,7 +33,7 @@ add_action( 'wp_before_admin_bar_render', 'pressable_cache_button', 999 );
 function flush_cache_notice__success() {?>
 
     <div class="notice notice-success is-dismissible">
-        <p><?php _e( 'Object Cache Flushed Successfully.', 'sample-text-domain' ); ?></p>
+        <p><?php _e( 'Object Cache Flushed Successfully.', 'pressable-cache-management' ); ?></p>
     </div>
     <?php
 }
@@ -47,5 +46,3 @@ add_action( 'admin_notices', 'flush_cache_notice__success' );
 
 
     }
-
-
