@@ -27,16 +27,13 @@ function pressable_cache_management_display_settings_page()
   
   <?php
 
-    $remove_pressable_branding_tab_options = false;
+   $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
-    $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
-
-    if ($remove_pressable_branding_tab_options)
-    {
-
-    }
 ?>
-  <div class="wrap branding-<?php $remove_pressable_branding_tab_options; ?>">
+ 
+	 <div class="wrap branding-<?php echo (is_array($remove_pressable_branding_tab_options)) ? esc_html(json_encode($remove_pressable_branding_tab_options)) : esc_html($remove_pressable_branding_tab_options); ?>">
+
+
 
     <!-- Print the page title -->
     <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
@@ -51,7 +48,7 @@ function pressable_cache_management_display_settings_page()
     endif; ?>">API Authentication</a>
    
     <!-- Hidden from the plugin view can be accessed from the love icon below the plugin footer -->
-      <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" class="nav-tab nav-tab-hidden <?php if ($tab === null): ?>nav-tab-active<?php
+      <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" class="nav-tab nav-tab-hidden <?php if ($tab === 'remove_pressable_branding_tab'): ?>nav-tab-active<?php
     endif; ?>">Hidden Tab Remove Branding</a>
     </nav>
 
@@ -127,7 +124,7 @@ function pressable_cache_management_display_settings_page()
         submit_button('Save Settings', 'custom-class');
     }
 
-    // //enque css script
+    //enque css script
     wp_enqueue_style('pressable_cache_management', plugin_dir_url(dirname(__FILE__)) . 'public/css/style.css', array() , null, 'screen');
 
 ?>
