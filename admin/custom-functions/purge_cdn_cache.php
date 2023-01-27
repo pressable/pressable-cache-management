@@ -1,5 +1,12 @@
 <?php // Pressable Cache Management - Purge CDN Cache
 
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
 
 /**********************************************
  * Check if access token is valid and if access
@@ -89,7 +96,7 @@ if (isset($_POST['purge_cache_nonce']) && time() < $check_access_token_expiry &&
                     if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
                     $user = $GLOBALS['current_user'];
                     $class = 'notice notice-error is-dismissible';
-                     $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin', 'pressable_cache_management', $user->display_name);
+                    $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin', 'pressable_cache_management', $user->display_name);
 
                     printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
                 }
@@ -130,26 +137,26 @@ elseif (isset($_POST['purge_cache_nonce']))
                 $client_secret = $api_auth_tab_options['api_client_secret'];
 
                 //Generating new access token
-                $curl = curl_init();
-                $auth_data = array(
-                    'client_id' => $client_id,
-                    'client_secret' => $client_secret,
-                    'grant_type' => 'client_credentials'
-                );
-                curl_setopt($curl, CURLOPT_POST, 1);
-                curl_setopt($curl, CURLOPT_POSTFIELDS, $auth_data);
-                curl_setopt($curl, CURLOPT_URL, 'https://my.pressable.com/auth/token');
-                curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-                $results = curl_exec($curl);
+                $response = wp_remote_post('https://my.pressable.com/auth/token', array(
+                    'body' => array(
+                        'client_id' => $client_id,
+                        'client_secret' => $client_secret,
+                        'grant_type' => 'client_credentials'
+                    )
+                ));
 
+                $results = json_decode(wp_remote_retrieve_body($response) , true);
+
+                // Handle any errors returned from the API
+                if (is_wp_error($response))
+                {
+                    return;
+                }
                 //Terminate if no connection
                 if (!$results)
                 {
                     return;
                 }
-
-                curl_close($curl);
 
                 //Convert array to json format
                 $results = json_decode($results, true);
