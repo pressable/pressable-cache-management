@@ -1,4 +1,15 @@
 <?php //Pressable Cache Management Plugin - API Connection
+
+
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
+
+
 $authentication_options = get_option('pressable_api_authentication_tab_options');
 
 //Show warning message if credentials is not entered before connecting
