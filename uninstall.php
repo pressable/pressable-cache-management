@@ -42,9 +42,11 @@ delete_option('flush-object-cache-for-single-page-notice');
 delete_option('exempt_batcache_activate_notice');
 delete_option('flush-object-cache-for-single-page-time-stamp');
 delete_option('exclude_json_js_from_cdn_activate_notice');
-delete_option('extend_batcache_activate_notice');
+delete_option('exempt_from_batcache');
 delete_option('exclude_css_from_cdn_activate_notice');
 delete_option('remove_pressable_branding_tab_options');
+delete_option('cache_wpp_cookies_pages_activate_notice');
+delete_option('exclude_fonts_from_cdn_activate_notice');
 delete_option('pcm_site_id_added_activate_notice');
 delete_option('pcm_site_id_con_res');
 delete_option('cdnenabled');
@@ -54,5 +56,3 @@ delete_option('pcm_client_secret');
 delete_option('single-page-path-url');
 delete_option('page-title');
 delete_option('page-url');
-
-
