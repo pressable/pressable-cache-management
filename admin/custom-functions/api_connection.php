@@ -1,5 +1,4 @@
 <?php //Pressable Cache Management Plugin - API Connection
-
 $authentication_options = get_option('pressable_api_authentication_tab_options');
 
 //Show warning message if credentials is not entered before connecting
@@ -116,19 +115,22 @@ if (isset($authentication_options['pressable_site_id'], $authentication_options[
     $client_id = $authentication_options['api_client_id'];
     $client_secret = $authentication_options['api_client_secret'];
 
-    //query the api to auto generate bearer token
-    $curl = curl_init();
-    $auth_data = array(
-        'client_id' => $client_id,
-        'client_secret' => $client_secret,
-        'grant_type' => 'client_credentials'
-    );
-    curl_setopt($curl, CURLOPT_POST, 1);
-    curl_setopt($curl, CURLOPT_POSTFIELDS, $auth_data);
-    curl_setopt($curl, CURLOPT_URL, 'https://my.pressable.com/auth/token');
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-    curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
-    $results = curl_exec($curl);
+    //Query the api to auto generate a bearer token
+    $response = wp_remote_post('https://my.pressable.com/auth/token', array(
+        'body' => array(
+            'client_id' => $client_id,
+            'client_secret' => $client_secret,
+            'grant_type' => 'client_credentials'
+        )
+    ));
+
+    //Handle any errors returned from the API
+    if (is_wp_error($response))
+    {
+        return;
+    }
+
+    $results = json_decode(wp_remote_retrieve_body($response) , true);
 
     //Terminate if no connection
     if (!$results)
@@ -136,10 +138,8 @@ if (isset($authentication_options['pressable_site_id'], $authentication_options[
         return;
     }
 
-    curl_close($curl);
-
     //Convert array to json format
-    $results = json_decode($results, true);
+    $json_results = json_encode($results);
 
     //Define expires_in and access_token as empty if not found in array
     if (!isset($results["expires_in"])) $results["expires_in"] = '';
