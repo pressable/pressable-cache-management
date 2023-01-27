@@ -183,7 +183,6 @@ if (isset($_POST['enable_cdn_nonce']))
             "error_description" => "error_description"
         );
 
-        $results = json_decode($results, true);
 
         //Set transient to expire access token in one hour
         $access_token_expiry = time() + $results["expires_in"];
@@ -470,7 +469,6 @@ if (isset($_POST['disable_cdn_nonce']))
                         "error_description" => "error_description"
                     );
 
-                    $results = json_decode($results, true);
 
                     //terminate process if not connected to pressable api
                     if (in_array("invalid_client", $results))
