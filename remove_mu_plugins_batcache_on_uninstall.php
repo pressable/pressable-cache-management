@@ -11,7 +11,7 @@ if (!defined('ABSPATH'))
 */
 
 //Remove  Pressable Cache Management mu-plugin index
-$pcm_mu_plugin_index = WP_CONTENT_DIR . '/pressable_cache_management_mu_plugin_index.php';
+$pcm_mu_plugin_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
 if (file_exists($pcm_mu_plugin_index ))
 {
     unlink($pcm_mu_plugin_index );
