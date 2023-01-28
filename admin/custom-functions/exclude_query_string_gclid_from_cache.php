@@ -1,5 +1,6 @@
 <?php // Pressable Cache Management  - Exclude Google Ads URL's with query string gclid from Batcache
 
+
 // disable direct file access
 if (!defined('ABSPATH'))
 {
@@ -13,12 +14,23 @@ $options = get_option('pressable_cache_management_options');
 if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['exclude_query_string_gclid_checkbox']))
 {
 
+    //Create the pressable-cache-management mu-plugin index file
+    $pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
+    if (!file_exists($pcm_mu_plugins_index))
+    {
+        // Copy pressable-cache-management.php from plugin directory to mu-plugins directory
+        copy(plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+    }
 
-    //Declear variable so that it can be accessed from 
+    // Check if the pressable-cache-management directory exists or create the folder
+    if (!file_exists(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/'))
+    {
+        //create the directory
+        wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
+    }
+
+    //Declear variable so that it can be accessed from
     $exclude_query_string_gclid = get_option('exclude_query_string_gclid');
-
-  
-
 
     //Exclude specific files from CDN caching
     $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
@@ -29,7 +41,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
     else
     {
         $obj_exclude_query_string_gclid = plugin_dir_path(__FILE__) . '/exclude_query_string_gclid_from_cache_mu_plugin.php';
-        
+
         $obj_exclude_query_string_gclid_active = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
 
         if (!copy($obj_exclude_query_string_gclid, $obj_exclude_query_string_gclid_active))
@@ -41,9 +53,8 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
 
         }
     }
-    
-    
-      //Display admin notice
+
+    //Display admin notice
     function exclude_query_string_gclid_admin_notice($message = '', $classes = 'notice-success')
     {
 
@@ -81,17 +92,14 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
     }
     add_action('init', 'pcm_exclude_query_string_gclid_admin_notice');
 
-    
-    
 }
 else
 {
-    
-    
+
     /**Update option from the database if the option is deactivated
      used by admin notice to display and remove notice**/
     update_option('exclude_query_string_gclid_activate_notice', 'activating');
-    
+
     $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
     if (file_exists($obj_exclude_query_string_gclid))
     {
