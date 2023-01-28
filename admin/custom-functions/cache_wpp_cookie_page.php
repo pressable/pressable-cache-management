@@ -1,4 +1,4 @@
-<?php // Pressable Cache Management  - Enable Caching for pages which has wpp_ cookies 
+<?php // Pressable Cache Management  - Enable Caching for pages which has wpp_ cookies
 
 // disable direct file access
 if (!defined('ABSPATH'))
@@ -13,14 +13,26 @@ $options = get_option('pressable_cache_management_options');
 if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_cookies_pages']))
 {
 
+    //Create the pressable-cache-management mu-plugin index file
+    $pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
+    if (!file_exists($pcm_mu_plugins_index))
+    {
+        // Copy pressable-cache-management.php from plugin directory to mu-plugins directory
+        copy(plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+    }
+
+    // Check if the pressable-cache-management directory exists or create the folder
+    if (!file_exists(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/'))
+    {
+        //create the directory
+        wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
+    }
+
     //Add the option from the textbox into the database
     update_option('cache_wpp_cookies_pages', $options['cache_wpp_cookies_pages']);
 
-  
-
-
     //Exclude specific files from CDN caching
-    $obj_cache_wpp_cookies_pages = WP_CONTENT_DIR . '/mu-plugins/pcm_cache_wpp_cookies_pages.php';
+    $obj_cache_wpp_cookies_pages = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
     if (file_exists($obj_cache_wpp_cookies_pages))
     {
 
@@ -28,8 +40,8 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
     else
     {
         $obj_cache_wpp_cookies_pages = plugin_dir_path(__FILE__) . '/cache_wpp_cookie_page_mu_plugin.php';
-		
-        $obj_cache_wpp_cookies_pages_active = WP_CONTENT_DIR . '/mu-plugins/pcm_cache_wpp_cookies_pages.php';
+
+        $obj_cache_wpp_cookies_pages_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
 
         if (!copy($obj_cache_wpp_cookies_pages, $obj_cache_wpp_cookies_pages_active))
         {
@@ -40,9 +52,8 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
 
         }
     }
-	
-	
-	  //Display admin notice
+
+    //Display admin notice
     function cache_wpp_cookies_pages_admin_notice($message = '', $classes = 'notice-success')
     {
 
@@ -69,7 +80,7 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-				$message = sprintf('<p>Batcache will now cache pages with wpp_ cookies.</p>', $user->display_name);
+                $message = sprintf('<p>Batcache will now cache pages with wpp_ cookies.</p>');
 
                 cache_wpp_cookies_pages_admin_notice($message, 'notice notice-success is-dismissible');
             });
@@ -80,18 +91,15 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
     }
     add_action('init', 'pcm_cache_wpp_cookies_pages_admin_notice');
 
-	
-	
 }
 else
 {
-	
-	
+
     /**Update option from the database if the option is deactivated
      used by admin notice to display and remove notice**/
     update_option('cache_wpp_cookies_pages_activate_notice', 'activating');
-	
-    $obj_cache_wpp_cookies_pages = WP_CONTENT_DIR . '/mu-plugins/pcm_cache_wpp_cookies_pages.php';
+
+    $obj_cache_wpp_cookies_pages = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
     if (file_exists($obj_cache_wpp_cookies_pages))
     {
         unlink($obj_cache_wpp_cookies_pages);
