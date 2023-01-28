@@ -1,4 +1,4 @@
-<?php //  Called by uninstall.php to remove all MU plugins and batcache configuration when plugin is uninstalled
+<?php //  Called by uninstall.php to remove all Pressable Cache Management MU plugins when plugin is uninstalled
 
 // disable direct file access
 if (!defined('ABSPATH'))
@@ -7,7 +7,7 @@ if (!defined('ABSPATH'))
 }
 
 /*
- * Remove mu-plugins added by Pressable Cache Management Plugins
+ * Remove Pressable Cache Management mu-plugins 
 */
 
 //Remove  Pressable Cache Management mu-plugin index
