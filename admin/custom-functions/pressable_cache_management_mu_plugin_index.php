@@ -36,9 +36,6 @@ if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_query_st
 require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_query_string_gclid.php';
 }
 
-if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_query_string_gclid.php')) {
-require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_query_string_gclid.php';
-}
 
 
 if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_pages_from_batcache.php')) {

@@ -18,7 +18,7 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
     if (!file_exists($pcm_mu_plugins_index))
     {
         // Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-        copy(plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+        copy(plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
     }
 
     // Check if the pressable-cache-management directory exists or create the folder

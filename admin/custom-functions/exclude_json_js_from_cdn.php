@@ -17,7 +17,7 @@ if (isset($options['exclude_json_js_from_cdn']) && !empty($options['exclude_json
 	$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
 	if (!file_exists($pcm_mu_plugins_index)) {
 		// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
 	}
 
 	// Check if the pressable-cache-management directory exists or create the folder
@@ -28,12 +28,12 @@ if (isset($options['exclude_json_js_from_cdn']) && !empty($options['exclude_json
 
    //Exclude .js and .json from CDN caching
 
-    $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_js_json.php';
+    $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
     if (file_exists($cdn_exclude_js_json)) { 
 
     } else {
         $cdn_exclude_js_json = plugin_dir_path(__FILE__) . '/cdn_exclude_js_json.php';
-        $cdn_exclude_js_json_active = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_js_json.php';
+        $cdn_exclude_js_json_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
 
          if(!copy($cdn_exclude_js_json,$cdn_exclude_js_json_active))
          {
@@ -92,7 +92,7 @@ else
      used by admin notice to display and remove notice**/
     update_option('exclude_json_js_from_cdn_activate_notice', 'activating');
 
-    $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_js_json.php';
+    $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
     if (file_exists($cdn_exclude_js_json)) {
         unlink($cdn_exclude_js_json);
     } else {

@@ -18,7 +18,7 @@ $options = get_option('pressable_cache_management_options');
 	$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
 	if (!file_exists($pcm_mu_plugins_index)) {
 		// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
 	}
 		
 	// Check if the pressable-cache-management directory exists or create the folder
@@ -31,7 +31,7 @@ $options = get_option('pressable_cache_management_options');
     update_option('exempt_from_batcache', $options['exempt_from_batcache']);
 
     //Exclude specific files from CDN caching
-    $obj_exclude_pages_from_batcache = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_pages_from_batcache.php';
+    $obj_exclude_pages_from_batcache = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_pages_from_batcache.php';
     if (file_exists($obj_exclude_pages_from_batcache))
     {
 
@@ -40,7 +40,7 @@ $options = get_option('pressable_cache_management_options');
     {
         $obj_exclude_pages_from_batcache = plugin_dir_path(__FILE__) . '/exclude_pages_from_batcache_mu_plugin.php';
 		
-        $obj_exclude_pages_from_batcache_active = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_pages_from_batcache.php';
+        $obj_exclude_pages_from_batcache_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_pages_from_batcache.php';
 
         if (!copy($obj_exclude_pages_from_batcache, $obj_exclude_pages_from_batcache_active))
         {
@@ -55,7 +55,7 @@ $options = get_option('pressable_cache_management_options');
 }
 else
 {
-    $obj_exclude_pages_from_batcache = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_pages_from_batcache.php';
+    $obj_exclude_pages_from_batcache = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_pages_from_batcache.php';
     if (file_exists($obj_exclude_pages_from_batcache))
     {
         unlink($obj_exclude_pages_from_batcache);

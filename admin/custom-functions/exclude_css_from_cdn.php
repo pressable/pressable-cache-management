@@ -18,7 +18,7 @@ if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from
 	$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
 	if (!file_exists($pcm_mu_plugins_index)) {
 		// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
 	}
 
 	
@@ -30,7 +30,7 @@ if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from
 	
    //Exclude .js and .css from CDN caching
 
-    $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_css.php';
+    $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
     if (file_exists($cdn_exclude_css)) { 
 
     } else {

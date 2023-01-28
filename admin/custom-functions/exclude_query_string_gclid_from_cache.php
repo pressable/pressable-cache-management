@@ -17,7 +17,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
 	$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
 	if (!file_exists($pcm_mu_plugins_index)) {
 		// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
 	}
 
 	// Check if the pressable-cache-management directory exists or create the folder
@@ -33,7 +33,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
 
 
     //Exclude specific files from CDN caching
-    $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
+    $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_query_string_gclid.php';
     if (file_exists($obj_exclude_query_string_gclid))
     {
 
@@ -42,7 +42,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
     {
         $obj_exclude_query_string_gclid = plugin_dir_path(__FILE__) . '/exclude_query_string_gclid_from_cache_mu_plugin.php';
         
-        $obj_exclude_query_string_gclid_active = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
+        $obj_exclude_query_string_gclid_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_query_string_gclid.php';
 
         if (!copy($obj_exclude_query_string_gclid, $obj_exclude_query_string_gclid_active))
         {
@@ -104,7 +104,7 @@ else
      used by admin notice to display and remove notice**/
     update_option('exclude_query_string_gclid_activate_notice', 'activating');
     
-    $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pcm_exclude_query_string_gclid.php';
+    $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_query_string_gclid.php';
     if (file_exists($obj_exclude_query_string_gclid))
     {
         unlink($obj_exclude_query_string_gclid);
