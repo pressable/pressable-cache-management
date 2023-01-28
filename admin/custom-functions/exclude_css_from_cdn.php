@@ -14,23 +14,40 @@ $options = get_option('cdn_settings_tab_options');
 if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from_cdn']))
 {
 
-   //Exclude .js and .css from CDN caching
+    //Create the pressable-cache-management mu-plugin index file
+    $pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
+    if (!file_exists($pcm_mu_plugins_index))
+    {
+        // Copy pressable-cache-management.php from plugin directory to mu-plugins directory
+        copy(plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin.php', $pcm_mu_plugins_index);
+    }
 
+    // Check if the pressable-cache-management directory exists or create the folder
+    if (!file_exists(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/'))
+    {
+        //create the directory
+        wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
+    }
+
+    //Exclude .js and .css from CDN caching
     $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_css.php';
-    if (file_exists($cdn_exclude_css)) { 
+    if (file_exists($cdn_exclude_css))
+    {
 
-    } else {
+    }
+    else
+    {
         $cdn_exclude_css = plugin_dir_path(__FILE__) . '/cdn_exclude_css.php';
-        $cdn_exclude_css_active = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_css.php';
+        $cdn_exclude_css_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
 
-         if(!copy($cdn_exclude_css,$cdn_exclude_css_active))
-         {
+        if (!copy($cdn_exclude_css, $cdn_exclude_css_active))
+        {
 
-         }
-         else
-         {
-            
-         }
+        }
+        else
+        {
+
+        }
     }
 
     //Display admin notice
@@ -60,7 +77,7 @@ if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-                $message = sprintf('<p>Excluded all .CSS files from CDN caching.</p>', $user->display_name);
+                $message = sprintf('<p>Excluded all .CSS files from CDN caching.</p>');
 
                 exclude_css_js_from_cdn_admin_notice($message, 'notice notice-success is-dismissible');
             });
@@ -80,12 +97,15 @@ else
      used by admin notice to display and remove notice**/
     update_option('exclude_css_from_cdn_activate_notice', 'activating');
 
-    $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/cdn_exclude_css.php';
-    if (file_exists($cdn_exclude_css)) {
+    $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
+    if (file_exists($cdn_exclude_css))
+    {
         unlink($cdn_exclude_css);
-    } else {
-        // File not found.
     }
-    
-}
+    else
+    {
+        // File not found.
+        
+    }
 
+}
