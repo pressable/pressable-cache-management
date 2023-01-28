@@ -10,31 +10,28 @@ if (!defined('ABSPATH'))
  * Remove mu-plugins added by Pressable Cache Management Plugins
 */
 
-//Remove  Pressable Cache Management mu-plugins index file
-$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
-if (file_exists($pcm_mu_plugins_index))
+//Remove  Pressable Cache Management mu-plugin index
+$pcm_mu_plugin_index = WP_CONTENT_DIR . '/pressable_cache_management_mu_plugin_index.php';
+if (file_exists($pcm_mu_plugin_index ))
 {
-    unlink($pcm_mu_plugins_index);
+    unlink($pcm_mu_plugin_index );
 }
 
-//Remove  Pressable Cache Management mu-plugins directory
 $pcm_cache_mu_plugins = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management';
 if (file_exists($pcm_cache_mu_plugins))
 {
     rrmdir($pcm_cache_mu_plugins);
 }
 
-function rrmdir($dir)
-{
-    if (is_dir($dir))
-    {
+function rrmdir($dir) {
+    if (is_dir($dir)) {
         $objects = scandir($dir);
-        foreach ($objects as $object)
-        {
-            if ($object != "." && $object != "..")
-            {
-                if (is_dir($dir . "/" . $object)) rrmdir($dir . "/" . $object);
-                else unlink($dir . "/" . $object);
+        foreach ($objects as $object) {
+            if ($object != "." && $object != "..") {
+                if (is_dir($dir."/".$object))
+                    rrmdir($dir."/".$object);
+                else
+                    unlink($dir."/".$object);
             }
         }
         rmdir($dir);
