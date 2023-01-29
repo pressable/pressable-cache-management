@@ -208,12 +208,9 @@ function pcm_footer_msg()
 
                 echo '<span id="footer-built-with-love" class="branding-';
                 echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
-                echo '">Built with 
-            <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-            <svg class="heart" viewBox="0 0 32 29.6">
-  <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-  c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-</svg></a> by The Pressable CS Team.</span>';
+                echo '">Built with
+		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
+		<span class="heart" style="color:red; font-size:24px;">❤️</span></a> by The Pressable CS Team.';
 
             }
         }
@@ -251,12 +248,9 @@ function pcm_footer_msg_remove_branding()
 
                 echo '<span id="footer-built-with-love" class="branding-';
                 //             echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
-                echo '">Built with 
-            <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-            <svg class="heart" viewBox="0 0 32 29.6">
-  <path d="M23.6,0c-3.4,0-6.3,2.7-7.6,5.6C14.7,2.7,11.8,0,8.4,0C3.8,0,0,3.8,0,8.4c0,9.4,9.5,11.9,16,21.2
-  c6.1-9.3,16-12.1,16-21.2C32,3.8,28.2,0,23.6,0z"/>
-</svg></a></span>';
+                 echo 'Built with
+		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
+		<span class="heart" style="color:red; font-size:24px;">❤️</span></a>';
 
             }
         }
