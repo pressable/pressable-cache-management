@@ -28,8 +28,7 @@ if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from
 		wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
 	}
 	
-   //Exclude .js and .css from CDN caching
-
+    //Exclude .js and .json from CDN caching
     $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
     if (file_exists($cdn_exclude_css)) { 
 
