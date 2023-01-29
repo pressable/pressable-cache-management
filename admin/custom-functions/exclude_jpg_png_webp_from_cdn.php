@@ -1,4 +1,4 @@
-<?php // Pressable Cache Management - Exclude .JPG .PNG .GIF .WEBP from CDN caching
+<?php // Pressable Cache Management - Exclude .JPG .JPEG .PNG .GIF .WEBP from CDN caching
 
 
 // disable direct file access
@@ -32,7 +32,7 @@ if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude
     //Declear variable so that it can be accessed from cdn_exclude_jpg_png_webp.php
     $excluded_images = get_option('exclude_images_file');
 
-    //Exclude .jpg .png .webp from CDN caching
+    //Exclude .jpg .jpeg .png .gif .webp from CDN caching
     $cdn_exclude_jpg_png_webp = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_jpg_png_webp.php';
     if (file_exists($cdn_exclude_jpg_png_webp)) { 
 
