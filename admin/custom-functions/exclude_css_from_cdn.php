@@ -36,6 +36,10 @@ if (isset($options['exclude_css_from_cdn']) && !empty($options['exclude_css_from
         $cdn_exclude_css = plugin_dir_path(__FILE__) . '/cdn_exclude_css.php';
         $cdn_exclude_css_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
+
          if(!copy($cdn_exclude_css,$cdn_exclude_css_active))
          {
 
@@ -96,6 +100,10 @@ else
     $cdn_exclude_css = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_css.php';
     if (file_exists($cdn_exclude_css)) {
         unlink($cdn_exclude_css);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
+
     } else {
         // File not found.
     }

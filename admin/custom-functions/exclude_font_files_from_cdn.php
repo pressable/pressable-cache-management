@@ -43,6 +43,10 @@ if (isset($options['exclude_font_files_from_cdn']) && !empty($options['exclude_f
         $cdn_exclude_font_files = plugin_dir_path(__FILE__) . '/cdn_exclude_font_files_mu_plugins.php';
         $cdn_exclude_font_files_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_font_files_from_cdn.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
+
         if (!copy($cdn_exclude_font_files, $cdn_exclude_font_files_active))
         {
 
@@ -104,6 +108,10 @@ else
     if (file_exists($cdn_exclude_font_files))
     {
         unlink($cdn_exclude_font_files);
+
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
     }
     else
     {

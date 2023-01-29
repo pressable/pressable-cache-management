@@ -32,6 +32,7 @@ function rrmdir($dir) {
                     rrmdir($dir."/".$object);
                 else
                     unlink($dir."/".$object);
+                    wp_cache_flush();
             }
         }
         rmdir($dir);

@@ -1,12 +1,5 @@
-<?php
-/*
-Plugin Name: Exclude website pages from the Batcache
-Plugin URI: https://pressable.com
-Description: Exempt website page from Pressable Batcache
-Version: 1.1.1
-Author: Pressable
-Author URI: https://pressable.com
-*/
+<?php //Plugin Name: Exclude website pages from the Batcache
+
 
 if (!defined('IS_PRESSABLE'))
     {

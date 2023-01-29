@@ -47,6 +47,9 @@ if (isset($options['exclude_particular_file_from_cdn']) && !empty($options['excl
         $cdn_exclude_specific_file = plugin_dir_path(__FILE__) . '/cdn_exclude_specific_file.php';
         $cdn_exclude_specific_file_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_specific_file.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
         if (!copy($cdn_exclude_specific_file, $cdn_exclude_specific_file_active))
         {
 
@@ -64,6 +67,9 @@ else
     if (file_exists($cdn_exclude_specific_file))
     {
         unlink($cdn_exclude_specific_file);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     }
     else
     {

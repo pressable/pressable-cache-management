@@ -1,12 +1,14 @@
-<?php
-/*
-Plugin Name: Exempt JS/JSON From CDN
-Plugin URI: https://pressable.com
-Description: Exempt JS and JSON files from the Pressable CDN
-Version: 1.0.1
-Author: Pressable
-Author URI: https://pressable.com
-*/
+<?php //Exempt JS and JSON files from the Pressable CDN
+
+
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
+
 
 if (!defined('IS_PRESSABLE'))
 {

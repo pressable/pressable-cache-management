@@ -41,8 +41,10 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
     else
     {
         $obj_exclude_query_string_gclid = plugin_dir_path(__FILE__) . '/exclude_query_string_gclid_from_cache_mu_plugin.php';
-        
         $obj_exclude_query_string_gclid_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_query_string_gclid.php';
+
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
 
         if (!copy($obj_exclude_query_string_gclid, $obj_exclude_query_string_gclid_active))
         {
@@ -108,6 +110,9 @@ else
     if (file_exists($obj_exclude_query_string_gclid))
     {
         unlink($obj_exclude_query_string_gclid);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     }
     else
     {

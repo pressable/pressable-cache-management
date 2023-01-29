@@ -40,8 +40,10 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
     else
     {
         $obj_cache_wpp_cookies_pages = plugin_dir_path(__FILE__) . '/cache_wpp_cookie_page_mu_plugin.php';
-
         $obj_cache_wpp_cookies_pages_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
+
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
 
         if (!copy($obj_cache_wpp_cookies_pages, $obj_cache_wpp_cookies_pages_active))
         {
@@ -103,6 +105,9 @@ else
     if (file_exists($obj_cache_wpp_cookies_pages))
     {
         unlink($obj_cache_wpp_cookies_pages);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     }
     else
     {

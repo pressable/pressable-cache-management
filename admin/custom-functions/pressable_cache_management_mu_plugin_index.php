@@ -1,5 +1,13 @@
 <?php // Pressable Cache Management mu-plugins index
 
+
+/*****
+ * //This file refference the Pressablce Cache Management mu-plugins 
+ * https://wordpress.org/documentation/article/must-use-plugins/
+ ******/
+
+
+
 if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_extend_batcache.php')) {
 require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_extend_batcache.php';
 }

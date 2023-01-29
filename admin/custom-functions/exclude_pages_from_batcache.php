@@ -38,9 +38,11 @@ $options = get_option('pressable_cache_management_options');
     }
     else
     {
-        $obj_exclude_pages_from_batcache = plugin_dir_path(__FILE__) . '/exclude_pages_from_batcache_mu_plugin.php';
-		
+        $obj_exclude_pages_from_batcache = plugin_dir_path(__FILE__) . '/exclude_pages_from_batcache_mu_plugin.php';		
         $obj_exclude_pages_from_batcache_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_pages_from_batcache.php';
+
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
 
         if (!copy($obj_exclude_pages_from_batcache, $obj_exclude_pages_from_batcache_active))
         {
@@ -59,6 +61,9 @@ else
     if (file_exists($obj_exclude_pages_from_batcache))
     {
         unlink($obj_exclude_pages_from_batcache);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     }
     else
     {

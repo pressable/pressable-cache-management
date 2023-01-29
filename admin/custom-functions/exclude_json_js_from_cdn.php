@@ -34,6 +34,10 @@ if (isset($options['exclude_json_js_from_cdn']) && !empty($options['exclude_json
         $cdn_exclude_js_json = plugin_dir_path(__FILE__) . '/cdn_exclude_js_json.php';
         $cdn_exclude_js_json_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
+
          if(!copy($cdn_exclude_js_json,$cdn_exclude_js_json_active))
          {
 
@@ -94,6 +98,10 @@ else
     $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
     if (file_exists($cdn_exclude_js_json)) {
         unlink($cdn_exclude_js_json);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
+
     } else {
         // File not found.
     }

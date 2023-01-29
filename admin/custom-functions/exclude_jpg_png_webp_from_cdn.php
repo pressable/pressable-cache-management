@@ -40,6 +40,10 @@ if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude
         $cdn_exclude_jpg_png_webp = plugin_dir_path(__FILE__) . '/cdn_exclude_jpg_png_webp.php';
         $cdn_exclude_jpg_png_webp_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_jpg_png_webp.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
+
          if(!copy($cdn_exclude_jpg_png_webp,$cdn_exclude_jpg_png_webp_active))
          {
 
@@ -103,6 +107,10 @@ else
     $cdn_exclude_jpg_png_webp = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_jpg_png_webp.php';
     if (file_exists($cdn_exclude_jpg_png_webp)) {
         unlink($cdn_exclude_jpg_png_webp);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
+
     } else {
         // File not found.
     }

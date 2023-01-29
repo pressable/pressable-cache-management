@@ -41,9 +41,11 @@ if (isset($options['extend_batcache_checkbox']) && !empty($options['extend_batca
     }
     else
     {
-        $obj_extend_batcache = plugin_dir_path(__FILE__) . '/extend_batcache_mu_plugin.php';
-		
+        $obj_extend_batcache = plugin_dir_path(__FILE__) . '/extend_batcache_mu_plugin.php';		
         $obj_extend_batcache_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_extend_batcache.php';
+
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
 
         if (!copy($obj_extend_batcache, $obj_extend_batcache_active))
         {
@@ -109,6 +111,9 @@ else
     if (file_exists($obj_extend_batcache))
     {
         unlink($obj_extend_batcache);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     }
     else
     {

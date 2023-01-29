@@ -9,9 +9,9 @@ if (!defined('ABSPATH'))
 }
 
 /**
- * Batcache by default will create a new cached page for each query parameter
- * But we want to ignore Google Ads with the URL Param of gclid
- **/
+* Batcache by default will create a new cached page for each query parameter
+* But we want to ignore Google Ads with the URL Param of gclid
+**/
 
 global $batcache;
 if ( is_object($batcache) ) {

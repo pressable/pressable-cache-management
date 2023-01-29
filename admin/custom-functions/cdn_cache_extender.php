@@ -34,6 +34,9 @@ if (isset($options['cdn_cache_extender']) && !empty($options['cdn_cache_extender
         $cdn_extender_plugin = plugin_dir_path(__FILE__) . '/cdn_extender.php';
         $cdn_extender_plugin_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cdn_extender.php';
 
+        //Flush cache to enable activation take effect immediately
+        wp_cache_flush();
+
          if(!copy($cdn_extender_plugin,$cdn_extender_plugin_active))
          {
              //
@@ -93,6 +96,9 @@ else
     $cdn_extender_plugin_file = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cdn_extender.php';
     if (file_exists($cdn_extender_plugin_file)) {
         unlink($cdn_extender_plugin_file);
+
+        //Flush cache to enable deactivation take effect immediately
+        wp_cache_flush();
     } else {
         // File not found.
     }
