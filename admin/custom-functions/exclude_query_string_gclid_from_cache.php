@@ -32,7 +32,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
   
 
 
-    //Exclude specific files from CDN caching
+    // Exclude Google Ads URL's with query string gclid from Batcache
     $obj_exclude_query_string_gclid = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_query_string_gclid.php';
     if (file_exists($obj_exclude_query_string_gclid))
     {
@@ -55,7 +55,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
     }
     
     
-      //Display admin notice
+     //Display admin notice
     function exclude_query_string_gclid_admin_notice($message = '', $classes = 'notice-success')
     {
 
