@@ -32,7 +32,7 @@ if (isset($options['exclude_font_files_from_cdn']) && !empty($options['exclude_f
     //Add the option from the textbox into the database
     update_option('exclude_font_files', $options['exclude_font_files_from_cdn']);
 
-    //Exclude .jpg .png .webp from CDN caching
+    //Exclude .woff .woff2 .otf .ttf eot from CDN caching
     $cdn_exclude_font_files = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_font_files_from_cdn.php';
     if (file_exists($cdn_exclude_font_files))
     {
