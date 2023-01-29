@@ -1,4 +1,4 @@
-<?php // Pressable Cache Management  - Exctend batcache by 24 hours
+<?php // Pressable Cache Management  - Extend batcache by 24 hours
 
 // disable direct file access
 if (!defined('ABSPATH'))
