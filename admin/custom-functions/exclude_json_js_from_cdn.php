@@ -26,8 +26,7 @@ if (isset($options['exclude_json_js_from_cdn']) && !empty($options['exclude_json
 		wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
 	}
 
-   //Exclude .js and .json from CDN caching
-
+    //Exclude .js and .json from CDN caching
     $cdn_exclude_js_json = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/cdn_exclude_js_json.php';
     if (file_exists($cdn_exclude_js_json)) { 
 
