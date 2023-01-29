@@ -33,7 +33,7 @@ if (isset($options['extend_batcache_checkbox']) && !empty($options['extend_batca
 		wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
 	}
 
-    //Exclude specific files from CDN caching
+    
     $obj_extend_batcache = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_extend_batcache.php';
     if (file_exists($obj_extend_batcache))
     {
