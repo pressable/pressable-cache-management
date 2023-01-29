@@ -30,7 +30,7 @@ $options = get_option('pressable_cache_management_options');
     //Add the option from the textbox into the database
     update_option('exempt_from_batcache', $options['exempt_from_batcache']);
 
-    //Exclude specific files from CDN caching
+    // Exclude pages from Batcache
     $obj_exclude_pages_from_batcache = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_exclude_pages_from_batcache.php';
     if (file_exists($obj_exclude_pages_from_batcache))
     {
