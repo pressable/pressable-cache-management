@@ -31,7 +31,7 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
     //Add the option from the textbox into the database
     update_option('cache_wpp_cookies_pages', $options['cache_wpp_cookies_pages']);
 
-    //Exclude specific files from CDN caching
+    
     $obj_cache_wpp_cookies_pages = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
     if (file_exists($obj_cache_wpp_cookies_pages))
     {
