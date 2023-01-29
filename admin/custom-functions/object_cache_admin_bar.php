@@ -113,7 +113,7 @@ else
         
         
         }
-        //Display flsuh cache bar for only admin
+        //Display flush cache bar for only admin
         elseif (current_user_can('administrator'))
         {
 
