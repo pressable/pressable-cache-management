@@ -6,43 +6,28 @@ if (!defined("ABSPATH"))
     exit();
 }
 
-
 /**
  * This function is triggered when a post or page is edited in a Wordpress site.
  * The function first flushes the cache using the "wp_cache_flush" function.
- * It then checks the type of post that was edited (either "post", "page" or "custom post_types") and sets 
+ * It then checks the type of post that was edited (either "post", "page" or "custom post_types") and sets
  * a time stamp for when the cache was last flushed.
-*/
+ */
 
 $options = get_option("pressable_cache_management_options");
 
 // Get checkbox options and check if is not empty
 if (isset($options["flush_cache_page_edit_checkbox"]) && !empty($options["flush_cache_page_edit_checkbox"]))
 {
-    function clear_batcache_on_post_edit($post_id, $post, $update)
+    if (isset($options["flush_cache_page_edit_checkbox"]) && !empty($options["flush_cache_page_edit_checkbox"]))
     {
-        wp_cache_flush();
-        if ($post->post_type === "post" || $post->post_type === "page")
+        function clear_batcache_on_post_edit($post_id, $post, $update)
         {
-            if ($post->post_type === "post")
-            {
-                //Display timestamp and post title
-                $object_cache_flush_time_post = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
-                update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_post);
-            }
-            elseif ($post->post_type === "page")
-            {
-                 //Display timestamp and page title
-                $object_cache_flush_time_page = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
-                update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_page);
-            }
+            wp_cache_flush();
+            $post_type = $post->post_type;
+            $object_cache_flush_time = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post_type . " edit: " . $post->post_title . "</b>";
+            update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time);
         }
-        else
-        {   
-            //Display timestamp and custom post_type page title
-            $object_cache_flush_time_post_type = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post->post_type . " edit: ". $post->post_title ."</b>";
-            update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time_post_type);
-        }
+        add_action("save_post", "clear_batcache_on_post_edit", 10, 3);
     }
-    add_action("save_post", "clear_batcache_on_post_edit", 10, 3);
+
 }
