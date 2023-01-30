@@ -15,7 +15,7 @@ function cache_purge_action_js()
   <script type="text/javascript" >
      jQuery("li#wp-admin-bar-cache-purge .ab-item").on( "click", function() {
         var data = {
-                      'action': 'pressable_cache_purge',
+                      'action': 'flush_pressable_cache',
                     };
 
         jQuery.post(ajaxurl, data, function(response) {
@@ -24,6 +24,7 @@ function cache_purge_action_js()
 
       });
   </script>
+
 
    <?php
 }
@@ -56,7 +57,7 @@ function cdn_cache_purge_action_js()
 
 add_action('wp_ajax_pressable_cdn_cache_purge', 'pressable_cdn_cache_purge_callback');
 
-add_action('wp_ajax_pressable_cache_purge', 'pressable_cache_purge_callback');
+add_action('wp_ajax_flush_pressable_cache', 'flush_pressable_cache_callback');
 
 $remove_pressable_branding_tab_options = false;
 
@@ -88,7 +89,7 @@ if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_bra
 
             $wp_admin_bar->add_menu(array(
                 'id' => 'cache-purge',
-                'title' => 'Purge Object Cache',
+                'title' => 'Flush Object Cache',
                 'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
                 'meta' => array(
                     "class" => "pcm-wp-admin-toolbar-child"
@@ -139,7 +140,7 @@ else
 
             $wp_admin_bar->add_menu(array(
                 'id' => 'cache-purge',
-                'title' => 'Purge Object Cache',
+                'title' => 'Flush Object Cache',
                 'parent' => 'pcm-wp-admin-toolbar-parent',
                 'meta' => array(
                     "class" => "pcm-wp-admin-toolbar-child"
@@ -185,7 +186,7 @@ else
 }
 
 // Save date/time to database when cache is flushed
-function pressable_cache_purge_callback()
+function flush_pressable_cache_callback()
 {
     wp_cache_flush();
 
@@ -193,7 +194,7 @@ function pressable_cache_purge_callback()
     $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
 
     update_option('flush-obj-cache-time-stamp', $object_cache_flush_time);
-    $response = "Object Cache Purged";
+    $response = "Object Cache Flushed Successfully!";
     echo $response;
     wp_die();
 }
