@@ -32,7 +32,7 @@ function pressable_cache_management_callback_section_cache()
     }
 
     echo '<p>' . esc_html__('These settings enable you to manage the object cache.', 'pressable_cache_management') . '</p>';
-  
+	
 	//Check for Batcache status on the site
 	$site_url = get_site_url();
 	$response = wp_remote_get( $site_url, array( 'timeout' => 120 ) );
@@ -40,9 +40,8 @@ function pressable_cache_management_callback_section_cache()
 	if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
 
 	echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p></br>';
-	} else {
-	    echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';		
-		}
+} else {
+    echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';		
 	}
 }
 
@@ -76,6 +75,7 @@ function pressable_cache_management_callback_section_authentication()
     {
 
         echo '<p>' . esc_html__('Your website is now connected to the control panel &#128994;', 'pressable_cache_management') . '</p>';
+		
 
     }
     else
