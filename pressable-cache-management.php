@@ -36,9 +36,11 @@ function deactivate_plugin_if_not_pressable() {
 //Display notice banner
 function pcm_auto_deactivation_notice() {
     $image_url = plugin_dir_url(__FILE__) . '/admin/assets/img/pressable-logo-primary.svg';
-    $msg  = '<div style="margin:50px 20px 20px 0;background:#fff;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
+    $msg  = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
+    $msg .= '<div style="background-image: url(\'' . $image_url . '\');background-repeat: no-repeat;background-position: right center; padding-right: 30px;">';
     $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __( 'Attention! ', 'pressable_cache_management' ) .  __( '', 'pressable_cache_management' ) . '</h3>';
-    $msg .= '<p> <img src="' . $image_url . '" style="vertical-align: middle;" width="130" height="20"></p><p> Pressable Cache Management can only run on Pressable Server!<a target="_blank" href="https://try.pressable.com/"> try us today and get a free coupon</a> :) </p>';
+    $msg .= '<p> Pressable Cache Management can only run on Pressable Server!<a target="_blank" href="https://try.pressable.com/"> try us today and get a free coupon</a> :) </p>';
+    $msg .= '</div>';
     $msg .= '</div>';
     echo $msg;
 }
