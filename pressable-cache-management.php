@@ -66,7 +66,7 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/settings-register.php';
     require_once plugin_dir_path(__FILE__) . 'admin/settings-callbacks.php';
     require_once plugin_dir_path(__FILE__) . 'admin/settings-validate.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/remove_old_mu_plugins.php';
+    require_once plugin_dir_path(__FILE__) . 'remove_old_mu_plugins.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_cdn_cache.php';
