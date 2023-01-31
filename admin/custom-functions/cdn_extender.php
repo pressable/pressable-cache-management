@@ -72,8 +72,11 @@ function extend_cache_for_images($html)
         return;
     }
 
+    libxml_use_internal_errors(true);
     $dom = new DOMDocument();
-    $dom->loadHTML($html);
+    $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+    libxml_clear_errors();
+
     $images = $dom->getElementsByTagName("img");
     foreach ($images as $img)
     {
@@ -87,7 +90,10 @@ function extend_cache_for_images($html)
         }
     }
     return $dom->saveHTML();
-}
+
+   }
+
+
 
 function pressablecdn_ob_call($html)
 {
