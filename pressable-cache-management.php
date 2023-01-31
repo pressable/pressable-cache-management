@@ -55,7 +55,7 @@ function pressable_cache_management_load_textdomain()
 }
 add_action('plugins_loaded', 'pressable_cache_management_load_textdomain');
 
-// include plugin dependencies: admin only
+// Include plugin dependencies: admin only
 if (is_admin())
 {
 
@@ -64,6 +64,7 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/settings-register.php';
     require_once plugin_dir_path(__FILE__) . 'admin/settings-callbacks.php';
     require_once plugin_dir_path(__FILE__) . 'admin/settings-validate.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/remove_old_mu_plugins.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_cdn_cache.php';
