@@ -22,29 +22,31 @@ if (!defined('ABSPATH'))
 
 }
 
-//Disable plugin automatically when used on another platform 
-if ( ! defined( 'IS_PRESSABLE' ) ) {
-    add_action( 'admin_notices', 'pcm_auto_deactivation_notice' );
-    add_action( 'admin_init', 'deactivate_plugin_if_not_pressable' );
+//Disable plugin automatically when used on another platform
+if (!defined('IS_PRESSABLE'))
+{
+    add_action('admin_notices', 'pcm_auto_deactivation_notice');
+    add_action('admin_init', 'deactivate_plugin_if_not_pressable');
 }
 
-function deactivate_plugin_if_not_pressable() {
+function deactivate_plugin_if_not_pressable()
+{
     //deactivate plugin code
-    deactivate_plugins( plugin_basename( __FILE__ ) );
+    deactivate_plugins(plugin_basename(__FILE__));
 }
 
 //Display notice banner
-function pcm_auto_deactivation_notice() {
+function pcm_auto_deactivation_notice()
+{
     $image_url = plugin_dir_url(__FILE__) . '/admin/assets/img/pressable-logo-primary.svg';
-    $msg  = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
+    $msg = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
     $msg .= '<div style="background-image: url(\'' . $image_url . '\');background-repeat: no-repeat;background-position: right center; padding-right: 30px;">';
-    $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __( 'Attention! ', 'pressable_cache_management' ) .  __( '', 'pressable_cache_management' ) . '</h3>';
+    $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __('Attention! ', 'pressable_cache_management') . __('', 'pressable_cache_management') . '</h3>';
     $msg .= '<p> Pressable Cache Management can only run on Pressable Server!<a target="_blank" href="https://try.pressable.com/"> try us today and get a free coupon</a> :) </p>';
     $msg .= '</div>';
     $msg .= '</div>';
     echo $msg;
 }
-
 
 // load text domain
 function pressable_cache_management_load_textdomain()
@@ -76,12 +78,12 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_css_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_particular_file_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_pages_from_batcache.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cache_wpp_cookie_page.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cache_wpp_cookie_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_batcache_for_particular_page.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_comment_delete.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_query_string_gclid_from_cache.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_font_files_from_cdn.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_comment_delete.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_query_string_gclid_from_cache.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_font_files_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/remove_pressable_branding.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/api_connection.php';
 
@@ -90,17 +92,19 @@ if (is_admin())
     //Added outside the above function to allow all themes access the hook automatically
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_edit.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_single_page_toolbar.php';
 
- /***********************************************
+/***********************************************
  * Adds settings link to plugin from plugin view
  ************************************************/
 
-function pcm_settings_link($links) {
-  $settings_link = '<a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab">Settings</a>';
-  array_unshift($links, $settings_link);
-  return $links;
+function pcm_settings_link($links)
+{
+    $settings_link = '<a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab">Settings</a>';
+    array_unshift($links, $settings_link);
+    return $links;
 }
 $pcm_plugin = plugin_basename(__FILE__);
-add_filter("plugin_action_links_$pcm_plugin", 'pcm_settings_link' );
+add_filter("plugin_action_links_$pcm_plugin", 'pcm_settings_link');
+
