@@ -13,7 +13,10 @@ if (!defined('ABSPATH'))
 * But we want to ignore Google Ads with the URL Param of gclid
 **/
 
-global $batcache;
-if ( is_object($batcache) ) {
-    $batcache->ignored_query_args = array('gclid');
+add_action( 'plugins_loaded', 'exclude_gclid_from_batcache' );
+function exclude_gclid_from_batcache() {
+    global $batcache;
+    if ( is_object( $batcache ) ) {
+        $batcache->ignored_query_args = array( 'gclid' );
+    }
 }
