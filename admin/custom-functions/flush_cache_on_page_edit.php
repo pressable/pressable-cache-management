@@ -24,10 +24,14 @@ if (isset($options["flush_cache_page_edit_checkbox"]) && !empty($options["flush_
         {
             wp_cache_flush();
             $post_type = $post->post_type;
-            $object_cache_flush_time = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post_type . " edit: " . $post->post_title . "</b>";
+            $post_type_obj = get_post_type_object($post_type);
+            $post_type_name = $post_type_obj
+                ->labels->singular_name;
+            $object_cache_flush_time = date(" jS F Y g:ia") . "\nUTC" . "<b> — cache flushed due to " . $post_type_name . " edit: " . $post->post_title . "</b>";
             update_option("flush-cache-page-edit-time-stamp", $object_cache_flush_time);
         }
         add_action("save_post", "clear_batcache_on_post_edit", 10, 3);
+
     }
 
 }
