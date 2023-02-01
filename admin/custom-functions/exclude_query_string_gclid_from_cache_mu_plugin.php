@@ -18,7 +18,6 @@ if (!function_exists('exclude_gclid_from_batcache')) {
     global $batcache;
     if ( is_object( $batcache ) ) {
         $batcache->ignored_query_args = array( 'gclid' );
-		echo 'Yes';
     }
   }
 }
