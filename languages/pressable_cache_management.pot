@@ -95,5 +95,5 @@ msgid "Purge CDN Cache"
 msgstr ""
 
 #: admin/settings-callbacks.php:23
-msgid "These settings enable you to manage cache on your Pressable site."
+msgid "These settings enables you to manage cache on your Pressable site."
 msgstr ""
