@@ -34,8 +34,6 @@ function pcm_jpg_png_webp_cdn_exempter($output)
     //Exclude all .image files from CDN
 	$output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com(.*)(.jpg|.jpeg|.png|.gif|.webp)/i', $_SERVER['SERVER_NAME'] . '$1$2', $output);
 
-	//Remove DB_NAME . '.v2.pressablecdn.com from img and srcset tags
-	$output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com/i', $_SERVER['SERVER_NAME'], $output);
 
     //Remove instances of extend_cdn query string to exempt files from CDN once it is excluded from CDN
     $output = str_replace("?extend_cdn", "", $output);
