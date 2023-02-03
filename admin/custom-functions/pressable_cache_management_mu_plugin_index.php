@@ -1,6 +1,15 @@
 <?php // Pressable Cache Management mu-plugins index
 
 
+// disable direct file access
+if (!defined('ABSPATH'))
+{
+
+    exit;
+
+}
+
+
 /*****
  * //This file refference the Pressablce Cache Management mu-plugins 
  * https://wordpress.org/documentation/article/must-use-plugins/
