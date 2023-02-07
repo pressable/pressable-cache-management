@@ -418,7 +418,7 @@ elseif ($response == 'Forbidden')
                 if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
                 $user = $GLOBALS['current_user'];
-                $message = sprintf('<p>Your API credentials permission is incorrect<a href="https://pressable.com/knowledgebase/pressable-cache-management-plugin/#api-authentication"> See how to setup and connect.</a>', $user->display_name);
+                $message = sprintf('<p>Your API credentials permission is incorrect<a href="https://pressable.com/knowledgebase/pressable-cache-management-plugin/#api-authentication"> See how to setup and connect correctly.</a>');
 
                 pcm_api_forbidden_admin_notice($message, 'notice notice-warning is-dismissible');
             });
