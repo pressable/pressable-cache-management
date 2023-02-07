@@ -247,10 +247,10 @@ function pcm_footer_msg_remove_branding()
             {
 
                 echo '<span id="footer-built-with-love" class="branding-';
-                //             echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
+                //echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
                  echo 'Built with
 		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-		<span class="heart" style="color:red; font-size:24px;">❤️</span></a>';
+		<span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
 
             }
         }
