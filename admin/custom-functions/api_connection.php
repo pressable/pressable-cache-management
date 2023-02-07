@@ -33,7 +33,7 @@ if (isset($_POST['connect_api_nonce']))
             if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
             $user = $GLOBALS['current_user'];
             $class = 'notice notice-error is-dismissible';
-            $message = __('Please save all your API credentials first before connecting :(', 'pressable_cache_management', $user->display_name);
+            $message = __('Please save all your API credentials first before connecting :(', 'pressable_cache_management');
 
             printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
         }
