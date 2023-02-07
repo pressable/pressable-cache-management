@@ -72,24 +72,23 @@ function extend_cache_for_images($html)
         return;
     }
 
-    libxml_use_internal_errors(true);
-    $dom = new DOMDocument();
-    $dom->loadHTML(mb_convert_encoding($html, 'HTML-ENTITIES', 'UTF-8'), LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-    libxml_clear_errors();
-
-    $images = $dom->getElementsByTagName("img");
-    foreach ($images as $img)
-    {
-        $src = $img->getAttribute("src");
-        $img->setAttribute("src", $src . "?extend_cdn");
-        $srcset = $img->getAttribute("srcset");
-        if (!empty($srcset))
-        {
-            $srcset = preg_replace("/(https?:\/\/[^\s]+)/", "$1?extend_cdn", $srcset);
-            $img->setAttribute("srcset", $srcset);
-        }
-    }
-    return $dom->saveHTML();
+      libxml_use_internal_errors(true);
+	$dom = new DOMDocument();
+	$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+	libxml_clear_errors();
+		$images = $dom->getElementsByTagName("img");
+	foreach ($images as $img)
+	{
+		$src = $img->getAttribute("src");
+		$img->setAttribute("src", $src . "?extend_cdn");
+		$srcset = $img->getAttribute("srcset");
+		if (!empty($srcset))
+		{
+			$srcset = preg_replace("/(https?:\/\/[^\s]+)/", "$1?extend_cdn", $srcset);
+			$img->setAttribute("srcset", $srcset);
+		}
+	}
+	return $dom->saveHTML();
 
    }
 
