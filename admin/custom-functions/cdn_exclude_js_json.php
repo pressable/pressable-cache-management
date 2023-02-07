@@ -44,8 +44,8 @@ function pcm_json_js_cdn_exempter($output)
     //Exclude all .js files from CDN
     $output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com([^"].*)(js)/i', $_SERVER['SERVER_NAME'] . '$1$2', $output);
 	
-	//Remove instances of extend_cdn query string to exempt .js from CDN once it is excluded from CDN
-    $output = str_replace("?extend_cdn&#038;", "?", $output);
+	//Remove instances of extend_cdn query string to exempt .js and .json file from CDN 
+	$output = preg_replace("/(\.js|\.json)\?extend_cdn&#038;/", "$1?", $output);
 	
 	
 
