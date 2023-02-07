@@ -94,6 +94,15 @@ function extend_cache_for_images($html)
    }
 
 
+//If CDN extender is enabled don't append query string to images files
+$options = get_option('cdn_settings_tab_options');
+
+if (isset($options['exclude_jpg_png_webp_from_cdn']) && !empty($options['exclude_jpg_png_webp_from_cdn']))
+{
+	return;
+}
+
+
 
 function pressablecdn_ob_call($html)
 {
