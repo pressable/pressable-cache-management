@@ -131,7 +131,7 @@ function pressablecdn_ob_call($html)
     return $html;
 }
 
-// }
+
 if (!is_admin() && strpos($_SERVER['REQUEST_URI'], "wp-admin") === false && strpos($_SERVER['REQUEST_URI'], "wp-login.php") === false)
 {
     add_action('template_redirect', 'pressablecdn_template_redirect');
