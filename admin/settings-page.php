@@ -210,7 +210,7 @@ function pcm_footer_msg()
                 echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
                 echo '">Built with
 		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-		<span class="heart" style="color:red; font-size:24px;">❤️</span></a> by The Pressable CS Team.';
+		<span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
 
             }
         }
@@ -246,11 +246,12 @@ function pcm_footer_msg_remove_branding()
             if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
             {
 
-                echo '<span id="footer-built-with-love" class="branding-';
-                //echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
-                 echo 'Built with
-		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-		<span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
+           echo '<span id="footer-built-with-love" class="branding-';
+                //             echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
+                echo '">Built with 
+            <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
+            <span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
+                 
 
             }
         }
