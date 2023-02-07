@@ -33,8 +33,8 @@ if (!defined('IS_PRESSABLE'))
 
         $output = preg_replace('/' . DB_NAME . '.v2.pressablecdn.com(.*)(exclude_css_from_cdn|.css)/i', $_SERVER['SERVER_NAME'] . '$1$2', $output);
 		
-		//Remove instances of extend_cdn query string to exempt .js from CDN once it is excluded from CDN
-    $output = str_replace("?extend_cdn&#038;", "?", $output);
+	//Remove instances of extend_cdn query string to exempt .css from CDN 
+    	$output = preg_replace("/(\.css)\?extend_cdn&#038;/", "$1?", $output);
         
         return $output;
     }
