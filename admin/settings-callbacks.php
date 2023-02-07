@@ -835,16 +835,7 @@ if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated')
 
 }
 
-//include css stle to hide site id when added
-add_action('init', 'pcm_register_css_style');
 
-//include css style to hide site id when added
-function pcm_register_css_style()
-{
-    wp_enqueue_style('pressable_cache_management_button_style', get_stylesheet_uri() . 'public/css/style.css', array() , '1.0.0', true);
-
-}
-add_action('wp_enqueue_scripts', 'pcm_register_css_style');
 
 // Callback: text field for Pressable API Client ID
 function pressable_cache_management_callback_field_id_text($args)
