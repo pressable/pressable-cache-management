@@ -1,5 +1,21 @@
 === Pressable Cache Management Change log ===
 
+= Version 3.3.9 (Feb 26, 2023) =
+
+* Updated language functionality 
+
+= Version 3.3.8 (Feb 23, 2023) =
+
+* Added support to move mu-plugin from PCM to a private folder 
+
+= Version 3.3.7 (Feb 20, 2023) =
+
+* Bug fixes and new features added 
+
+= Version 3.3.6 (Feb 07, 2023) =
+
+* Updated footer icon
+
 = Version 3.3.5 (Jan 07, 2023) =
 
 * Updated extending cache option to execute via mu-plugin
