@@ -62,7 +62,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
-= Version 3.4.9 (Mar 20, 2023) =
+= Version 3.3.10 (Mar 20, 2023) =
 
 * Performance Bug fixes
 
