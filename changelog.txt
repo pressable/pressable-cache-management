@@ -1,8 +1,8 @@
 === Pressable Cache Management Change log ===
 
-= Version 3.4.9 (Mar 20, 2023) =
+= Version 3.3.10 (Mar 20, 2023) =
 
-* Performance Bug fixes
+* Updated batcache code 
 
 = Version 3.3.9 (Feb 26, 2023) =
 
@@ -84,6 +84,6 @@ cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_spec
 === Pressable Cache Management Change log ===
 
 
-= Version 3.0.1 (April 17, 2022) 
+= Version 3.0.1 (April 17, 2022) =
 
 * Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug
