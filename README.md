@@ -3,7 +3,7 @@
 Plugin Name:  Pressable Cache Management
 Description:  This plugin makes management of cache easy from WordPress admin.
 Author:       Pressable Customer Success Team
-Version:      3.0.2
+Version:      3.4.9 
 Text Domain:  pressable_cache_management
 Domain Path:  /languages
 License:      GPL v2 or later
@@ -20,15 +20,14 @@ Markdown parsed.
 
 A few notes about the sections above:
 
-*   "Contributors" is a comma separated list of wordpress.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
+*   "Contributors" otarhe, wpjess, paulhtrott, georgestephanis 
+*   "Tags" 
+*   "Requires at least" WordPress 6.0
+*   "Tested up to" WordPress 6.1
 *   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
 stable.
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
+ Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
 if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
 for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
 is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
@@ -40,14 +39,9 @@ you put the stable version, in order to eliminate any doubt.
 
 # Installation
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload the plugin files to the `/wp-content/plugins/plugin-name` directory, or install the plugin through the WordPress plugins screen directly.
-1. Activate the plugin through the 'Plugins' screen in WordPress
-1. Use the Settings->Plugin Name screen to configure the plugin
-1. (Make your instructions match the desired user flow for activating and installing your plugin. Include any steps that might be needed for explanatory purposes)
+1. Upload the plugin files to the `/wp-content/plugins/pressable-cache-management` directory, or install the plugin through the WordPress plugins screen directly.
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Use the Settings->pressable-cache-management screen to configure the plugin
 
 
 # Frequently Asked Questions
@@ -56,9 +50,9 @@ e.g.
 
 An answer to that question.
 
-= What about foo bar? =
+= How can I install the plugin =
 
-Answer to foo bar dilemma.
+The plugin can be download via GitHub and installed via manually via WordPress plugin upload
 
 # Screenshots
 
@@ -71,6 +65,26 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 # Changelog
 
 === Pressable Cache Management Change log ===
+
+= Version 3.4.9 (Mar 20, 2023) =
+
+* Performance Bug fixes
+
+= Version 3.3.9 (Feb 26, 2023) =
+
+* Updated language functionality 
+
+= Version 3.3.8 (Feb 23, 2023) =
+
+* Added support to move mu-plugin from PCM to a private folder 
+
+= Version 3.3.7 (Feb 20, 2023) =
+
+* Bug fixes and new features added 
+
+= Version 3.3.6 (Feb 07, 2023) =
+
+* Updated footer icon
 
 = Version 3.3.5 (Jan 07, 2023) =
 
@@ -140,36 +154,6 @@ cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_spec
 
 * Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug
 
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
-
-# Upgrade Notice
-
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-# Arbitrary section
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-# A brief Markdown Example
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
 
 Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
 Titles are optional, naturally.
