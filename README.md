@@ -13,28 +13,24 @@ Pressable cache management plugin is used for flushing your site cache from Word
 
 # Description
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+Pressable cache management plugin makes management of Batcache and Pressable CDN settings all from WordPress admin easier instead having to manage the settings from Pressable control panel. This plugin does not work in place of Batcache or Pressable control panel but it helps you manage it's settings easily all from WordPress dashboard. 
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
 
-A few notes about the sections above:
-
-*   "Contributors" otarhe, wpjess, paulhtrott, georgestephanis 
+*   "Contributors" @otarhe, @wpjess, @paulhtrott, @georgestephanis 
 *   "Tags" 
 *   "Requires at least" WordPress 6.0
 *   "Tested up to" WordPress 6.1
 *   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
 stable.
 
- Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
+Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
 if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
 for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
 is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
 your in-development version, without having that information incorrectly disclosed about the current stable version
 that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
+If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
 you put the stable version, in order to eliminate any doubt.
 
 # Installation
@@ -165,5 +161,3 @@ Markdown uses email style notation for blockquotes and I've been told:
 > Asterisks for *emphasis*. Double it up  for **strong**.
 
 `<?php code(); // goes in backticks ?>`
-
-
