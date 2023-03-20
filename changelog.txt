@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 3.4.9 (Mar 20, 2023) =
+
+* Performance Bug fixes
+
 = Version 3.3.9 (Feb 26, 2023) =
 
 * Updated language functionality 
