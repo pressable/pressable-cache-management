@@ -16,7 +16,7 @@ Pressable cache management plugin is used for flushing your site cache from Word
 Pressable cache management plugin makes management of Batcache and Pressable CDN settings all from WordPress admin easier instead having to manage the settings from Pressable control panel. This plugin does not work in place of Batcache or Pressable control panel but it helps you manage it's settings easily all from WordPress dashboard. 
 
 
-*   "Contributors" @otarhe, @wpjess, @paulhtrott, @georgestephanis 
+*   "Contributors" otarhe, wpjess, paulhtrott, georgestephanis 
 *   "Tags" 
 *   "Requires at least" WordPress 6.0
 *   "Tested up to" WordPress 6.1
@@ -64,7 +64,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 = Version 3.3.10 (Mar 20, 2023) =
 
-* Performance Bug fixes
+* Updated batcache code 
 
 = Version 3.3.9 (Feb 26, 2023) =
 
