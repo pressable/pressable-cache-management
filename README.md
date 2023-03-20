@@ -48,7 +48,7 @@ An answer to that question.
 
 = How can I install the plugin =
 
-The plugin can be download via GitHub and installed via manually via WordPress plugin upload
+The plugin can be downloaded via GitHub repo and installed via manually via WordPress plugin upload
 
 # Screenshots
 
