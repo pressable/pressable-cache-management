@@ -66,8 +66,6 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 *  Hide option from UI which does not function correctly yet
 
-* Updated batcache code 
-
 = Version 3.3.10  (Mar 20, 2023) =
 
 * Updated batcache code 
