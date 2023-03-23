@@ -62,6 +62,12 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 3.4.10  (Mar 20, 2023) =
+
+*  Hide option from UI which does not function correctly yet
+
+* Updated batcache code 
+
 = Version 3.3.10  (Mar 20, 2023) =
 
 * Updated batcache code 
