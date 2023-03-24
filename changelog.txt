@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 3.5.10  (Mar 23, 2023) =
+
+* Updated new option
+
 = Version 3.4.10  (Mar 23, 2023) =
 
 *  Hide option from UI which does not function correctly yet
