@@ -3,7 +3,7 @@
 Plugin Name:  Pressable Cache Management
 Description:  This plugin makes management of cache easy from WordPress admin.
 Author:       Pressable Customer Success Team
-Version:      3.5.10
+Version:      3.6.10
 Text Domain:  pressable_cache_management
 Domain Path:  /languages
 License:      GPL v2 or later
@@ -61,6 +61,11 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 # Changelog
 
 === Pressable Cache Management Change log ===
+
+= Version 3.6.10  (Apr 20, 2023) =
+
+* Excluded gclid option from the UI
+* Excluded wpp_ cookies option from the UI
 
 = Version 3.5.10  (Mar 23, 2023) =
 
@@ -157,15 +162,3 @@ cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_spec
 = Version 3.0.1 (April 17, 2022) =
 
 * Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug
-
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
