@@ -1,5 +1,11 @@
 === Pressable Cache Management Change log ===
 
+
+= Version 3.6.10  (Apr 20, 2023) =
+
+* Excluded gclid option from the UI
+* Excluded wpp_ cookies option from the UI
+
 = Version 3.5.10  (Mar 23, 2023) =
 
 * Updated new option
