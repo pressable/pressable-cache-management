@@ -99,7 +99,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 * Updated extending cache option to execute via mu-plugin
 * Added option to flush cache when comment is deleted
-* Added notification to know if plugin or theme was updated is flush can on update is enabled
+* Added notification to know if plugin or theme was updated 
 * Disable plugin automatically when used on another platform
 * Add option to flush website cache automatically when page or post is deleted after publishing this works for post types as well
 * Added option to exclude pages from Batcache
