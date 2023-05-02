@@ -3,7 +3,7 @@
 Plugin Name:  Pressable Cache Management
 Description:  This plugin makes management of cache easy from WordPress admin.
 Author:       Pressable Customer Success Team
-Version:      3.6.10
+Version:      3.7.10
 Text Domain:  pressable_cache_management
 Domain Path:  /languages
 License:      GPL v2 or later
@@ -61,6 +61,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 # Changelog
 
 === Pressable Cache Management Change log ===
+
+= Version 3.7.10  (May 2, 2023) =
+
+* Code cleanup and changelog update
 
 = Version 3.6.10  (Apr 20, 2023) =
 
