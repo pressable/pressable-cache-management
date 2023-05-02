@@ -1,5 +1,8 @@
 === Pressable Cache Management Change log ===
 
+= Version 3.7.10  (May 2, 2023) =
+
+* Code cleanup and changelog update
 
 = Version 3.6.10  (Apr 20, 2023) =
 
