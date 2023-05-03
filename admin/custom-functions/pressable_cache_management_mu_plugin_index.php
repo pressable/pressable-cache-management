@@ -11,7 +11,7 @@ if (!defined('ABSPATH'))
 
 
 /*****
- * //This file refference the Pressablce Cache Management mu-plugins 
+ * This file references the Pressable Cache Management mu-plugins 
  * https://wordpress.org/documentation/article/must-use-plugins/
  ******/
 
