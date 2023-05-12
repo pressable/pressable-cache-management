@@ -4,8 +4,6 @@ Plugin Name:  Pressable Cache Management
 Description:  This plugin makes management of cache easy from WordPress admin.
 Author:       Pressable Customer Success Team
 
-Pressable cache management plugin is used for flushing your site cache from WordPress admin and also help with managing settings that clears cache automatically for you.
-
 # Description
 
 Pressable cache management plugin makes management of Batcache and Pressable CDN settings all from WordPress admin easier instead having to manage the settings from Pressable control panel. This plugin does not work in place of Batcache or Pressable control panel but it helps you manage it's settings easily all from WordPress dashboard. 
