@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 3.8.10  (May 12, 2023) =
+
+* Added features and notification to check if Cloudflare is interfering with Batcache
+
 = Version 3.7.10  (May 2, 2023) =
 
 * Code cleanup and changelog update
