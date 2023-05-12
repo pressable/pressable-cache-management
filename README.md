@@ -3,11 +3,6 @@
 Plugin Name:  Pressable Cache Management
 Description:  This plugin makes management of cache easy from WordPress admin.
 Author:       Pressable Customer Success Team
-Version:      3.7.10
-Text Domain:  pressable_cache_management
-Domain Path:  /languages
-License:      GPL v2 or later
-License URI:  https://www.gnu.org/licenses/gpl-2.0.txt
 
 Pressable cache management plugin is used for flushing your site cache from WordPress admin and also help with managing settings that clears cache automatically for you.
 
@@ -61,6 +56,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 # Changelog
 
 === Pressable Cache Management Change log ===
+
+= Version 3.8.10  (May 12, 2023) =
+
+* Added features and notification to check if Cloudflare is interfering with Batcache
 
 = Version 3.7.10  (May 2, 2023) =
 
