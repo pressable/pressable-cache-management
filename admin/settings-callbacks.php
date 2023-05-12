@@ -46,7 +46,7 @@ if ( isset( $headers['server'] ) && stripos( $headers['server'], 'cloudflare' ) 
 
 	if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
 		echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p>';
-		echo '<p style="text-align:right; font-size: smaller;">Try disabling Cloudflare proxy and caching and try again &#x1F7E0</p></br>';
+		echo '<p style="text-align:right; font-size: smaller;">Disable Cloudflare proxy and caching and try again &#x1F7E0</p></br>';
 	} else {
 		echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';		
 	}
