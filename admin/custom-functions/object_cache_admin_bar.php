@@ -127,7 +127,7 @@ else
         {
 
         }
-        //Display flsuh cache bar for only admin
+        //Display flush cache bar for only admin
         elseif (current_user_can('administrator'))
         {
 
@@ -147,28 +147,36 @@ else
                 )
             ));
 
-			 //Check if the Pressable API is connected or hide the CDN purge cache admin bar button
-			 $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-             $site_id_con_res = get_option('pcm_site_id_con_res');
-			
-			 if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated')
-    {
-            $wp_admin_bar->add_menu(array(
-                'id' => 'cdn-purge',
-                'title' => 'Purge CDN Cache',
-                'parent' => 'pcm-wp-admin-toolbar-parent',
-                'href' => '#',
-                'meta' => array(
-                    "class" => "pcm-wp-admin-toolbar-child"
-                ) ,
-                'onclick' => 'purge_cdn_cache()'
-            ));
-				 
-			 } else {
-				 
-				 //Hide CDN admin bar button if not connetced to the Pressable API
-			 }
-			
+            //Check if the Pressable API is connected or hide the CDN purge cache admin bar button
+            $pcm_con_auth = get_option('pressable_api_admin_notice__status');
+            $site_id_con_res = get_option('pcm_site_id_con_res');
+
+            //Check if CDN is enabled before displaying purge CDN button on admin bar
+            $cdn_tab_options = get_option('cdn_settings_tab_options');
+            $hide_cdn_options = get_option('cdnenabled');
+            if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated')
+            {
+                if ($cdn_tab_options && $hide_cdn_options === 'enable')
+                {
+                    $wp_admin_bar->add_menu(array(
+                        'id' => 'cdn-purge',
+                        'title' => 'Purge CDN Cache',
+                        'parent' => 'pcm-wp-admin-toolbar-parent',
+                        'href' => '#',
+                        'meta' => array(
+                            "class" => "pcm-wp-admin-toolbar-child"
+                        ) ,
+                        'onclick' => 'purge_cdn_cache()'
+                    ));
+
+                }
+                else
+                {
+
+                    //Hide CDN admin bar button if not connetced to the Pressable API
+                    
+                }
+            }
 
             $wp_admin_bar->add_menu(array(
                 'id' => 'settings',
