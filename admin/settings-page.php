@@ -26,8 +26,7 @@ function pressable_cache_management_display_settings_page()
   <!-- Our admin page content should all be inside .wrap -->
   
   <?php
-
-   $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
+    $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
 ?>
  
@@ -68,7 +67,6 @@ function pressable_cache_management_display_settings_page()
     }
     elseif ($tab == 'cdn_settings_tab')
     {
-        
 
         //Display setings and page for CDN tab
         settings_fields('cdn_settings_tab_options');
@@ -77,19 +75,14 @@ function pressable_cache_management_display_settings_page()
         $pcm_con_auth = get_option('pressable_api_admin_notice__status');
         $site_id_con_res = get_option('pcm_site_id_con_res');
         $pcm_cdn_status = get_option('cdnenabled');
-        
+
         //Only display the submit button if API is connected
-        if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated' && $pcm_cdn_status === 'enable' )
+        if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated' && $pcm_cdn_status === 'enable')
         {
 
-        submit_button('Save Settings', 'custom-class');
-             
-        } 
-        
-        
+            submit_button('Save Settings', 'custom-class');
 
-        
-     
+        }
 
     }
     elseif ($tab == 'pressable_api_authentication_tab')
@@ -106,6 +99,7 @@ function pressable_cache_management_display_settings_page()
         if ($site_id_con_res === 'OK' && $pcm_con_auth === 'activated')
         {
             //
+            
         }
         else
         {
@@ -132,29 +126,12 @@ function pressable_cache_management_display_settings_page()
 
 <style type="text/css">
   
-/**Footer heart styling**/
-  .heart {
-  fill: red;
-  position: relative;
-  top: 5px;
-  width: 16px;
-  animation: pulse 6s ease;
- /* animation: pulse 1s ease infinite;*/
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-
-/** Styles for hiding Pressable branding **/
+/** Hide Pressable branding tab **/
 .nav-tab-hidden,
 #footer-built-with-love.branding-disable,
 .branding-disable h2,
 .branding-disable .pressablecmlogo { display:none!important; }
-
-
+	
 </style>
   </div><?php
 }
@@ -208,9 +185,8 @@ function pcm_footer_msg()
 
                 echo '<span id="footer-built-with-love" class="branding-';
                 echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
-                echo '">Built with
-		<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-		<span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
+                echo '">Built with 
+<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
 
             }
         }
@@ -246,12 +222,10 @@ function pcm_footer_msg_remove_branding()
             if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
             {
 
-           echo '<span id="footer-built-with-love" class="branding-';
+                echo '<span id="footer-built-with-love" class="branding-';
                 //             echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
                 echo '">Built with 
-            <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab">
-            <span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
-                 
+<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
 
             }
         }
