@@ -92,8 +92,28 @@ if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
                 $img->setAttribute("srcset", $srcset);
             }
         }
+        $fonts = $dom->getElementsByTagName("link");
+        foreach ($fonts as $font)
+        {
+            $href = $font->getAttribute("href");
+            /**********
+             * The code searches for any <link> tags with href attributes containing certain font file types,
+             * and appends the same query string "extend_cdn" to the value of the href attribute.
+             **********/
+            if (preg_match("/\.(eot|otf|ttf|woff|woff2)$/i", $href))
+            {
+                if (!in_array($href, ['gtm.js', 'jquery.json.min.js']))
+                {
+                    /******
+                     * Exlude jquery.json.min.js and gtm.js. Appending query string to
+                     * these files can cause Gravityform and Google analytics plugin not
+                     * to function correctly.
+                     ****/
+                    $font->setAttribute("href", $href . "?extend_cdn");
+                }
+            }
+        }
         return $dom->saveHTML();
-
     }
 
     //If CDN extender is enabled don't append query string to images files
@@ -108,25 +128,6 @@ if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
     {
 
         $html = extend_cache_for_images($html);
-
-        /**********
-         * The code searches for any <link> tags with href attributes containing certain font file types,
-         * and appends the same query string "extend_cdn" to the value of the href attribute.
-         **********/
-
-        $html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2?extend_cdn$4', $html);
-        //$html = preg_replace('/(<link[^>]+href[\s]*=[\s]*["\'])(https?:\/\/' . DB_NAME . '.v2.pressablecdn.com\/)([^"\']+\.(eot|otf|svg|ttf|woff|woff2))(["\'])/i', '$1$2$3?extend_cdn$5', $html);
-        
-
-        /******
-         * Rename instances of jquery.js?extend_cdnon.min.js to
-         * jquery.json.min.js to fix Gravityform jquery.json.min.js
-         * file from 404'ing due to extend_cdn renianming it incorrectly.
-         ****/
-        $html = str_replace("jquery.js?extend_cdnon.min.js", "jquery.json.min.js", $html);
-
-        /* Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug */
-        $html = str_replace("gtm.js?extend_cdn", "gtm.js", $html);
 
         return $html;
     }
