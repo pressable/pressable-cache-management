@@ -1,6 +1,5 @@
 <?php //Extend Pressable's cache-control from 7 days until 10 years for static assets
 
-
 // disable direct file access
 if (!defined('ABSPATH'))
 {
