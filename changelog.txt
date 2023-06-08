@@ -1,8 +1,5 @@
 === Pressable Cache Management Change log ===
 
-
-=== Pressable Cache Management Change log ===
-
 = Version 3.9.10  (June 8, 2023) =
 * Fixed bug of purge CDN button which is displaying when CDN is disabled
 * Hide visible hyperlink on footer page to hide branding
