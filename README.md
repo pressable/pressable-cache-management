@@ -56,12 +56,11 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 === Pressable Cache Management Change log ===
 
 = Version 3.9.10  (June 8, 2023) =
+
 * Fixed bug of purge CDN button which is displaying when CDN is disabled
 * Hide visible hyperlink on footer page to hide branding
 * Fixed  issue with </link> tag not appending to RSS feed page
 * Fixed bug for broken images inside <picture> tag that uses scr and srcset attribute when Imagify .webp is configures on a site
-
-=== Pressable Cache Management Change log ===
 
 = Version 3.8.10  (May 12, 2023) =
 
