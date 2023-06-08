@@ -84,11 +84,36 @@ if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
         foreach ($images as $img)
         {
             $src = $img->getAttribute("src");
-            $img->setAttribute("src", $src . "?extend_cdn");
+            if (preg_match("/\.webp$/i", $src))
+            {
+                continue;
+            }
+            if (preg_match("/data:image\/svg\+xml;/i", $src))
+            {
+                continue;
+            }
+            else
+            {
+                $img->setAttribute("src", $src . "?extend_cdn");
+            }
+            /*
+             * Skips links inside src and srcset attributes that contain data:image/svg+xml;
+             * and does not append "extend_cdn" to prevent imagify webp generated images from breaking
+            */
+
             $srcset = $img->getAttribute("srcset");
             if (!empty($srcset))
             {
-                $srcset = preg_replace("/(https?:\/\/[^\s]+)/", "$1?extend_cdn", $srcset);
+                $srcset = preg_replace_callback("/(https?:\/\/[^\s]+)\.webp/i", function ($matches)
+                {
+                    return $matches[1] . "?extend_cdn";
+                }
+                , $srcset);
+                $srcset = preg_replace_callback("/data:image\/svg\+xml;/i", function ($matches)
+                {
+                    return "";
+                }
+                , $srcset);
                 $img->setAttribute("srcset", $srcset);
             }
         }
