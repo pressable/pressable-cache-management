@@ -96,7 +96,7 @@ if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_bra
                 )
             ));
 			
-	   //Check if the Pressable API is connected or hide the CDN purge cache admin bar button
+			//Check if the Pressable API is connected or hide the CDN purge cache admin bar button
             $pcm_con_auth = get_option('pressable_api_admin_notice__status');
             $site_id_con_res = get_option('pcm_site_id_con_res');
 
@@ -367,7 +367,12 @@ function purge_cdn_cache()
             {
                 $message = __('CDN can only be purged once per minute :(', 'pressable_cache_management');
                 echo $message;
-            }
+            } else {
+				
+				$message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin.', 'pressable_cache_management');
+                echo $message;
+				
+			}
 
         }
     }
