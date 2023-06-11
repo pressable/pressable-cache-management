@@ -76,8 +76,8 @@ if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_bra
     function pcm_remove_branding($admin_bar)
     {
 
-        //Display flush cache bar for only admin
-        if (current_user_can('administrator'))
+        //Display flush cache Admin Top Bar for only Admin and Shop Managers
+        if (current_user_can('administrator') || current_user_can('manage_woocommerce'))
         {
 
             global $wp_admin_bar, $pagenow;;
@@ -96,7 +96,7 @@ if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_bra
                 )
             ));
 			
-			//Check if the Pressable API is connected or hide the CDN purge cache admin bar button
+	   //Check if the Pressable API is connected or hide the CDN purge cache admin bar button
             $pcm_con_auth = get_option('pressable_api_admin_notice__status');
             $site_id_con_res = get_option('pcm_site_id_con_res');
 
@@ -158,9 +158,8 @@ else
         {
 
         }
-        //Display flush cache bar for only admin
-        elseif (current_user_can('administrator'))
-        {
+        //Display flush cache Admin Top Bar for only Admin and Shop Managers
+       elseif (current_user_can('administrator') || current_user_can('manage_woocommerce')) {
 
             global $wp_admin_bar, $pagenow;;
 
