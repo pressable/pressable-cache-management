@@ -57,7 +57,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 = Version 3.10.10  (June 20, 2023) =
 
-* Features to flush WooCommcerce product page automatically when product are updated via Woo API
+* Features to flush WooCommerce product page automatically when product are updated via Woo API
 * Ability for Shop managers to flush cache via Admin top bar
 * Ability to extend cache for URL's inside data-srcset attributes
 * Features to manage Edge Cache option
