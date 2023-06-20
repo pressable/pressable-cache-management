@@ -45,6 +45,10 @@ if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_font_fil
 require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_exclude_font_files_from_cdn.php';
 }
 
+if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/batcache_manager.php')) {
+require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_batcache_manager.php.php';
+}
+
 if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_cache_wpp_cookies_pages.php')) {
 require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
 }

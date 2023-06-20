@@ -23,39 +23,41 @@ function pressable_cache_management_display_settings_page()
 ?>
 
 
-  <!-- Our admin page content should all be inside .wrap -->
-  
-  <?php
+	  <!-- Our admin page content should all be inside .wrap -->
+
+	  <?php
     $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
 ?>
- 
-	 <div class="wrap branding-<?php echo (is_array($remove_pressable_branding_tab_options)) ? esc_html(json_encode($remove_pressable_branding_tab_options)) : esc_html($remove_pressable_branding_tab_options); ?>">
+
+		 <div class="wrap branding-<?php echo (is_array($remove_pressable_branding_tab_options)) ? esc_html(json_encode($remove_pressable_branding_tab_options)) : esc_html($remove_pressable_branding_tab_options); ?>">
 
 
 
-    <!-- Print the page title -->
-    <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
+		<!-- Print the page title -->
+		<h1><?php echo esc_html(get_admin_page_title()); ?></h1>
 
-    <!-- Here are our tabs -->
-    <nav class="nav-tab-wrapper">
-      <a href="admin.php?page=pressable_cache_management" class="nav-tab nav-tab-object-cache <?php if ($tab === null): ?>nav-tab-active<?php
+		<!-- Here are our tabs -->
+		<nav class="nav-tab-wrapper">
+		  <a href="admin.php?page=pressable_cache_management" class="nav-tab nav-tab-object-cache <?php if ($tab === null): ?>nav-tab-active<?php
     endif; ?>">Object Cache</a>
-      <a href="admin.php?page=pressable_cache_management&tab=cdn_settings_tab" class="nav-tab nav-tab-cdn <?php if ($tab === 'cdn_settings_tab'): ?>nav-tab-active<?php
+		  <a href="admin.php?page=pressable_cache_management&tab=cdn_settings_tab" class="nav-tab nav-tab-cdn <?php if ($tab === 'cdn_settings_tab'): ?>nav-tab-active<?php
     endif; ?>">CDN</a>
-      <a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab" class="nav-tab nav-tab-api <?php if ($tab === 'pressable_api_authentication_tab'): ?>nav-tab-active<?php
+			<a href="admin.php?page=pressable_cache_management&tab=edge_cache_settings_tab" class="nav-tab nav-tab-edge-cache <?php if ($tab === 'edge_cache_settings_tab'): ?>nav-tab-active<?php
+    endif; ?>">Edge Cache(Beta)</a>
+		  <a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab" class="nav-tab nav-tab-api <?php if ($tab === 'pressable_api_authentication_tab'): ?>nav-tab-active<?php
     endif; ?>">API Authentication</a>
-   
-    <!-- Hidden from the plugin view can be accessed from the love icon below the plugin footer -->
-      <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" class="nav-tab nav-tab-hidden <?php if ($tab === 'remove_pressable_branding_tab'): ?>nav-tab-active<?php
+
+		<!-- Hidden from the plugin view can be accessed from the love icon below the plugin footer -->
+		  <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" class="nav-tab nav-tab-hidden <?php if ($tab === 'remove_pressable_branding_tab'): ?>nav-tab-active<?php
     endif; ?>">Hidden Tab Remove Branding</a>
-    </nav>
+		</nav>
 
-  <!-- Switch between tabs -->
+	  <!-- Switch between tabs -->
 
-  <div class="wrap">
-    <h1 ><?php echo esc_html(get_admin_page_title()); ?></h1>
-    <form action="options.php" method="post"><?php
+	  <div class="wrap">
+		<h1 ><?php echo esc_html(get_admin_page_title()); ?></h1>
+		<form action="options.php" method="post"><?php
     if ($default_tab == $tab)
     {
 
@@ -85,6 +87,18 @@ function pressable_cache_management_display_settings_page()
         }
 
     }
+    elseif ($tab == 'edge_cache_settings_tab')
+    {
+
+        //Display setings and page for CDN tab
+        settings_fields('edge_cache_settings_tab_options');
+        do_settings_sections('edge_cache_settings_tab');
+
+        $pcm_con_auth = get_option('pressable_api_admin_notice__status');
+        $site_id_con_res = get_option('pcm_site_id_con_res');
+
+    }
+
     elseif ($tab == 'pressable_api_authentication_tab')
     {
 
@@ -124,16 +138,16 @@ function pressable_cache_management_display_settings_page()
 ?>
 
 
-<style type="text/css">
-  
-/** Hide Pressable branding tab **/
-.nav-tab-hidden,
-#footer-built-with-love.branding-disable,
-.branding-disable h2,
-.branding-disable .pressablecmlogo { display:none!important; }
-	
-</style>
-  </div><?php
+	<style type="text/css">
+
+	/** Hide Pressable branding tab **/
+	.nav-tab-hidden,
+	#footer-built-with-love.branding-disable,
+	.branding-disable h2,
+	.branding-disable .pressablecmlogo { display:none!important; }
+
+	</style>
+	  </div><?php
 }
 
 //Display footer message with Pressable branding
@@ -186,7 +200,7 @@ function pcm_footer_msg()
                 echo '<span id="footer-built-with-love" class="branding-';
                 echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
                 echo '">Built with 
-<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
+	<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
 
             }
         }
@@ -225,7 +239,7 @@ function pcm_footer_msg_remove_branding()
                 echo '<span id="footer-built-with-love" class="branding-';
                 //             echo $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
                 echo '">Built with 
-<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
+	<a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a>';
 
             }
         }

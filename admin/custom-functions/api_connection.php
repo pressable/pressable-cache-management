@@ -223,7 +223,7 @@ if (isset($pcm_api_authentication_options['pressable_site_id'], $pcm_api_authent
                 {
 
                     $user = $GLOBALS['current_user'];
-                    $message = sprintf('<p>Authentication Successful :)</p>', $user->display_name);
+                    $message = sprintf('<p><h3>Authentication Successful 👋🏾 🥳 </h3></p>', $user->display_name);
 
                     pressable_api_connect_notice__render_notice($message, 'notice notice-success is-dismissible');
                 });

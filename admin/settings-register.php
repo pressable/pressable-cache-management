@@ -9,7 +9,7 @@ if (!defined('ABSPATH'))
 
 }
 
-// register plugin settings
+// Register plugin settings
 function pressable_cache_management_register_settings()
 {
     //Save options for object cache tab
@@ -17,7 +17,10 @@ function pressable_cache_management_register_settings()
 
     //Save options for CDN tab
     register_setting('cdn_settings_tab_options', 'cdn_settings_tab_options', 'cdn_settings_tab_callback_validate_options');
-
+	
+	// Save options for edge cache tab
+	 register_setting('edge_cache_tab_options', 'edge_cache_settings_tab_options', 'edge_cache_settings_tab_callback_validate_options');
+	
     //Save option for API Authentication tab
     register_setting('pressable_api_authentication_tab_options', 'pressable_api_authentication_tab_options', 'pressable_api_authentication_tab_callback_validate_options');
 
@@ -44,6 +47,9 @@ function pressable_cache_management_register_settings()
     //CDN settings tab page
     add_settings_section('pressable_cache_management_section_cdn', esc_html__('Manage CDN Settings', 'cdn_settings_tab') , 'pressable_cache_management_callback_section_cdn', 'cdn_settings_tab');
 
+	//Edge Cache settings tab page
+    add_settings_section('pressable_cache_management_section_edge_cache', esc_html__('Manage Edge Cache Settings', 'edge_cache_settings_tab') , 'pressable_cache_management_callback_section_edge_cache', 'edge_cache_settings_tab');
+	
     //API authentication tab page
     add_settings_section('pressable_cache_management_section_api_authentication', esc_html__('API Authentication', 'pressable_api_authentication_tab') , 'pressable_cache_management_callback_section_authentication', 'pressable_api_authentication_tab');
 
@@ -83,6 +89,9 @@ function pressable_cache_management_register_settings()
 
     //Flush Batcache for individual pages
     add_settings_field('flush_object_cache_for_single_page', esc_html__('Flush Batcache for Individual pages', 'pressable_cache_management') , 'pressable_cache_management_callback_field_flush_batcache_particular_page_checbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_object_cache_for_single_page', 'label' => esc_html__('Flush Batcache for individual pages', 'pressable_cache_management') ]);
+	
+	//Flush Batcache for WooCommerce individual product page automatically when products are updated via Woo API
+    add_settings_field('flush_batcache_for_woo_product_individual_page_checkbox', esc_html__('Flush Batcache for Woo Product pages', 'pressable_cache_management') , 'pressable_cache_management_callback_field_flush_batcache_woo_product_page_checbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'flush_batcache_for_woo_product_individual_page_checkbox', 'label' => esc_html__('Flush Batcache for WooCommerce product individual pages', 'pressable_cache_management') ]);
 	
 	 //Cache pages which sets wpp_ cookies
     //add_settings_field('cache_wpp_cookies_pages', esc_html__('Caches WPP_ Cookie Page', 'pressable_cache_management') , 'pressable_cache_management_callback_field_cache_pages_that_sets_wpp_cookies_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'cache_wpp_cookies_pages', 'label' => esc_html__('Caches pages which set wpp_ cookies', 'pressable_cache_management') ]);
@@ -135,6 +144,7 @@ function pressable_cache_management_register_settings()
             }
 
         }
+		
 
         //CDN cache extender
         if (!empty($api_auth_tab_options['api_client_id']))
@@ -221,10 +231,39 @@ function pressable_cache_management_register_settings()
 
     }
 
+	
+   /*****************
+    Edge Cache Management Tab  
+    *****************/
+	
+
+		 if ($pcm_con_auth === 'activating' || 'not-exists' === get_option('pressable_api_admin_notice__status', 'not-exists'))
+    {
+        // If (empty($api_auth_tab_options['api_client_id'])) {
+        add_settings_field('edge_cache_on_off_radio_button', esc_html__('Turn on/off Edge Cache', 'edge_cache_settings_tab') , 'pressable_cdn_enable_api', 'edge_cache_settings_tab', 'pressable_cache_management_section_edge_cache', ['id' => 'edge_cache_on_off_radio_button', 'label' => esc_html__('Turn on/off Edge Cache') ]);
+    }
+    else
+    {
+        add_settings_field('edge_cache_on_off_radio_button', esc_html__('Turn On/Off Edge Cache', 'edge_cache_settings_tab') , 'pressable_cache_management_callback_field_extend_edge_cache_radio_button', 'edge_cache_settings_tab', 'pressable_cache_management_section_edge_cache', ['id' => 'edge_cache_on_off_radio_button', 'label' => esc_html__('Turn on/off Edge Cache', 'edge_cache_settings_tab') ]);
+
+        //Purge Edge Cache button
+        $hide_purge_edge_cache_button = get_option('edge-cache-enabled');
+		$pcm_con_auth = get_option('pressable_api_admin_notice__status');
+        if (!empty($api_auth_tab_options['api_client_id']))
+        {
+
+            //Show purge edge cache button only when edge cache  is enabled and API is connected
+             if ($hide_purge_edge_cache_button === 'enabled' && $pcm_con_auth === 'activated')
+             {
+                add_settings_field('purge_edge_cache_button', esc_html__('Purge Edge Cache', 'edge_cache_settings_tab') , 'pressable_edge_cache_flush_management_callback_field_button', 'edge_cache_settings_tab', 'pressable_cache_management_section_edge_cache', ['id' => 'purge_edge_cache_button', 'label' => esc_html__('(Purge Edge Cache)', 'edge_cache_settings_tab') ]);
+            }
+
+        }
+	}
+	
     /*
     Authentication Management Tab
-        
-    */
+     */
 
     //Check if the connection to the API is successful from the DB
     $site_id_con_res = get_option('pcm_site_id_con_res');

@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Presable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      3.9.10
+Version:      3.10.10
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
@@ -38,11 +38,11 @@ function deactivate_plugin_if_not_pressable()
 //Display notice banner
 function pcm_auto_deactivation_notice()
 {
-    $image_url = plugin_dir_url(__FILE__) . '/admin/assets/img/pressable-logo-primary.svg';
+    
     $msg = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
-    $msg .= '<div style="background-image: url(\'' . $image_url . '\');background-repeat: no-repeat;background-position: right center; padding-right: 30px;">';
+  
     $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __('Attention! ', 'pressable_cache_management') . __('', 'pressable_cache_management') . '</h3>';
-    $msg .= '<p> Pressable Cache Management can only run on Pressable Server!<a target="_blank" href="https://try.pressable.com/"> try us today and get a free coupon</a> :) </p>';
+    
     $msg .= '</div>';
     $msg .= '</div>';
     echo $msg;
@@ -69,7 +69,9 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'remove_old_mu_plugins.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_cdn.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_edge_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_cdn_cache.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_edge_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_object_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/object_cache_admin_bar.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_jpg_png_webp_from_cdn.php';
@@ -77,8 +79,8 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_json_js_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_css_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_particular_file_from_cdn.php';
+	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions//flush_batcache_for_woo_individual_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_pages_from_batcache.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cache_wpp_cookie_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_batcache_for_particular_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_comment_delete.php';

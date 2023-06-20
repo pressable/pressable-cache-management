@@ -32,35 +32,35 @@ function pressable_cache_management_callback_section_cache()
     }
 
     echo '<p>' . esc_html__('These settings enable you to manage the object cache.', 'pressable_cache_management') . '</p>';
-	
-// Check for Cloudflare
+    
+// Check if the site uses Cloudflare
 $response = wp_remote_get( get_site_url(), array( 'timeout' => 120 ) );
 $headers = wp_remote_retrieve_headers( $response );
 
 if ( isset( $headers['server'] ) && stripos( $headers['server'], 'cloudflare' ) !== false ) {
-	//Cloudflare is present in the website header.
+    //Cloudflare is present in the website header.
 
-	// Check for Batcache
-	$site_url = get_site_url();
-	$response = wp_remote_get( $site_url, array( 'timeout' => 120 ) );
+    // Check Batcache status
+    $site_url = get_site_url();
+    $response = wp_remote_get( $site_url, array( 'timeout' => 120 ) );
 
-	if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
-		echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p>';
-		echo '<p style="text-align:right; font-size: smaller;">Disable Cloudflare proxy and caching and try again &#x1F7E0</p></br>';
-	} else {
-		echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';		
-	}
+    if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
+        echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p>';
+        echo '<p style="text-align:right; font-size: smaller;">Disable Cloudflare proxy and caching and try again &#x1F7E0</p></br>';
+    } else {
+        echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';     
+    }
 } else {
-	//Cloudflare is not present in the website header.
-	// Check for Batcache
-	$site_url = get_site_url();
-	$response = wp_remote_get( $site_url, array( 'timeout' => 120 ) );
+    //Cloudflare is not present in the website header.
+    // Check for Batcache
+    $site_url = get_site_url();
+    $response = wp_remote_get( $site_url, array( 'timeout' => 120 ) );
 
-	if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
-		echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p></br>';
-	} else {
-		echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';		
-	}
+    if ( is_wp_error( $response ) || strpos( $response['body'], 'batcache' ) === false ) {
+        echo '<p style="text-align:right; font-weight:bold">Batcache Status: Broken &#128308;</p></br>';
+    } else {
+        echo '<p style="text-align:right; font-weight:bold">Batcache Status: OK &#x1F7E2;</p>';     
+    }
 }
 
 
@@ -69,9 +69,23 @@ if ( isset( $headers['server'] ) && stripos( $headers['server'], 'cloudflare' ) 
 function pressable_cache_management_callback_section_cdn()
 {
 
-    echo '<p>' . esc_html__('These settings enable you to manage your site CDN.', 'pressable_cache_management') . '</p>';
+    echo '<p>' . esc_html__('These settings enables you to manage your site CDN.', 'pressable_cache_management') . '</p>';
 
 }
+
+
+$pcm_con_auth = get_option('pressable_api_admin_notice__status');
+$site_id_con_res = get_option('pcm_site_id_con_res');
+
+//  if ($pcm_con_auth === 'activating') {
+function pressable_cache_management_callback_section_edge_cache()
+{
+
+   echo '<p>' . esc_html__('These settings enables you to manage Edge Cache settings.', 'pressable_cache_management') . '</p>';
+
+}
+
+
 
 $pcm_con_auth = get_option('pressable_api_admin_notice__status');
 $site_id_con_res = get_option('pcm_site_id_con_res');
@@ -81,7 +95,8 @@ function pressable_cdn_enable_api()
 {
 
     $api_tab = 'admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab';
-    echo '<p>' . esc_html__('You must configure the API settings before you can manage the CDN. ', 'pressable_cache_management') . sprintf('<a href="%s">%s</a>', $api_tab, esc_html__('Setup API Authentication ', 'pressable_cache_management')) . '</p>';
+    echo '<p>' . esc_html__('Let\'s get you set up with API authentication so you can manage your CDN and Edge Cache — ', 'pressable_cache_management') . sprintf('<a href="%s">%s</a>', $api_tab, esc_html__('Setup API Auth', 'pressable_cache_management')) . '</p>';
+
 
 }
 
@@ -96,14 +111,14 @@ function pressable_cache_management_callback_section_authentication()
     {
 
         echo '<p>' . esc_html__('Your website is now connected to the control panel &#128994;', 'pressable_cache_management') . '</p>';
-		
+        
 
     }
     else
     {
 
-        $mpcp_url = 'https://my.pressable.com/api/applications';
-        echo '<p>' . esc_html__('Connect your site to the hosting control panel  ', 'pressable_cache_management') . sprintf('<a href="%s">%s</a>', $mpcp_url, esc_html__('Setup API Keys Here', 'pressable_cache_management')) . '&#32;' . '&#128308;' . '</p>';
+       $mpcp_url = 'https://my.pressable.com/api/applications';
+echo '<p>' . esc_html__('Connect your site to the hosting control panel  ', 'pressable_cache_management') . sprintf('<a href="%s" target="_blank">%s</a>', $mpcp_url, esc_html__('Setup API Keys Here', 'pressable_cache_management')) . '&#32;' . '&#128308;' . '</p>';
 
     }
 }
@@ -148,6 +163,7 @@ function pressable_cache_management_callback_field_button($args)
     echo '<small><strong>Last flushed at: </strong></small> ' . (get_option('flush-obj-cache-time-stamp'));
 
 }
+
 
 // Extend batcache checkbox
 function pressable_cache_management_callback_field_extend_cache_checkbox($args)
@@ -299,48 +315,76 @@ function pressable_cache_management_callback_field_flush_batcache_particular_pag
 }
 
 
+
+
+//Flush cache for WooCommerce product single page
+function pressable_cache_management_callback_field_flush_batcache_woo_product_page_checbox($args)
+{
+
+    $options = get_option('pressable_cache_management_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+
+    echo '<div class="container">';
+    echo '<label class="switch">';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<span class="slider round"></span>
+</label>';
+    // echo '</br>';
+    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+    echo '</br>';
+    echo '</br>';
+    //Display time stamp when object cache was last flushed
+//echo '<small><strong>Last flushed at:</strong></small> ' . (get_option('flush-object-cache-for-woo-single-page-time-stamp')) . '<small></small>';
+
+}
+
+
 //Cache pages that set wpp_ cookies
-function pressable_cache_management_callback_field_cache_pages_that_sets_wpp_cookies_checkbox($args)
-{
+// function pressable_cache_management_callback_field_cache_pages_that_sets_wpp_cookies_checkbox($args)
+// {
 
-     $options = get_option('pressable_cache_management_options');
+//      $options = get_option('pressable_cache_management_options');
 
-    $id = isset($args['id']) ? $args['id'] : '';
-    $label = isset($args['label']) ? $args['label'] : '';
+//     $id = isset($args['id']) ? $args['id'] : '';
+//     $label = isset($args['label']) ? $args['label'] : '';
 
-    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+//     $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
 
-    echo '<div class="container">';
-    echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
-    echo '<span class="slider round"></span>
-</label>';
-    // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+//     echo '<div class="container">';
+//     echo '<label class="switch">';
+//     echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+//     echo '<span class="slider round"></span>
+// </label>';
+//     // echo '</br>';
+//     echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
   
-}
+// }
 
 
-//Exclude Google Ads URL's with query string gclid from Batcache
-function pressable_cache_management_callback_field_exclude_query_string_gclid_checkbox($args)
-{
+// //Exclude Google Ads URL's with query string gclid from Batcache
+// function pressable_cache_management_callback_field_exclude_query_string_gclid_checkbox($args)
+// {
 
-     $options = get_option('pressable_cache_management_options');
+//      $options = get_option('pressable_cache_management_options');
 
-    $id = isset($args['id']) ? $args['id'] : '';
-    $label = isset($args['label']) ? $args['label'] : '';
+//     $id = isset($args['id']) ? $args['id'] : '';
+//     $label = isset($args['label']) ? $args['label'] : '';
 
-    $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
+//     $checked = isset($options[$id]) ? checked($options[$id], 1, false) : '';
 
-    echo '<div class="container">';
-    echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
-    echo '<span class="slider round"></span>
-</label>';
-    // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
+//     echo '<div class="container">';
+//     echo '<label class="switch">';
+//     echo '<input type="checkbox" id="pressable_cache_management_options_' . $id . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+//     echo '<span class="slider round"></span>
+// </label>';
+//     // echo '</br>';
+//     echo '<label class="rad-text for="pressable_cache_management_options_' . $id . '">' . $label . '</label>';
   
-}
+// }
 
   //Callback: text field to exempt individual page from batcache
  function pressable_cache_management_callback_field_exempt_batcache_text($args)
@@ -362,7 +406,7 @@ function pressable_cache_management_callback_field_exclude_query_string_gclid_ch
  ********************************
  **/
 
-// // Radio button options to turn on/off cdn
+// Radio button options to turn on/off CDN
 function pressable_cache_management_options_radio_button()
 {
 
@@ -374,6 +418,7 @@ function pressable_cache_management_options_radio_button()
     );
 
 }
+
 
 // function pressable_cache_management_callback_field_extend_cdn_radio_button($args) {
 
@@ -452,7 +497,9 @@ function pressable_cache_management_callback_field_extend_cdn_radio_button($args
 
 }
 
-// Purge the CDN cache
+
+
+// Purge CDN cache
 function pressable_cdn_cache_flush_management_callback_field_button($args)
 {
 
@@ -478,6 +525,8 @@ function pressable_cdn_cache_flush_management_callback_field_button($args)
     echo '<small><strong>Last purged at: </strong></small>' . (get_option('cdn-cache-purge-time-stamp'));
 
 }
+
+
 
 //Extend the Pressable CDN cache
 function pressable_cdn_cache_extender_callback_field_checkbox($args)
@@ -600,6 +649,109 @@ function pressable_cache_management_callback_field_exclude_partucular_file_text(
 
 }
 
+
+
+/**
+ ********************************
+ * Edge Cache                    *
+ * Management Tab               *
+ ********************************
+ **/
+
+
+// Radio button options to turn on/off Edge Cache
+function pressable_cache_management_options_radio_edge_cache_button()
+{
+
+    return array(
+
+        'enable' => esc_html__('Enable Edge Cache (Beta)', 'pressable_cache_management') ,
+        'disable' => esc_html__('Disable CDN', 'pressable_cache_management')
+
+    );
+
+}
+
+function pressable_cache_management_callback_field_extend_edge_cache_radio_button($args)
+{
+
+    $options = get_option('edge_cache_settings_tab_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    $selected_option = isset($options[$id]) ? sanitize_text_field($options[$id]) : '';
+
+    //Disable Edge Cache button label
+    $label = esc_html__('Disable Edge Cache', 'pressable_cache_management');
+
+     if (get_option('edge-cache-status') == 'Success' && get_option('edge-cache-enabled') == 'enabled')
+    {
+		
+		echo '</form>';
+
+        echo '<form method="post" id="disable_edge_cache_nonce">';
+
+        echo '<span id="disable_edge_cache_nonce">';
+
+        echo '<input id="edge_cache_settings_tab_options_' . $id . '" name="edge_cache_settings_tab_options[' . $id . ']" type="submit" size="40" value="' . __('Disable Edge Cache', 'pressable_cache_management') . '" class="purgecacahe"/>';
+        echo '<input type="hidden" name="disable_edge_cache_nonce" value="' . wp_create_nonce('disable_edge_cache_nonce') . '" <br/><label class="rad-text for="edge_cache_settings_tab_options_' . $id . '">' . $label . '</label>';
+
+        echo '</span>';
+        echo '</form>';
+
+    }
+    else
+    {
+
+        //Enable Edge Cache button label
+        $label = esc_html__('Enable Edge Cache (Beta) improves Time to First Byte (TTFB)', 'pressable_cache_management');
+
+        echo '</form>';
+
+        echo '<form method="post" id="enable_edge_cache_nonce">';
+
+        echo '<span id="enable_edge_cache_nonce">';
+
+        echo '<input id="edge_cache_settings_tab_options_' . $id . '" name="edge_cache_settings_tab_options[' . $id . ']" type="submit" size="40" value="' . __('Enable Edge Cache', 'pressable_cache_management') . '" class="purgecacahe"/>';
+        echo '<input type="hidden" name="enable_edge_cache_nonce" value="' . wp_create_nonce('enable_edge_cache_nonce') . '" <br/><label class="rad-text for="edge_cache_settings_tab_options_' . $id . '">' . $label . '</label>';;
+
+        echo '</span>';
+        echo '</form>';
+
+    }
+
+}
+
+
+//Purge Edge Cache
+function pressable_edge_cache_flush_management_callback_field_button($args)
+{
+
+    $options = get_option('edge_cache_settings_tab_options');
+
+    $id = isset($args['id']) ? $args['id'] : '';
+    $label = isset($args['label']) ? $args['label'] : '';
+
+    echo '</form>';
+
+    echo ' <form method="post" id="purge_edge_cache_nonce"> 
+
+         <span id="purge_edge_cache_button">
+
+              <input id="edge_cache_settings_tab_options_' . $id . '" name="edge_cache_settings_tab_options[' . $id . ']" type="submit" size="40" value="' . __('Purge Edge Cache', 'pressable_cache_management') . '" class="purgecacahe"/><input type="hidden" name="purge_edge_cache_nonce" value="' . wp_create_nonce('purge_edge_cache_nonce') . '" <br/><label class="rad-text for="edge_cache_settings_tab_options_' . $id . '">' . $label . '</label>
+
+
+         </span>
+
+    </form>';
+    echo '</br>';
+    //Display time stamp when object cache was last flushed
+    echo '<small><strong>Last purged at: </strong></small>' . (get_option('edge-cache-purge-time-stamp'));
+
+}
+
+
 /**
  ********************************
  * Authentication               *
@@ -684,13 +836,13 @@ if (is_multisite())
         update_option('pcm_client_secret', '');
 
         /**
-		 ***********************************************************
-		 * Disconnect API Connection
-		 * Forces the user to re-add the API credentials if they
-		 * would like to reconnect on a cloned site
-		 ************************************************************
-		 */
-		
+         ***********************************************************
+         * Disconnect API Connection
+         * Forces the user to re-add the API credentials if they
+         * would like to reconnect on a cloned site
+         ************************************************************
+         */
+        
         update_option('pressable_api_admin_notice__status', 'activating');
         update_option('pcm_site_id_con_res', 'Not Found');
 
@@ -737,13 +889,13 @@ else
     }
 }
 
-		/**
-		 ***********************************************************
-		 * Check if the Pressable site id exist in the database.
-		 * CSS to hide site id field is located on style CSS while
-		 * the function to hide the field is on settings-register.php
-		 ************************************************************
-		 */
+        /**
+         ***********************************************************
+         * Check if the Pressable site id exist in the database.
+         * CSS to hide site id field is located on style CSS while
+         * the function to hide the field is on settings-register.php
+         ************************************************************
+         */
 
 function pressable_cache_management_callback_field_site_id_text($args)
 {

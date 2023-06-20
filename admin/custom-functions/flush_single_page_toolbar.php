@@ -178,6 +178,7 @@ if (isset($options['flush_object_cache_for_single_page']) && !empty($options['fl
         function load_remove_branding_toolbar_js()
         {
 
+            // Load plugin admin bar icon
             wp_enqueue_script('pcm-toolbar"', plugin_dir_url(dirname(__FILE__)) . 'public/js/toolbar_remove_branding.js', array(
                 'jquery'
             ) , time() , true);
@@ -252,38 +253,31 @@ if (isset($options['flush_object_cache_for_single_page']) && !empty($options['fl
 
     }
 
-    // Display flush button on admin bar on page preview
+    // Display flush button on top bar on page preview for admin and shop managers users
     add_action('init', 'pcm_show_flush_cache_option_for_single_page');
 
-    // Display flush cache option for only admin users
     function pcm_show_flush_cache_option_for_single_page()
     {
         $current_user = wp_get_current_user();
 
-        if (!current_user_can('administrator'))
-        {
-
-            return;
-
-        }
-        else
+        if (current_user_can('manage_woocommerce') || current_user_can('administrator'))
         {
 
             $toolbar = new PcmFlushCacheAdminbar();
             $toolbar->add();
+
+        }
+        else
+        {
+            // Load plugin admin bar icon
+            function load_toolbar_css()
+            {
+
+                wp_enqueue_style('pressable-cache-management-toolbar', plugin_dir_url(dirname(__FILE__)) . 'public/css/toolbar.css', array() , time() , "all");
+            }
+
+            add_action('init', 'load_toolbar_css');
+
         }
     }
-
-}
-else
-{
-
-    function load_toolbar_css()
-    {
-
-        wp_enqueue_style('pressable-cache-management-toolbar', plugin_dir_url(dirname(__FILE__)) . 'public/css/toolbar.css', array() , time() , "all");
-    }
-
-    add_action('init', 'load_toolbar_css');
-
 }

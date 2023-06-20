@@ -98,7 +98,7 @@ function plugin_admin_notice()
         else: ?>
 
             	<div class="notice notice-warning is-dismissible">
-                <p><?php _e('Sorry, I was unable to save your cache settings try again :(', 'textdomain') ?></p>
+                <p><?php _e('Sorry, I was unable to save your cache settings try again :(', 'pressable_cache_management') ?></p>
             </div>
 
         <?php

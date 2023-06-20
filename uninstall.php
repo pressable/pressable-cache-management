@@ -21,7 +21,7 @@ if (!defined('WP_UNINSTALL_PLUGIN'))
 
 }
 
-// delete the plugin options from the database
+// Delete the plugin options from the site database
 delete_option('pressable_cache_management_options');
 delete_option('cdn_settings_tab_options');
 delete_option('pressable_api_authentication_tab_options');
@@ -50,6 +50,8 @@ delete_option('exclude_fonts_from_cdn_activate_notice');
 delete_option('pcm_site_id_added_activate_notice');
 delete_option('pcm_site_id_con_res');
 delete_option('cdnenabled');
+delete_option('edge-cache-enabled');
+delete_option('edge-cache-status');
 delete_option('pressable_site_id');
 delete_option('pcm_client_id');
 delete_option('pcm_client_secret');

@@ -76,69 +76,100 @@ if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
             return;
         }
 
-        libxml_use_internal_errors(true);
-        $dom = new DOMDocument();
-        $dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
-        libxml_clear_errors();
-        $images = $dom->getElementsByTagName("img");
-        foreach ($images as $img)
-        {
-            $src = $img->getAttribute("src");
-            if (preg_match("/\.webp$/i", $src))
-            {
-                continue;
-            }
-            if (preg_match("/data:image\/svg\+xml;/i", $src))
-            {
-                continue;
-            }
-            else
-            {
-                $img->setAttribute("src", $src . "?extend_cdn");
-            }
-            /*
-             * Skips links inside src and srcset attributes that contain data:image/svg+xml;
-             * and does not append "extend_cdn" to prevent imagify webp generated images from breaking
-            */
+        /*******************************************************************************************************************************************
+         * This code appends the extend_cdn query string to all of the theme's CSS and JavaScript files, except for gtm.js (used by Google Analytics)
+         * and jquery.json.min.js (used by Gravity Forms). Appending a query string might break the function of these files.
+         * This code loops through the wp_styles() and wp_scripts() objects and checking if the src path of each file contains the .css or
+         * .js extensions. If it does, the add_query_arg() function is used to append the extend_cdn query string to the src.
+         * The extend_cdn query string is used to load the theme's CSS and JavaScript files from a CDN, which can improve performance.
+         *******************************************************************************************************************************************/
 
-            $srcset = $img->getAttribute("srcset");
-            if (!empty($srcset))
-            {
-                $srcset = preg_replace_callback("/(https?:\/\/[^\s]+)\.webp/i", function ($matches)
-                {
-                    return $matches[1] . "?extend_cdn";
-                }
-                , $srcset);
-                $srcset = preg_replace_callback("/data:image\/svg\+xml;/i", function ($matches)
-                {
-                    return "";
-                }
-                , $srcset);
-                $img->setAttribute("srcset", $srcset);
+        libxml_use_internal_errors(true);
+$dom = new DOMDocument();
+$dom->loadHTML($html, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+libxml_clear_errors();
+
+$images = $dom->getElementsByTagName("img");
+foreach ($images as $img) {
+    $src = $img->getAttribute("src");
+    $srcset = $img->getAttribute("srcset");
+    $dataSrc = $img->getAttribute("data-src");
+    $dataSrcset = $img->getAttribute("data-srcset");
+
+    // Append query string to images inside src, srcset, data-srcset, or data-src
+    if (!empty($src) && !preg_match("/\.webp$/i", $src) && preg_match("/\.(jpe?g|png|gif)$/i", $src)) {
+        $img->setAttribute("src", $src . "?extend_cdn");
+    }
+
+    if (!empty($srcset)) {
+        $srcsetArray = explode(",", $srcset);
+        $newSrcsetArray = array_map(function ($srcsetItem) {
+            $urlParts = explode(" ", trim($srcsetItem));
+            $url = $urlParts[0];
+            if (!preg_match("/\.webp$/i", $url) && preg_match("/\.(jpe?g|png|gif)$/i", $url)) {
+                $newUrl = $url . "?extend_cdn";
+                $urlParts[0] = $newUrl;
             }
-        }
-        $fonts = $dom->getElementsByTagName("link");
-        foreach ($fonts as $font)
-        {
-            $href = $font->getAttribute("href");
-            /**********
-             * The code searches for any <link> tags with href attributes containing certain font file types,
-             * and appends the same query string "extend_cdn" to the value of the href attribute.
-             **********/
-            if (preg_match("/\.(eot|otf|ttf|woff|woff2)$/i", $href))
-            {
-                if (!in_array($href, ['gtm.js', 'jquery.json.min.js']))
-                {
-                    /******
-                     * Exlude jquery.json.min.js and gtm.js. Appending query string to
-                     * these files can cause Gravityform and Google analytics plugin not
-                     * to function correctly.
-                     ****/
-                    $font->setAttribute("href", $href . "?extend_cdn");
-                }
+            return implode(" ", $urlParts);
+        }, $srcsetArray);
+        $newSrcset = implode(", ", $newSrcsetArray);
+        $img->setAttribute("srcset", $newSrcset);
+    }
+
+    if (!empty($dataSrc)) {
+        $dataSrcArray = explode(",", $dataSrc);
+        $newDataSrcArray = array_map(function ($dataSrcItem) {
+            $urlParts = explode(" ", trim($dataSrcItem));
+            $url = $urlParts[0];
+            if (!preg_match("/\.webp$/i", $url) && preg_match("/\.(jpe?g|png|gif)$/i", $url)) {
+                $newUrl = $url . "?extend_cdn";
+                $urlParts[0] = $newUrl;
             }
-        }
-        return $dom->saveHTML();
+            return implode(" ", $urlParts);
+        }, $dataSrcArray);
+        $newDataSrc = implode(", ", $newDataSrcArray);
+        $img->setAttribute("data-src", $newDataSrc);
+    }
+
+    if (!empty($dataSrcset)) {
+        $dataSrcsetArray = explode(",", $dataSrcset);
+        $newDataSrcsetArray = array_map(function ($dataSrcsetItem) {
+            $urlParts = explode(" ", trim($dataSrcsetItem));
+            $url = $urlParts[0];
+            if (!preg_match("/\.webp$/i", $url) && preg_match("/\.(jpe?g|png|gif)$/i", $url)) {
+                $newUrl = $url . "?extend_cdn";
+                $urlParts[0] = $newUrl;
+            }
+            return implode(" ", $urlParts);
+        }, $dataSrcsetArray);
+        $newDataSrcset = implode(", ", $newDataSrcsetArray);
+        $img->setAttribute("data-srcset", $newDataSrcset);
+    }
+}
+
+$links = $dom->getElementsByTagName("link");
+foreach ($links as $link) {
+    $rel = $link->getAttribute("rel");
+    $href = $link->getAttribute("href");
+
+    if ($rel === "preload" && preg_match("/\.(eot|otf|ttf|woff|woff2)$/i", $href)) {
+        $href = add_query_arg('extend_cdn', '', $href);
+        $link->setAttribute("href", $href);
+    }
+}
+
+
+// Perform str_replace for data URI SVG image to prevent broken webp images
+$html = str_replace("data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D", "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D", $dom->saveHTML());
+$html = str_replace("data:image/svg+xml;charset=utf-8,%3Csvgxmlns%3D", "data:image/svg+xml;charset=utf-8,%3Csvg xmlns%3D", $html);
+
+$html = str_replace("data:image/svg+xml;charset=utf-8,%20%3Csvg%20xmlns%3D", "data:image/svg+xml;charset=utf-8,%20%3Csvg xmlns%3D", $html);
+
+return $html;
+
+
+
+
     }
 
     //If CDN extender is enabled don't append query string to images files

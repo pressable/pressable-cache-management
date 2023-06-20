@@ -1,10 +1,20 @@
 === Pressable Cache Management Change log ===
 
-= Version 3.9.10  (June 8, 2023) =
-* Fixed bug of purge CDN button which is displaying when CDN is disabled
-* Hide visible hyperlink on footer page to hide branding
-* Fixed  issue with </link> tag not appending to RSS feed page
-* Fixed bug for broken images inside <picture> tag that uses scr and srcset attribute when Imagify .webp is configures on a site
+= Version 3.10.10 (June 20, 2023) =
+
+    Features to flush WooCommerce product page automatically when product are updated via Woo API
+    Ability for Shop managers to flush cache via Admin top bar
+    Ability to extend cache for URL's inside data-srcset attributes
+    Features to manage Edge Cache option
+    Resolve conflict that causes Imagify plugin generated .webp images from displaying
+    Ability to auto turn on Edge Cache if it is disabled from MPCP when Edge cache is purged
+
+= Version 3.9.10 (June 8, 2023) =
+
+    Fixed bug of purge CDN button which is displaying when CDN is disabled
+    Hide visible hyperlink on footer page to hide branding
+    Fixed issue with tag not appending to RSS feed page
+    Fixed bug for broken images inside 
 
 = Version 3.8.10  (May 12, 2023) =
 
