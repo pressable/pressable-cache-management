@@ -55,6 +55,15 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 3.10.10  (June 20, 2023) =
+
+* Features to flush WooCommcerce product page automatically when product are updated via Woo API
+* Ability for Shop managers to flush cache via Admin top bar
+* Ability to extend cache for URL's inside data-srcset attributes
+* Features to manage Edge Cache option
+* Resolve conflict that causes Imagify plugin generated .webp images from displaying
+* Ability to auto turn on Edge Cache if it is disabled from MPCP when Edge cache is purged
+
 = Version 3.9.10  (June 8, 2023) =
 
 * Fixed bug of purge CDN button which is displaying when CDN is disabled
