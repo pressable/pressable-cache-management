@@ -1,6 +1,6 @@
 === Pressable Cache Management Change log ===
 
-= Version 3.10.10 (June 21, 2023) =
+= Version 4.0.0 (June 21, 2023) =
 
  * Removed edge cache purge time stamp from database
 
