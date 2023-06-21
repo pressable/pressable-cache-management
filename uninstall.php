@@ -26,6 +26,7 @@ delete_option('pressable_cache_management_options');
 delete_option('cdn_settings_tab_options');
 delete_option('pressable_api_authentication_tab_options');
 delete_option('cdn-cache-purge-time-stamp');
+delete_option('edge-cache-purge-time-stamp');
 delete_option('flush-obj-cache-time-stamp');
 delete_option('flush-cache-on-page-post-delete-time-stamp');
 delete_option('flush-cache-on-comment-delete-time-stamp');
