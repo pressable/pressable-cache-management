@@ -19,22 +19,22 @@ if (isset($options['flush_batcache_for_woo_product_individual_page_checkbox']) &
     //Declear variable so that it can be accessed from cdn_exclude_specific_file.php
     $flush_batcache_for_woo_product_individual_page= get_option('flush_batcache_for_woo_product_individual_page_checkbox');
 	
-	 //Create the pressable-cache-management mu-plugin index file
-	$pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management.php';
-	if (!file_exists($pcm_mu_plugins_index)) {
-		// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
-		copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
-	}
+	//  //Create the pressable-cache-management mu-plugin index file
+	// $pcm_mu_plugins_index = WP_CONTENT_DIR . '/mu-plugins/';
+	// if (!file_exists($pcm_mu_plugins_index)) {
+	// 	// Copy pressable-cache-management.php from plugin directory to mu-plugins directory
+	// 	copy( plugin_dir_path(__FILE__) . '/pressable_cache_management_mu_plugin_index.php', $pcm_mu_plugins_index);
+	// }
 
 	
-	// Check if the pressable-cache-management directory exists or create the folder
-	if (!file_exists(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/')) {
-		//create the directory
-		wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
-	}
+	// // Check if the pressable-cache-management directory exists or create the folder
+	// if (!file_exists(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/')) {
+	// 	//create the directory
+	// 	wp_mkdir_p(WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/');
+	// }
 
     
-    $flush_batcache_for_woo_product_individual_page = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_batcache_manager.php';
+    $flush_batcache_for_woo_product_individual_page = WP_CONTENT_DIR . '/mu-plugins/pcm_batcache_manager.php';
     if (file_exists($flush_batcache_for_woo_product_individual_page))
     {
 
@@ -42,7 +42,7 @@ if (isset($options['flush_batcache_for_woo_product_individual_page_checkbox']) &
     else
     {
         $flush_batcache_for_woo_product_individual_page = plugin_dir_path(__FILE__) . '/pcm_batcache_manager.php';		
-        $flush_batcache_for_woo_product_individual_page_active = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_batcache_manager.php';
+        $flush_batcache_for_woo_product_individual_page_active = WP_CONTENT_DIR . '/mu-plugins/pcm_batcache_manager.php';
 
         //Flush cache to enable activation take effect immediately
         wp_cache_flush();
@@ -107,7 +107,7 @@ else
      used by admin notice to display and remove notice**/
     update_option('flush_batcache_for_woo_product_individual_page_activate_notice', 'activating');
 	
-    $flush_batcache_for_woo_product_individual_page = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management/pcm_batcache_manager.php';
+    $flush_batcache_for_woo_product_individual_page = WP_CONTENT_DIR . '/mu-plugins/pcm_batcache_manager.php';
     if (file_exists($flush_batcache_for_woo_product_individual_page))
     {
         unlink($flush_batcache_for_woo_product_individual_page);
