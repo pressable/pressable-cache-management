@@ -55,6 +55,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 4.2.0 (June 22, 2023) =
+
+ * Changed the location for mu-plugins used to flush cache when Woo product is updated via API
+
 = Version 4.1.0 (June 22, 2023) =
 
  * Fixed issue double function deceleration 
