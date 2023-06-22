@@ -3,6 +3,7 @@
 = Version 4.1.0 (June 22, 2023) =
 
  * Fixed issue double function deceleration 
+ * Changed the location for mu-plugins used to flush cache when Woo product is updated via API
 
 = Version 4.0.0 (June 21, 2023) =
 
