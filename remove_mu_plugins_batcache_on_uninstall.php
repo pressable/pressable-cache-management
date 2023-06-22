@@ -38,3 +38,16 @@ function rrmdir($dir) {
         rmdir($dir);
     }
 }
+
+
+//Remove batcache manager plugin from mu-plugins directory
+$mu_plugins = ['pcm_batcache_manager.php'];
+
+foreach ($mu_plugins as $mu_plugin)
+{
+    $file = WP_CONTENT_DIR . '/mu-plugins/' . $mu_plugin;
+    if (file_exists($file))
+    {
+        unlink($file);
+    }
+}
