@@ -270,13 +270,13 @@ if (isset($options['flush_object_cache_for_single_page']) && !empty($options['fl
         else
         {
             // Load plugin admin bar icon
-            function load_toolbar_css()
+            function load_admin_toolbar_css()
             {
 
                 wp_enqueue_style('pressable-cache-management-toolbar', plugin_dir_url(dirname(__FILE__)) . 'public/css/toolbar.css', array() , time() , "all");
             }
 
-            add_action('init', 'load_toolbar_css');
+            add_action('init', 'load_admin_toolbar_css');
 
         }
     }
