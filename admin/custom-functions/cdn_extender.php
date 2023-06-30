@@ -25,6 +25,12 @@ function pressablecdn_template_redirect()
 if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
 {
 
+//Dont append query string if CDN is disabled
+if (get_option('cdnenabled') == 'disable') {
+    return;
+}
+
+
     function pcm_append_querystring_theme_scripts()
     {
         $extensions = array(
