@@ -150,7 +150,8 @@ class Batcache_Manager {
 	public function action_clean_post_cache( $post_id ) {
 
 		$post = get_post( $post_id );
-		if ( ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
+		// if ( ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
+		if ( $post && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
 				'publish',
 				'trash'
 			) )
