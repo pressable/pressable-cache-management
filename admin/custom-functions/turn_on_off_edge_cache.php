@@ -9,7 +9,6 @@ if (!defined('ABSPATH'))
 
 }
 
-
 /******************************
  * Activate Edge Cache Option
  *******************************/
@@ -49,7 +48,38 @@ if (isset($_POST['enable_edge_cache_nonce']))
                 $pressable_api_request_headers = array(
                     'Authorization' => 'Bearer ' . ($access_token)
                 );
-                //Pressable API request URL example: https://my.pressable.com/v1/sites
+
+                /****************************************************************************
+                 * Pressable API request URL example: https://my.pressable.com/v1/sites
+                 * --------------------------------------------------------------------------
+                 * API request to check the edge cache staus to know the state before making a
+                 * new request to Pressable API to update it. This will make sure Both the
+                 * plugin and MyPressable Control Panel stay in sync with each other.
+                 ****************************************************************************/
+
+                $pressable_api_request_site = 'https://my.pressable.com/v1/sites/' . $pressable_site_id;
+
+                // Connection to the API using WordPress request function to check site status
+                $pressable_api_response_site = wp_remote_request($pressable_api_request_site, array(
+                    'method' => 'GET',
+                    'headers' => $pressable_api_request_headers,
+                ));
+
+                $site_response = json_decode(wp_remote_retrieve_body($pressable_api_response_site) , true);
+
+                if (isset($site_response['data']['edgeCache']))
+                { // Check if "edgeCache" key exists
+                    if ($site_response['data']['edgeCache'] === "enabled")
+                    {
+                        // Edge Cache is already enabled, no need to make API calls
+                        update_option('edge-cache-status', 'Success');
+                        update_option('edge-cache-enabled', 'enabled');
+
+                        return;
+                    }
+                }
+
+                //Make API request to enable edge cache if disabled.
                 $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
 
                 //Connection to the API using WordPress request function
@@ -84,31 +114,26 @@ if (isset($_POST['enable_edge_cache_nonce']))
 
                 if ($pressable_api_query_response["message"] == "Success")
                 {
-                    //Check if Edge Cache  status if is enabled 
+                    //Check if Edge Cache  status if is enabled
                     update_option('edge-cache-status', 'Success');
-					
-					//Manually added endge cache status. Pressable API does not currently check the status of Edge Cache 
-					update_option('edge-cache-enabled', 'enabled');
+
+                    //Manually added endge cache status. Pressable API does not currently check the status of Edge Cache
+                    update_option('edge-cache-enabled', 'enabled');
                 }
-                  elseif ($response["errors"][0] == "Edge cache must be enabled")
+                elseif ($response["errors"][0] == "Edge cache must be enabled")
                 {
-// Make the request twice in a row
-$i = 0; // Initialize the i variable to 0
-while ($i < 2) { // While the i variable is less than 2, do the following
 
-    // Make an API call to turn on the Edge Cache
-    $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-    $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
-        'method' => 'PUT',
-        'headers' => $pressable_api_request_headers,
-        'body' => json_encode(array('enabled' => $response['enabled'])),
-    ));
+                    // Make an API call to turn on the Edge Cache
+                    $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
+                    $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
+                        'method' => 'PUT',
+                        'headers' => $pressable_api_request_headers,
+                        'body' => json_encode(array(
+                            'enabled' => $response['enabled']
+                        )) ,
+                    ));
 
-    $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
-
-    // Increment the i variable by 1
-    $i++;
-}
+                    $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
 
                 }
 
@@ -125,9 +150,10 @@ while ($i < 2) { // While the i variable is less than 2, do the following
                         if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
                         $user = $GLOBALS['current_user'];
                         $class = 'notice notice-success is-dismissible';
-						$message = __('<h3>Edge Cache enabled! 🎉</h3>Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB),<br>by serving page cache from the nearest server to your website visitors. <br><br><a href="https://pressable.com/knowledgebase/edge-cache/" target="_blank">Learn more about Edge Cache.</a>', 'pressable_cache_management');
-echo '<div class="notice notice-success">' . $message . '</div>';
+                        $message = __('<h3>Edge Cache enabled! 🎉</h3>Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB),<br>by serving page cache from the nearest server to your website visitors. <br><br><a href="https://pressable.com/knowledgebase/edge-cache/" target="_blank">Learn more about Edge Cache.</a>', 'pressable_cache_management');
+                        echo '<div class="notice notice-success">' . $message . '</div>';
 
+                        echo '<div class="notice notice-warning">' . __('<strong>Notice:</strong> It is recommended to disable the Pressable CDN if you are using Edge Cache to prevent extra HTTP requests.', 'pressable_cache_management') . '</div>';
 
                     }
                     add_action('admin_notices', 'pressable_edge_cache_purge_cache_notice_warning_msg');
@@ -202,7 +228,6 @@ echo '<div class="notice notice-success">' . $message . '</div>';
             "error_description" => "error_description"
         );
 
-
         //Set transient to expire access token in one hour
         $access_token_expiry = time() + $results["expires_in"];
         update_option('access_token_expiry', $access_token_expiry);
@@ -229,7 +254,38 @@ echo '<div class="notice notice-success">' . $message . '</div>';
 
             'Authorization' => 'Bearer ' . ($access_token)
         );
-        //Pressable API request URL example: https://my.pressable.com/v1/sites
+
+        /****************************************************************************
+         * Pressable API request URL example: https://my.pressable.com/v1/sites
+         * --------------------------------------------------------------------------
+         * API request to check the edge cache staus to know the state before making a
+         * new request to Pressable API to update it. This will make sure Both the
+         * plugin and MyPressable Control Panel stay in sync with each other.
+         ****************************************************************************/
+
+        $pressable_api_request_site = 'https://my.pressable.com/v1/sites/' . $pressable_site_id;
+
+        // Connection to the API using WordPress request function to check site status
+        $pressable_api_response_site = wp_remote_request($pressable_api_request_site, array(
+            'method' => 'GET',
+            'headers' => $pressable_api_request_headers,
+        ));
+
+        $site_response = json_decode(wp_remote_retrieve_body($pressable_api_response_site) , true);
+
+        if (isset($site_response['data']['edgeCache']))
+        { // Check if "edgeCache" key exists
+            if ($site_response['data']['edgeCache'] === "enabled")
+            {
+                // Edge Cache is already enabled, no need to make API calls
+                update_option('edge-cache-status', 'Success');
+                update_option('edge-cache-enabled', 'enabled');
+
+                return;
+            }
+        }
+
+        //Make API request to enable edge cache if disabled.
         $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
 
         //Connection to the API using WordPress request function
@@ -265,11 +321,11 @@ echo '<div class="notice notice-success">' . $message . '</div>';
 
         if ($pressable_api_query_response["message"] == "Success")
         {
-            //Check if Edge Cache  status if is enabled 
+            //Check if Edge Cache  status if is enabled
             update_option('edge-cache-status', 'Success');
-			
-			//Manually added endge cache status. Pressable API does not currently check the status of Edge Cache 
-			update_option('edge-cache-enabled', 'enabled');
+
+            //Manually added endge cache status. Pressable API does not currently check the status of Edge Cache
+            update_option('edge-cache-enabled', 'enabled');
 
         }
         else
@@ -287,12 +343,14 @@ echo '<div class="notice notice-success">' . $message . '</div>';
             {
                 $screen = get_current_screen();
 
-                 //Display admin notice for this plugin page only
-                        if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-                        $user = $GLOBALS['current_user'];
-                        $class = 'notice notice-success is-dismissible';
-						$message = __('<h3>Edge Cache enabled! 🎉</h3>Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB),<br>by serving page cache from the nearest server to your website visitors. <br><br><a href="https://pressable.com/knowledgebase/edge-cache/" target="_blank">Learn more about Edge Cache.</a>', 'pressable_cache_management');
-echo '<div class="notice notice-success">' . $message . '</div>';
+                //Display admin notice for this plugin page only
+                if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
+                $user = $GLOBALS['current_user'];
+                $class = 'notice notice-success is-dismissible';
+                $message = __('<h3>Edge Cache enabled! 🎉</h3>Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB),<br>by serving page cache from the nearest server to your website visitors. <br><br><a href="https://pressable.com/knowledgebase/edge-cache/" target="_blank">Learn more about Edge Cache.</a>', 'pressable_cache_management');
+                echo '<div class="notice notice-success">' . $message . '</div>';
+
+                echo '<div class="notice notice-warning">' . __('<strong>Notice:</strong> It is recommended to disable the Pressable CDN if you are using Edge Cache to prevent extra HTTP requests.', 'pressable_cache_management') . '</div>';
 
             }
             add_action('admin_notices', 'pressable_api_enable_edge_cache_connection_admin_notice');
@@ -300,14 +358,11 @@ echo '<div class="notice notice-success">' . $message . '</div>';
         }
     }
 
-    // }
-    //  }
-    //  add_action('init', 'pcm_pressable_enable_edge_cache_check');
     /******************************
      * Deactivate edge_cache Option
      *******************************/
 
-    /*******************************************************
+    /*****************************************************
      * Check if access token is valid and if access token
      * transient is created else it will generate a
      * new access token.
@@ -338,7 +393,38 @@ if (isset($_POST['disable_edge_cache_nonce']))
                     //Add your Bearer Token
                     'Authorization' => 'Bearer ' . ($access_token)
                 );
-                //Pressable API request URL example: https://my.pressable.com/v1/sites
+
+                /****************************************************************************
+                 * Pressable API request URL example: https://my.pressable.com/v1/sites
+                 * --------------------------------------------------------------------------
+                 * API request to check the edge cache staus to know the state before making a
+                 * new request to Pressable API to update it. This will make sure Both the
+                 * plugin and MyPressable Control Panel stay in sync with each other.
+                 ****************************************************************************/
+
+                $pressable_api_request_site = 'https://my.pressable.com/v1/sites/' . $pressable_site_id;
+
+                // Connection to the API using WordPress request function to check site status
+                $pressable_api_response_site = wp_remote_request($pressable_api_request_site, array(
+                    'method' => 'GET',
+                    'headers' => $pressable_api_request_headers,
+                ));
+
+                $site_response = json_decode(wp_remote_retrieve_body($pressable_api_response_site) , true);
+
+                if (isset($site_response['data']['edgeCache']))
+                { // Check if "edgeCache" key exists
+                    if ($site_response['data']['edgeCache'] === "disabled")
+                    {
+                        // Edge Cache is already enabled, no need to make API calls
+                        update_option('edge-cache-status', 'Success');
+                        update_option('edge-cache-enabled', 'disabled');
+
+                        return;
+                    }
+                }
+
+                //Make API request to disable edge cache if enabled.
                 $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
 
                 //Connection to the API using WordPress request function
@@ -374,11 +460,11 @@ if (isset($_POST['disable_edge_cache_nonce']))
 
                 if ($pressable_api_query_response["message"] == "Success")
                 {
-                    //Check if Edge Cache  status if is disabled 
+                    //Check if Edge Cache  status if is disabled
                     update_option('edge-cache-status', 'Success');
-					
-					//Manually added endge cache status. Pressable API does not currently check the status of Edge Cache 
-					update_option('edge-cache-enabled', 'disabled');
+
+                    //Manually added endge cache status. Pressable API does not currently check the status of Edge Cache
+                    update_option('edge-cache-enabled', 'disabled');
 
                 }
                 else
@@ -494,7 +580,6 @@ if (isset($_POST['disable_edge_cache_nonce']))
                         "error_description" => "error_description"
                     );
 
-
                     //terminate process if not connected to pressable api
                     if (in_array("invalid_client", $results))
                     {
@@ -535,7 +620,38 @@ if (isset($_POST['disable_edge_cache_nonce']))
 
                         'Authorization' => 'Bearer ' . ($access_token)
                     );
-                    //Pressable API request URL example: https://my.pressable.com/v1/sites
+
+                    /****************************************************************************
+                     * Pressable API request URL example: https://my.pressable.com/v1/sites
+                     * --------------------------------------------------------------------------
+                     * API request to check the edge cache staus to know the state before making a
+                     * new request to Pressable API to update it. This will make sure Both the
+                     * plugin and MyPressable Control Panel stay in sync with each other.
+                     ****************************************************************************/
+
+                    $pressable_api_request_site = 'https://my.pressable.com/v1/sites/' . $pressable_site_id;
+
+                    // Connection to the API using WordPress request function to check site status
+                    $pressable_api_response_site = wp_remote_request($pressable_api_request_site, array(
+                        'method' => 'GET',
+                        'headers' => $pressable_api_request_headers,
+                    ));
+
+                    $site_response = json_decode(wp_remote_retrieve_body($pressable_api_response_site) , true);
+
+                    if (isset($site_response['data']['edgeCache']))
+                    { // Check if "edgeCache" key exists
+                        if ($site_response['data']['edgeCache'] === "disabled")
+                        {
+                            // Edge Cache is already disabled, no need to make API calls
+                            update_option('edge-cache-status', 'Success');
+                            update_option('edge-cache-enabled', 'disabled');
+
+                            return;
+                        }
+                    }
+
+                    //Make API request to disable edge cache if enabled.
                     $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
 
                     //initiating connection to the API using WordPress request function
@@ -571,10 +687,10 @@ if (isset($_POST['disable_edge_cache_nonce']))
 
                     if ($pressable_api_query_response["message"] == "Success")
                     {
-                        //Check if Edge Cache  status if is disabled 
+                        //Check if Edge Cache  status if is disabled
                         update_option('edge-cache-status', 'Success');
 
-                        //Manually added edge cache status. Pressable API does not currently check the status of Edge Cache 
+                        //Manually added edge cache status. Pressable API does not currently check the status of Edge Cache
                         update_option('edge-cache-enabled', 'disabled');
 
                     }
@@ -611,20 +727,16 @@ if (isset($_POST['disable_edge_cache_nonce']))
 //Add nagging admin notice if edge cache is disabled
 // if (get_option('edge-cache-enabled') === 'enabled')
 // {
-
 //     //Display admin notice only once if connection to Pressable API is successful
 //     function pressable_api_deactivate_edge_cache_connection_admin_notice_nag()
 //     {
 //         $screen = get_current_screen();
-
 //         //Display admin notice for this plugin page only
 //         if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 //         $user = $GLOBALS['current_user'];
 //         $class = 'notice notice-success is-dismissible';
 //         $message = __('Edge Cache provides performance improvements, particularly to the Time to First Byte (TTFB), by serving page cache directly from the closest server available to a site’s visitors.', 'pressable_cache_management', $user->display_name);
-
 //         printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
 //     }
 //     add_action('admin_notices', 'pressable_api_deactivate_edge_cache_connection_admin_notice_nag');
-
 // }
