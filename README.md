@@ -55,6 +55,11 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 4.2.1 (September 14, 2023) =
+
+* Add notice to disable CDN if Edge Cache is enabled
+* Fixed bug with edge Cache turn on/off not syncing properly with MyPressable Control Panel
+
 = Version 4.2.0 (June 22, 2023) =
 
  * Changed the location for mu-plugins used to flush cache when Woo product is updated via API
