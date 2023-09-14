@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Presable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      4.2.0
+Version:      4.2.1
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
@@ -69,9 +69,9 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'remove_old_mu_plugins.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/extend_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_cdn.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_edge_cache.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/turn_on_off_edge_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_cdn_cache.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_edge_cache.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/purge_edge_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_object_cache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/object_cache_admin_bar.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_jpg_png_webp_from_cdn.php';
@@ -79,7 +79,7 @@ if (is_admin())
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_json_js_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_css_from_cdn.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_particular_file_from_cdn.php';
-	require_once plugin_dir_path(__FILE__) . 'admin/custom-functions//flush_batcache_for_woo_individual_page.php';
+    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions//flush_batcache_for_woo_individual_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/exclude_pages_from_batcache.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/cache_wpp_cookie_page.php';
     require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_batcache_for_particular_page.php';
