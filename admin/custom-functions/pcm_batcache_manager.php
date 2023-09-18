@@ -151,13 +151,12 @@ class Batcache_Manager {
 
 		$post = get_post( $post_id );
 		// if ( ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
-		if ( $post && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
-				'publish',
-				'trash'
-			) )
-		) {
-			return;
-		}
+		if ( $post && $post->post_type && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
+    'publish',
+    'trash'
+) ) ) {
+    return;
+}
 		$this->setup_post_urls( $post );
 		$this->setup_author_urls( $post->post_author );
 		$this->setup_site_urls();
