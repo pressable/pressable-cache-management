@@ -581,22 +581,23 @@ if (isset($_POST['disable_cdn_nonce']))
 }
 
 //Add nagging admin notice if CDN is deactivated
-if (get_option('cdnenabled') === 'disable')
-{
+//Commeneted code out as Edge Cache will replace CDN
+// if (get_option('cdnenabled') === 'disable')
+// {
 
-    //Display admin notice only once if connection to Pressable API is successful
-    function pressable_api_deactivate_cdn_connection_admin_notice_nag()
-    {
-        $screen = get_current_screen();
+//     //Display admin notice only once if connection to Pressable API is successful
+//     function pressable_api_deactivate_cdn_connection_admin_notice_nag()
+//     {
+//         $screen = get_current_screen();
 
-        //Display admin notice for this plugin page only
-        if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-        $user = $GLOBALS['current_user'];
-        $class = 'notice notice-warning is-dismissible';
-        $message = __('CDN Deactivated - It is always recommened to turn on your CDN for best caching experience.', 'pressable_cache_management', $user->display_name);
+//         //Display admin notice for this plugin page only
+//         if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
+//         $user = $GLOBALS['current_user'];
+//         $class = 'notice notice-warning is-dismissible';
+//         $message = __('CDN Deactivated - It is always recommened to turn on your CDN for best caching experience.', 'pressable_cache_management', $user->display_name);
 
-        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-    }
-    add_action('admin_notices', 'pressable_api_deactivate_cdn_connection_admin_notice_nag');
+//         printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
+//     }
+//     add_action('admin_notices', 'pressable_api_deactivate_cdn_connection_admin_notice_nag');
 
-}
+// }
