@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Presable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      4.2.1
+Version:      4.2.2
 Requires at   least: 5.0
 Tested up to: 6.0
 Requires PHP: 7.4
