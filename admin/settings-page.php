@@ -150,6 +150,7 @@ function pressable_cache_management_display_settings_page()
       </div><?php
 }
 
+
 // Display footer message with Pressable branding
 function pcm_footer_msg()
 {
@@ -178,19 +179,26 @@ function pcm_footer_msg()
 }
 
 // Function to replace the default WordPress footer with your plugin's footer
-function pcm_replace_default_footer()
+function pcm_replace_default_footer($footer_text)
 {
     $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
-    if ($remove_pressable_branding_tab_options && 'enable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
-    {
-        echo '<span id="footer-thankyou">Built with 
-    <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.</span>';
-    }
-    else
-    {
-        echo '<span id="footer-thankyou">Built with 
+    // Check if on the pressable_cache_management page
+    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'pressable_cache_management') {
+        // Check if Pressable branding is enabled
+        if ($remove_pressable_branding_tab_options && 'enable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button']) {
+            return 'Built with 
+            <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
+        } else {
+            // // Hide the specific text in the footer-thankyou span
+            
+            echo '<span id="footer-thankyou">Built with 
     <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a></span>';
+    return '<style>#footer-thankyou:contains("Developed by Webarts"){ display: none; }</style>';
+        }
+    } else {
+        // Hide all other footer messages
+        return '';
     }
 }
 
