@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name:  Pressable Cache Management
-Description:  Presable cache management made easy
+Description:  Pressable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
 Version:      4.2.3
