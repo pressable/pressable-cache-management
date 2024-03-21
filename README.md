@@ -55,7 +55,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
-= Version 4.2.3 (March 18, 2024) =
+= Version 4.2.5 (March 18, 2024) =
 * Fixed the warning error bug with DOMDocument – PHP Warning: DOMDocument::loadHTML():
 
 = Version 4.2.2 (December 1, 2023) =
