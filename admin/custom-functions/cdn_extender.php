@@ -21,7 +21,10 @@ function pressablecdn_template_redirect()
  * and scripts of the theme.
  **********/
 
-// Only apply the modification to pages that are not RSS feed pages.
+// Only apply the modification to pages that are not RSS feed pages and robots.txt.
+if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false && strpos($_SERVER['REQUEST_URI'], 'robots.txt') === false) 
+{
+
 if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
 {
 
