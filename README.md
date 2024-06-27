@@ -55,7 +55,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
-= Version 4.2.6 (June 27, 2024) =
+= Version 4.2.6 - 4.2.7 (June 27, 2024) =
 * Fixed bug with <p> tag added to robots.txt code snippet when extend cache option is enabled for some sites
 
 = Version 4.2.5 (March 18, 2024) =
