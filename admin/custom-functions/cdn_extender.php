@@ -25,9 +25,6 @@ function pressablecdn_template_redirect()
 if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false && strpos($_SERVER['REQUEST_URI'], 'robots.txt') === false) 
 {
 
-if (strpos($_SERVER['REQUEST_URI'], '/feed/') === false)
-{
-
 //Dont append query string if CDN is disabled
 if (get_option('cdnenabled') == 'disable') {
     return;
