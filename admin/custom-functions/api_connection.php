@@ -47,7 +47,7 @@ if ('not-exists' === get_option('cdnenabled', 'not-exists'))
 {
 
     //Add the options table if they don't exisit
-    add_option('cdnenabled', 'disable');
+    add_option('cdnenabled', 'enable');
 
 }
 
