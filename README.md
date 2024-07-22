@@ -55,6 +55,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 4.2.9 (July 22, 2024) =
+
+* Fixed bugs
+
 = Version 4.2.8 (July 22, 2024) =
 
 * Sync the plugin CDN and Edge Cache state with MyPressable Control Panel when the plugin is authenticated
