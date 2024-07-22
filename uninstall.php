@@ -51,6 +51,7 @@ delete_option('exclude_fonts_from_cdn_activate_notice');
 delete_option('pcm_site_id_added_activate_notice');
 delete_option('pcm_site_id_con_res');
 delete_option('cdnenabled');
+delete_option('cdn-api-state');
 delete_option('edge-cache-enabled');
 delete_option('edge-cache-status');
 delete_option('pressable_site_id');
