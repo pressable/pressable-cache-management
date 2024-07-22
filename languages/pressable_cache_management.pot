@@ -16,15 +16,6 @@ msgstr ""
 "X-Loco-Version: 2.5.3; wp-5.8\n"
 "X-Domain: pressable_cache_management"
 
-#: admin/custom-functions/untitled.php:50
-msgid ""
-"<h4>WP_CACHE constant set to false</h4><p>The WP_CACHE constant is used by "
-"WordPress to load the code that serves cached pages. Unfortunately, it is "
-"set to false. Please edit your wp-config.php and add or edit the following "
-"line above the final require_once command:<br/><br/><code>define('WP_CACHE', "
-"true);</code></p>"
-msgstr ""
-
 #: admin/settings-register.php:37
 msgid "Cache Management By"
 msgstr ""
