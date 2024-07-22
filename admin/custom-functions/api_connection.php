@@ -9,8 +9,6 @@ if (!defined('ABSPATH'))
 
 }
 
-
-
 $pcm_api_authentication_options = get_option('pressable_api_authentication_tab_options');
 
 //Show warning message if credentials is not entered before connecting
@@ -42,13 +40,17 @@ if (isset($_POST['connect_api_nonce']))
 
 }
 
-//Add pressable cdn option to the DB if it does not exit already
+//Add Pressable cdn option to the DB then disable it by defualt
 if ('not-exists' === get_option('cdnenabled', 'not-exists'))
 {
+    add_option('cdnenabled', 'disable');
 
-    //Add the options table if they don't exisit
-    add_option('cdnenabled', 'enable');
+}
 
+// Add edge-cache-enabled option to the DB if it does not exist already
+if ('not-exists' === get_option('edge-cache-enabled', 'not-exists'))
+{
+    add_option('edge-cache-enabled', '');
 }
 
 function disconnect_api_nonce()
@@ -229,6 +231,76 @@ if (isset($pcm_api_authentication_options['pressable_site_id'], $pcm_api_authent
                 });
 
                 update_option('pressable_api_admin_notice__status', 'activated');
+
+                // Sync CDN status with MyPressable Control Panel
+                $access_token = get_transient('access_token');
+                $pcm_api_authentication_options = get_option('pressable_api_authentication_tab_options');
+                $pressable_site_id = $pcm_api_authentication_options['pressable_site_id'];
+
+                $pressable_api_request_headers = array(
+                    'Authorization' => 'Bearer ' . $access_token
+                );
+
+                // CDN endpoint
+                $cdn_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/cdn';
+                $cdn_api_response = wp_remote_request($cdn_api_request_url, array(
+                    'method' => 'GET',
+                    'headers' => $pressable_api_request_headers,
+                ));
+
+                // Check if CDN endpoint is avaialble then hide the CDN tab -  see settings-page.php ln 164
+                $cdn_status_code = wp_remote_retrieve_response_code($cdn_api_response);
+                if ($cdn_status_code == 404)
+                {
+                    // Check if CDN endpoint exist
+                    update_option('cdn-api-state', 'Not Found');
+                    return;
+                }
+
+                $cdn_results = wp_remote_retrieve_body($cdn_api_response);
+                $cdn_results_data = json_decode($cdn_results, true);
+
+                if (isset($cdn_results_data['data']['cdnEnabled']))
+                {
+                    $cdn_enabled = $cdn_results_data['data']['cdnEnabled'];
+                    if ($cdn_enabled)
+                    {
+                        update_option('cdnenabled', 'enable');
+                    }
+                    else
+                    {
+                        update_option('cdnenabled', 'disable');
+                    }
+                }
+
+                // Sync Edge Cache status with MyPressable Control Panel
+                $pressable_api_request_site = 'https://my.pressable.com/v1/sites/' . $pressable_site_id;
+
+                // Connection to the API using WordPress request function to check site status
+                $pressable_api_response_site = wp_remote_request($pressable_api_request_site, array(
+                    'method' => 'GET',
+                    'headers' => $pressable_api_request_headers,
+                ));
+
+                $edge_cache_enabled = json_decode(wp_remote_retrieve_body($pressable_api_response_site) , true);
+
+                if (isset($edge_cache_enabled['data']['edgeCache']))
+                { // Check if "edgeCache" key exists
+                    if ($edge_cache_enabled['data']['edgeCache'] === "enabled")
+                    {
+                        // Edge Cache is already enabled, no need to make API calls
+                        update_option('edge-cache-status', 'Success');
+                        update_option('edge-cache-enabled', 'enabled');
+
+                        return;
+                    }
+                    else
+                    {
+
+                        update_option('edge-cache-enabled', 'disabled');
+                    }
+                }
+
             }
         }
         add_action('init', 'pressable_api_connect_notice__admin_notice');
