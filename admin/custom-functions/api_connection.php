@@ -260,7 +260,7 @@ if (isset($pcm_api_authentication_options['pressable_site_id'], $pcm_api_authent
             if ($cdn_status_code == 404) {
                 // Check if CDN endpoint exist
                 update_option('cdn-api-state', 'Not Found');
-                return;
+                
             }
 
 
