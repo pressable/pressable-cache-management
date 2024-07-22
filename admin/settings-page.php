@@ -44,7 +44,7 @@ function pressable_cache_management_display_settings_page()
           <a href="admin.php?page=pressable_cache_management&tab=cdn_settings_tab" class="nav-tab nav-tab-cdn <?php if ($tab === 'cdn_settings_tab'): ?>nav-tab-active<?php
     endif; ?>">CDN</a>
             <a href="admin.php?page=pressable_cache_management&tab=edge_cache_settings_tab" class="nav-tab nav-tab-edge-cache <?php if ($tab === 'edge_cache_settings_tab'): ?>nav-tab-active<?php
-    endif; ?>">Edge Cache(Beta)</a>
+    endif; ?>">Edge Cache</a>
           <a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab" class="nav-tab nav-tab-api <?php if ($tab === 'pressable_api_authentication_tab'): ?>nav-tab-active<?php
     endif; ?>">API Authentication</a>
 
@@ -58,15 +58,17 @@ function pressable_cache_management_display_settings_page()
       <div class="wrap">
         <h1 ><?php echo esc_html(get_admin_page_title()); ?></h1>
         <form action="options.php" method="post"><?php
+
     if ($default_tab == $tab)
     {
 
-        //Display setings and page for object cache tab
+        //Display settings and page for object cache tab
         settings_fields('pressable_cache_management_options');
         do_settings_sections('pressable_cache_management');
 
         submit_button('Save Settings', 'custom-class');
     }
+
     elseif ($tab == 'cdn_settings_tab')
     {
 
@@ -139,7 +141,6 @@ function pressable_cache_management_display_settings_page()
 
 
     <style type="text/css">
-
     /** Hide Pressable branding tab **/
     .nav-tab-hidden,
     #footer-built-with-love.branding-disable,
@@ -150,6 +151,21 @@ function pressable_cache_management_display_settings_page()
       </div><?php
 }
 
+/** Hide CDN tab if the endpoint is not found **/
+
+$cdn_api_state = get_option('cdn-api-state'); //See ln 256 api_connection.php
+if ($cdn_api_state == 'Not Found')
+{
+?>
+    <style type="text/css">
+        /** Hide CDN tab **/
+       a.nav-tab.nav-tab-cdn {
+    display: none !important;
+}
+
+    </style>
+    <?php
+}
 
 // Display footer message with Pressable branding
 function pcm_footer_msg()
@@ -184,19 +200,24 @@ function pcm_replace_default_footer($footer_text)
     $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
     // Check if on the pressable_cache_management page
-    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'pressable_cache_management') {
+    if (is_admin() && isset($_GET['page']) && $_GET['page'] === 'pressable_cache_management')
+    {
         // Check if Pressable branding is enabled
-        if ($remove_pressable_branding_tab_options && 'enable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button']) {
+        if ($remove_pressable_branding_tab_options && 'enable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
+        {
             return 'Built with 
             <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a> by The Pressable CS Team.';
-        } else {
+        }
+        else
+        {
             // // Hide the specific text in the footer-thankyou span
-            
             echo '<span id="footer-thankyou">Built with 
     <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" style="text-decoration: none; color: transparent;"><span class="heart" style="color:red; font-size:24px;">&#x2665;</span></a></span>';
-    return '<style>#footer-thankyou:contains("Developed by Webarts"){ display: none; }</style>';
+            return '<style>#footer-thankyou:contains("Developed by Webarts"){ display: none; }</style>';
         }
-    } else {
+    }
+    else
+    {
         // Hide all other footer messages
         return '';
     }
