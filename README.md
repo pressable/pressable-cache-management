@@ -55,6 +55,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 4.3.9 (July 24, 2024) =
+
+* Updated Pressable branding
+
 = Version 4.2.9 (July 22, 2024) =
 
 * Fixed bugs
