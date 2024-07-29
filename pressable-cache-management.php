@@ -41,7 +41,8 @@ function pcm_auto_deactivation_notice()
     
     $msg = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
   
-    $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __('Attention! ', 'pressable_cache_management') . __('', 'pressable_cache_management') . '</h3>';
+    $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __('Attention! ', 'pressable_cache_management') . '</h3><p>' . __('This plugin is not supported on this platform.', 'pressable_cache_management') . '</p>';
+
     
     $msg .= '</div>';
     $msg .= '</div>';
