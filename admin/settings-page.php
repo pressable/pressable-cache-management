@@ -149,22 +149,21 @@ function pressable_cache_management_display_settings_page()
 
     </style>
       </div><?php
-}
+    /** Hide CDN tab if the endpoint is not found **/
 
-/** Hide CDN tab if the endpoint is not found **/
+    $cdn_api_state = get_option('cdn-api-state'); //See ln 256 api_connection.php
+    if ($cdn_api_state == 'Not Found')
+    {
+    ?>
+        <style type="text/css">
+            /** Hide CDN tab **/
+           a.nav-tab.nav-tab-cdn {
+        display: none !important;
+    }
 
-$cdn_api_state = get_option('cdn-api-state'); //See ln 256 api_connection.php
-if ($cdn_api_state == 'Not Found')
-{
-?>
-    <style type="text/css">
-        /** Hide CDN tab **/
-       a.nav-tab.nav-tab-cdn {
-    display: none !important;
-}
-
-    </style>
-    <?php
+        </style>
+        <?php
+    }
 }
 
 // Display footer message with Pressable branding
