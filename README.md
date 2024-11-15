@@ -53,7 +53,12 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 # Changelog
 
+
 === Pressable Cache Management Change log ===
+
+= Version 4.6.9 (Nov 15, 2024) =
+
+* Added features to exclude home page from caching
 
 = Version 4.5.9 (Oct 31, 2024) =
 
