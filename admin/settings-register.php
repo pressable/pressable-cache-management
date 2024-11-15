@@ -100,7 +100,7 @@ function pressable_cache_management_register_settings()
     //add_settings_field('exclude_query_string_gclid_checkbox', esc_html__('Exclude Google Ads query string gclid', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exclude_query_string_gclid_checkbox', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exclude_query_string_gclid_checkbox', 'label' => esc_html__('Exclude Google Ads URL with query string gclid from Batcache', 'pressable_cache_management') ]);
 
      //Exempt pages from batache textbox
-   add_settings_field('exempt_from_batcache', esc_html__('Exclude Page from Batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exempt_batcache_text', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exempt_from_batcache', 'label' => esc_html__('To exclude multiple pages separate with comma  ex /home/, /about-us/, /info/', 'pressable_cache_management') ]);
+   add_settings_field('exempt_from_batcache', esc_html__('Exclude Page from Batcache', 'pressable_cache_management') , 'pressable_cache_management_callback_field_exempt_batcache_text', 'pressable_cache_management', 'pressable_cache_management_section_cache', ['id' => 'exempt_from_batcache', 'label' => esc_html__('To exclude multiple pages separate with comma  ex /your-site.com/, /about-us/, /info/', 'pressable_cache_management') ]);
     
 
     /*****************
