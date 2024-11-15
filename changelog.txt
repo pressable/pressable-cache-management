@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 4.5.9 (Nov 15, 2024) =
+
+* Added features to exclude home page from caching
+
 = Version 4.5.9 (Oct 31, 2024) =
 
 * Added a check if the "Name" key exists in $plugin_info before trying to access it to prevent  "Undefined array key 'Name'"
