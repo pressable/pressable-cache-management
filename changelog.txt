@@ -1,6 +1,6 @@
 === Pressable Cache Management Change log ===
 
-= Version 4.5.9 (Nov 15, 2024) =
+= Version 4.6.9 (Nov 15, 2024) =
 
 * Added features to exclude home page from caching
 
