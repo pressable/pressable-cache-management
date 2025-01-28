@@ -56,6 +56,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 4.7.9 (Jan 28, 2025) =
+
+* Fix bug that breaks site when excluding single file from CDN
+
 = Version 4.6.9 (Nov 15, 2024) =
 
 * Added features to exclude home page from caching
