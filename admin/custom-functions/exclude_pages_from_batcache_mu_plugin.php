@@ -1,27 +1,42 @@
-<?php //Plugin Name: Exclude website pages from the Batcache
+<?php
+// Plugin Name: Exclude website pages from the Batcache
 
+if (!defined('IS_PRESSABLE')) {
+    return;
+}
 
-if (!defined('IS_PRESSABLE'))
-    {
+add_action('init', 'cancel_the_cache');
+
+function cancel_the_cache() {
+    if (!function_exists('batcache_cancel')) {
         return;
     }
 
+    $options = get_option('pressable_cache_management_options');
+    $exempted_pages = isset($options['exempt_from_batcache']) ? $options['exempt_from_batcache'] : '';
 
-$options = get_option('pressable_cache_management_options');
+    if (empty($exempted_pages)) {
+        return;
+    }
 
-// Import options from the database
-$exempted_pages = $options['exempt_from_batcache'];
-
-if (function_exists('batcache_cancel')) {
-    // Use explode to split the pages using a comma and trim spaces
+    // Convert stored options into an array and trim spaces
     $exempted_pages = array_map('trim', explode(',', $exempted_pages));
 
-    // Add a check for the homepage
+    // Get current URI without query parameters
+    $uri = strtok($_SERVER["REQUEST_URI"], '?');
+
+    // Always exclude homepage if listed or explicitly requested
+    if ($uri === '/' && in_array('/', $exempted_pages)) {
+        batcache_cancel();
+        return;
+    }
+
+    // Loop through exempted pages
     foreach ($exempted_pages as $page) {
-        if (strpos($_SERVER['REQUEST_URI'], $page) !== false || $_SERVER['REQUEST_URI'] === '/') {
+        // Match exact page or paginated versions (e.g., /about/, /about/page/2/)
+        if ($uri === $page || preg_match("#^" . preg_quote($page, '#') . "(/page/\d+/?)?$#i", $uri)) {
             batcache_cancel();
-            break; // Exit the loop as we've already canceled caching
+            return;
         }
     }
 }
-
