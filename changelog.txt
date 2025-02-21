@@ -1,5 +1,8 @@
 === Pressable Cache Management Change log ===
 
+= Version 4.8.9 (Feb 22, 2025) =
+* Fix bug to resolve issue with cache terminating when a single page is excluded from cache
+
 = Version 4.7.9 (Jan 28, 2025) =
 
 * Fix bug that breaks site when excluding single file from CDN
