@@ -53,6 +53,8 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 # Changelog
 
+= Version 4.8.9 (Feb 22, 2025) =
+* Fix bug to resolve issue with cache terminating when a single page is excluded from cache. 
 
 === Pressable Cache Management Change log ===
 
