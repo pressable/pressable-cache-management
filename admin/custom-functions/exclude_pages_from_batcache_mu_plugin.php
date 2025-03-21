@@ -1,5 +1,5 @@
 <?php
-// Plugin Name: Exclude website pages from the Batcache
+// Plugin Name: Exclude website pages from the Batcache and Edge Cache
 
 if (!defined('IS_PRESSABLE')) {
     return;
@@ -28,6 +28,7 @@ function cancel_the_cache() {
     // Always exclude homepage if listed or explicitly requested
     if ($uri === '/' && in_array('/', $exempted_pages)) {
         batcache_cancel();
+        disable_edge_cache();
         return;
     }
 
@@ -36,7 +37,12 @@ function cancel_the_cache() {
         // Match exact page or paginated versions (e.g., /about/, /about/page/2/)
         if ($uri === $page || preg_match("#^" . preg_quote($page, '#') . "(/page/\d+/?)?$#i", $uri)) {
             batcache_cancel();
+            disable_edge_cache();
             return;
         }
     }
+}
+
+function disable_edge_cache() {
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 }
