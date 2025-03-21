@@ -53,10 +53,14 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 # Changelog
 
+=== Pressable Cache Management Change log ===
+
+= Version 4.9.9 (Mar 22, 2025) =
+* Added functionality to exclude specific pages from Batcache caching, ensuring they are not cached by the Edge Cache
+* Updated description for the option exlude page from Batcache to include Edge Cache 
+
 = Version 4.8.9 (Feb 22, 2025) =
 * Fix bug to resolve issue with cache terminating when a single page is excluded from cache. 
-
-=== Pressable Cache Management Change log ===
 
 = Version 4.7.9 (Jan 28, 2025) =
 
