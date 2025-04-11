@@ -15,16 +15,14 @@ License URI:  https://www.gnu.org/licenses/gpl-2.0.txt
 */
 
 // disable direct file access
-if (!defined('ABSPATH'))
-{
+if (!defined('ABSPATH')) {
 
     exit;
 
 }
 
 //Disable plugin automatically when used on another platform
-if (!defined('IS_PRESSABLE'))
-{
+if (!defined('IS_PRESSABLE')) {
     add_action('admin_notices', 'pcm_auto_deactivation_notice');
     add_action('admin_init', 'deactivate_plugin_if_not_pressable');
 }
@@ -35,18 +33,24 @@ function deactivate_plugin_if_not_pressable()
     deactivate_plugins(plugin_basename(__FILE__));
 }
 
-//Display notice banner
+/**
+ * Displays an admin notice when the plugin is active on a non-Pressable platform.
+ */
 function pcm_auto_deactivation_notice()
 {
-    
-    $msg = '<div style="margin:50px 20px 20px 0;background-color: white;border:1px solid #c3c4c7;border-top-color:#d63638;border-top-width:5px;padding:20px;">';
-  
-    $msg .= '<h3 style="margin-top:0;color:#d63638;font-weight:900;">' . __('Attention! ', 'pressable_cache_management') . '</h3><p>' . __('This plugin is not supported on this platform.', 'pressable_cache_management') . '</p>';
-
-    
-    $msg .= '</div>';
-    $msg .= '</div>';
-    echo $msg;
+    // Use standard WordPress notice classes for styling and consistency.
+    // 'notice-error' provides the red left border and styling.
+    // 'pressable-platform-notice' is a custom class for potential specific targeting.
+    ?>
+    <div class="notice notice-error pressable-platform-notice">
+        <p>
+            <?php
+            // Using esc_html_e() safely outputs the translated string.
+            esc_html_e('Attention: The Pressable Cache Management plugin is designed for the Pressable platform and has been automatically deactivated.', 'pressable_cache_management');
+            ?>
+        </p>
+    </div>
+    <?php
 }
 
 // load text domain
@@ -59,8 +63,7 @@ function pressable_cache_management_load_textdomain()
 add_action('plugins_loaded', 'pressable_cache_management_load_textdomain');
 
 // Include plugin dependencies: admin only
-if (is_admin())
-{
+if (is_admin()) {
 
     require_once plugin_dir_path(__FILE__) . 'admin/admin-menu.php';
     require_once plugin_dir_path(__FILE__) . 'admin/settings-page.php';
@@ -92,11 +95,11 @@ if (is_admin())
 
 }
 
-    //Added outside the above function to allow all themes access the hook automatically
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_edit.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
-    require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_single_page_toolbar.php';
+//Added outside the above function to allow all themes access the hook automatically
+require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
+require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_edit.php';
+require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
+require_once plugin_dir_path(__FILE__) . 'admin/custom-functions/flush_single_page_toolbar.php';
 
 /***********************************************
  * Adds settings link to plugin from plugin view
