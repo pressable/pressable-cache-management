@@ -55,6 +55,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 5.0.0 (May 30, 2025) =
+* Removed CDN tab as CDN feature has been phased out from Pressable
+
 = Version 4.9.9 (Mar 22, 2025) =
 * Added functionality to exclude specific pages from Batcache caching, ensuring they are not cached by the Edge Cache
 * Updated description for the option exlude page from Batcache to include Edge Cache 
