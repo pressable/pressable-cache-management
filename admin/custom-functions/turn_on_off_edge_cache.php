@@ -153,8 +153,6 @@ if (isset($_POST['enable_edge_cache_nonce']))
                         $message = __('<h3>Edge Cache enabled! 🎉</h3>Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB),<br>by serving page cache from the nearest server to your website visitors. <br><br><a href="https://pressable.com/knowledgebase/edge-cache/" target="_blank">Learn more about Edge Cache.</a>', 'pressable_cache_management');
                         echo '<div class="notice notice-success">' . $message . '</div>';
 
-                        echo '<div class="notice notice-warning">' . __('<strong>Notice:</strong> It is recommended to disable the Pressable CDN if you are using Edge Cache to prevent extra HTTP requests.', 'pressable_cache_management') . '</div>';
-
                     }
                     add_action('admin_notices', 'pressable_edge_cache_purge_cache_notice_warning_msg');
 
