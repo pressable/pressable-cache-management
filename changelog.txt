@@ -1,7 +1,7 @@
 === Pressable Cache Management Change log ===
 
 
-= Version 4.0.0 (May 30, 2025) =
+= Version 5.0.0 (May 30, 2025) =
 * Removed CDN tab as CDN feature has been phased out from Pressable
 
 = Version 4.9.9 (Mar 22, 2025) =
