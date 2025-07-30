@@ -55,6 +55,10 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+
+= Version 5.1.0 (Jul 30, 2025) =
+* Updated permission Only users with the following: administrator, editor and manage_woocommerce Can: See the "Flush Cache" option.
+
 = Version 5.0.0 (May 30, 2025) =
 * Removed CDN tab as CDN feature has been phased out from Pressable
 
