@@ -22,27 +22,21 @@
 * Fix bug to resolve issue with cache terminating when a single page is excluded from cache
 
 = Version 4.7.9 (Jan 28, 2025) =
-
 * Fix bug that breaks site when excluding single file from CDN
 
 = Version 4.6.9 (Nov 15, 2024) =
-
 * Added features to exclude home page from caching
 
 = Version 4.5.9 (Oct 31, 2024) =
-
 * Added a check if the "Name" key exists in $plugin_info before trying to access it to prevent  "Undefined array key 'Name'"
 
 = Version 4.4.9 (Oct 3, 2024) =
-
 * Fix: ensure HTML/CSS is not output on every page load including AJAX requests
 
 = Version 4.3.9 (July 24, 2024) =
-
 * Updated Pressable branding
 
 = Version 4.2.9 (July 22, 2024) =
-
 * Fixed bugs
 
 = Version 4.2.8 (July 22, 2024) =
