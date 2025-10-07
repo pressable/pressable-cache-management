@@ -61,6 +61,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 * Add option control edge cache without API connection
 * Add button to flush Object and Edge Cache
 * Add new option to Purge Edge Cache when WooCOmmerce product are edited over the WooCOmmerce API
+* Removed support for CDN
 
 
 = Version 5.1.0 (Jul 30, 2025) =
