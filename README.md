@@ -56,13 +56,12 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 === Pressable Cache Management Change log ===
 
 = Version 5.2.1 (Oct 7, 2025) =
-* Add option to purge edge cache for s single URL
-* Remove API connection
-* Add option control edge cache without API connection
-* Add button to flush Object and Edge Cache
-* Add new option to Purge Edge Cache when WooCOmmerce product are edited over the WooCOmmerce API
-* Removed support for CDN
-
+* Added option to purge Edge Cache for single URL
+* Removed API connection features for edge cache
+* Added option to control Edge Cache without using an API connection
+* Added dropdown button to flush both Object and Edge Cache
+* Added option to automatically purge Edge Cache when WooCommerce product are edited via the WooCommerce API
+* Removed all support for the CDN
 
 = Version 5.1.0 (Jul 30, 2025) =
 * Updated permission Only users with the following: administrator, editor and manage_woocommerce Can: See the "Flush Cache" option.
