@@ -1,5 +1,12 @@
 === Pressable Cache Management Change log ===
 
+= Version 5.1.1 (Oct 7, 2025) =
+* Add option to purge edge cache for s single URL
+* Remove API connection
+* Add option control edge cache without API connection
+* Add button to flush Object and Edge Cache
+* Add new option to Purge Edge Cache when WooCOmmerce product are edited over the WooCOmmerce API
+
 = Version 5.1.0 (Jul 30, 2025) =
 * Updated permission Only users with the following: administrator, editor and manage_woocommerce Can: See the "Flush Cache" option.
 
