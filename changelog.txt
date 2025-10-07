@@ -1,6 +1,6 @@
 === Pressable Cache Management Change log ===
 
-= Version 5.1.1 (Oct 7, 2025) =
+= Version 5.2.1 (Oct 7, 2025) =
 * Add option to purge edge cache for s single URL
 * Remove API connection
 * Add option control edge cache without API connection
