@@ -15,7 +15,7 @@ var PCM_TOOLBAR = {
 		var id = (typeof e.target.id != "undefined" && e.target.id) ? e.target.id : jQuery(e.target).parent("li").attr("id");
 		var action = "";
 		
-		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-remove-branding"){
+		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding"){
 			if(jQuery("div[id^='pcm-modal-toolbarsettings-']").length === 0){
 				self.open_settings();
 			}
@@ -24,6 +24,8 @@ var PCM_TOOLBAR = {
 				action = "pcm_delete_cache";
 			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-clear-cache-of-this-page"){
 				action = "pcm_delete_current_page_cache";
+			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-purge-edge-cache-of-this-page"){
+				action = "pcm_purge_current_page_edge_cache";
 			}
 
 			PCM_TOOLBAR.send({"action": action, "path" : window.location.pathname});

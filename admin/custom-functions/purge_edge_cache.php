@@ -1,211 +1,129 @@
-<?php // Pressable Cache Management - Purge Edge Cache
+<?php
+/**
+ * Pressable Edge Cache Purge Functionality (Dashboard Control)
+ *
+ * Handles purge requests directly from the WordPress dashboard.
+ * - Checks the Edge Cache status first
+ * - Displays admin notices for all outcomes
+ */
 
-// disable direct file access
-if (!defined('ABSPATH'))
-{
-
+if (!defined('ABSPATH')) {
     exit;
-
 }
 
-/**********************************************
- * Check if access token is valid and if access
- * token transient is created in the database
- * else it will generate a new access token.
- **********************************************/
+/**
+ * Edge Cache Purge Logic
+ */
+if (isset($_POST['purge_edge_cache_nonce'])) {
 
-$check_access_token_expiry = get_option('access_token_expiry');
-
-
-if (isset($_POST['purge_edge_cache_nonce']) && time() < $check_access_token_expiry && false !== get_transient('access_token'))
-{
-    function pcm_pressable_edge_cache_purge()
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        if (wp_verify_nonce($_POST['purge_edge_cache_nonce'], 'purge_edge_cache_nonce'))
-        {
-            $access_token = get_transient('access_token');
-            $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-            $pressable_api_request_headers = array(
-                'Authorization' => 'Bearer ' . ($access_token)
-            );
-            $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-
-            $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-                'method' => 'DELETE',
-                'headers' => $pressable_api_request_headers,
-            ));
-
-            $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-            if ($response["message"] == "Success")
-            {
-                function pressable_edge_cache_purge_notice_success()
-                {
-                    $class = 'notice notice-success is-dismissible';
-                    $message = __('Edge Cache Purged Successfully :)', 'pressable_cache_management');
-                    printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-                }
-                add_action('admin_notices', 'pressable_edge_cache_purge_notice_success');
-
-                $edge_cache_purged_time = date('jS F Y  g:ia') . "\nUTC";
-                update_option('edge-cache-purge-time-stamp', $edge_cache_purged_time);
+    if (!function_exists('pcm_pressable_edge_cache_purge_local')) {
+        function pcm_pressable_edge_cache_purge_local() {
+            // 1. Verify security nonce and permission
+            if (
+                !isset($_POST['purge_edge_cache_nonce']) ||
+                !wp_verify_nonce($_POST['purge_edge_cache_nonce'], 'purge_edge_cache_nonce') ||
+                !current_user_can('manage_options')
+            ) {
+                return;
             }
-            elseif ($response["errors"][0] == "Edge cache must be enabled")
-            {
-                function pressable_edge_cache_purge_cache_notice_warning()
-                {
-                    $screen = get_current_screen();
-                    if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-                    $user = $GLOBALS['current_user'];
-                    $class = 'notice notice-success is-dismissible';
-                    $message = __('We\'ve turned on Edge Cache because it was switched off, you can purge the cache now! 🚀', 'pressable_cache_management', $user->display_name);
-                    printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-                }
-                add_action('admin_notices', 'pressable_edge_cache_purge_cache_notice_warning');
 
-                // Make an API call to turn on the Edge Cache
-                $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-                $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
-                    'method' => 'PUT',
-                    'headers' => $pressable_api_request_headers,
-                ));
-
-                $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
-
-               
+            // 2. Ensure Edge Cache Plugin exists
+            if (!class_exists('Edge_Cache_Plugin')) {
+                add_action('admin_notices', function() {
+                    printf(
+                        '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+                        esc_html__('Error: Edge Cache Plugin is not active.', 'pressable_cache_management')
+                    );
+                });
+                return;
             }
-            else
-            {
-                function pressable_edge_cache_purge_notice_error()
-                {
-                    $screen = get_current_screen();
-                    if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-                    $user = $GLOBALS['current_user'];
-                    $class = 'notice notice-error is-dismissible';
-                    $message = __('Something went wrong try again. If it persists, uninstall/reinstall the plugin', 'pressable_cache_management', $user->display_name);
-                    printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
+
+            // 3. Get Edge Cache instance and current status
+            $edge_cache = Edge_Cache_Plugin::get_instance();
+
+            $status_method = method_exists($edge_cache, 'get_ec_status') ? 'get_ec_status' : null;
+            $enable_method = method_exists($edge_cache, 'enable_ec') ? 'enable_ec' : null;
+
+            $server_status = $status_method ? $edge_cache->$status_method() : null;
+            $auto_enabled  = false;
+
+            // 4. If disabled, handle based on availability of enable_ec()
+            if ($server_status === Edge_Cache_Plugin::EC_DISABLED) {
+                if ($enable_method) {
+                    // Try to enable Edge Cache automatically
+                    $enabled = $edge_cache->$enable_method();
+                    if ($enabled) {
+                        $auto_enabled = true;
+                        sleep(2); // allow enable to take effect
+                    } else {
+                        // Could not enable Edge Cache
+                        add_action('admin_notices', function() {
+                            printf(
+                                '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+                                esc_html__('Edge Cache was disabled and could not be auto-enabled. Purge aborted.', 'pressable_cache_management')
+                            );
+                        });
+                        return;
+                    }
+                } else {
+                    // ⚙️ Edge Cache cannot be enabled automatically — stop purge and show notice
+                    add_action('admin_notices', function() {
+                        printf(
+                            '<div class="notice notice-warning is-dismissible"><p>%s</p></div>',
+                            esc_html__('Edge Cache is disabled on the server. Enable Edge Cache.', 'pressable_cache_management')
+                        );
+                    });
+                    return; // do not purge
                 }
-                add_action('admin_notices', 'pressable_edge_cache_purge_notice_error');
-                return false;
+            }
+
+            // 5. Purge domain cache if method exists
+            if (method_exists($edge_cache, 'purge_domain_now')) {
+                $result = $edge_cache->purge_domain_now('dashboard-auto-purge');
+            } else {
+                $result = false;
+            }
+
+            if ($result) {
+                update_option('edge-cache-purge-time-stamp', gmdate('jS F Y g:ia') . ' UTC');
+
+                $message = $auto_enabled
+                    ? __('Edge Cache was disabled on the server. It has been automatically enabled and purged successfully.', 'pressable_cache_management')
+                    : __('Edge Cache purged successfully.', 'pressable_cache_management');
+
+                add_action('admin_notices', function() use ($message) {
+                    printf(
+                        '<div class="notice notice-success is-dismissible"><p>%s</p></div>',
+                        esc_html($message)
+                    );
+                });
+            } else {
+                add_action('admin_notices', function() {
+                    printf(
+                        '<div class="notice notice-error is-dismissible"><p>%s</p></div>',
+                        esc_html__('Edge Cache purge failed. Please try again.', 'pressable_cache_management')
+                    );
+                });
             }
         }
+        add_action('init', 'pcm_pressable_edge_cache_purge_local');
     }
-
-    add_action('init', 'pcm_pressable_edge_cache_purge');
-
 }
-elseif (isset($_POST['purge_edge_cache_nonce']))
-{
 
-    function pressable_edge_cache_purge__button()
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        if (isset($api_auth_tab_options['pressable_site_id'], $api_auth_tab_options['api_client_id'], $api_auth_tab_options['api_client_secret']) && !empty($api_auth_tab_options['pressable_site_id'] || $api_auth_tab_options['api_client_id'] || $api_auth_tab_options['api_client_secret']))
-        {
-
-            if (wp_verify_nonce($_POST['purge_edge_cache_nonce'], 'purge_edge_cache_nonce'))
-            {
-                $client_id = $api_auth_tab_options['api_client_id'];
-                $client_secret = $api_auth_tab_options['api_client_secret'];
-
-                $response = wp_remote_post('https://my.pressable.com/auth/token', array(
-                    'body' => array(
-                        'client_id' => $client_id,
-                        'client_secret' => $client_secret,
-                        'grant_type' => 'client_credentials'
-                    )
-                ));
-
-                $results = json_decode(wp_remote_retrieve_body($response) , true);
-
-                if (is_wp_error($response))
-                {
-                    return;
-                }
-
-                if (!$results)
-                {
-                    return;
-                }
-
-                $token_expires_in = $results["expires_in"];
-                $access_token_expiry = time() + $token_expires_in;
-                update_option('access_token_expiry', $access_token_expiry);
-
-                set_transient('access_token', $results["access_token"], $token_expires_in);
-
-                $access_token = get_transient('access_token');
-                $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-                $pressable_api_request_headers = array(
-                    'Authorization' => 'Bearer ' . ($access_token)
-                );
-                $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-
-                $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-                    'method' => 'DELETE',
-                    'headers' => $pressable_api_request_headers,
-                ));
-
-                $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-                if ($response["message"] == "Success")
-                {
-                    function pressable_edge_cache_purge_notice_success_msg()
-                    {
-                        $screen = get_current_screen();
-                        $class = 'notice notice-success is-dismissible';
-                        $message = __('Edge Cache Purged Successfully :)', 'pressable_cache_management');
-                        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-                    }
-                    add_action('admin_notices', 'pressable_edge_cache_purge_notice_success_msg');
-
-                    $edge_cache_purged_time = date(' jS F Y  g:ia') . "\nUTC";
-                    update_option('edge-cache-purge-time-stamp', $edge_cache_purged_time);
-                    //Check if Edge Cache is disabled from MyPressable control panel
-                    
-                }
-                elseif ($response["errors"][0] == "Edge cache must be enabled")
-                {
-                    function pressable_edge_cache_purge_notice_warning_msg()
-                    {
-                        $screen = get_current_screen();
-                        if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-                        $user = $GLOBALS['current_user'];
-                        $class = 'notice notice-success is-dismissible';
-                        $message = __('We\'ve turned on Edge Cache because it was switched off, you can purge the cache now! 🚀', 'pressable_cache_management', $user->display_name);
-                        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-                    }
-                    add_action('admin_notices', 'pressable_edge_cache_purge_notice_warning_msg');
-
-
-                    // Make an API call to turn on the Edge Cache
-                    $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-                    $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
-                        'method' => 'PUT',
-                        'headers' => $pressable_api_request_headers,
-                    ));
-
-                    $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
-
-                }
-                else
-                {
-                    function pressable_edge_cache_purge_notice_error_msg()
-                    {
-                        $screen = get_current_screen();
-                        if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
-                        $user = $GLOBALS['current_user'];
-                        $class = 'notice notice-error is-dismissible';
-                        $message = __('Something went wrong try again. If it persists, uninstall/reinstall the plugin', 'pressable_cache_management', $user->display_name);
-                        printf('<div class="%1$s"><p>%2$s</p></div>', esc_attr($class) , esc_html($message));
-                    }
-                    add_action('admin_notices', 'pressable_edge_cache_purge_notice_error_msg');
-                }
-            }
-        }
+/**
+ * Prevent "callback not found" fatal by defining empty section callback
+ */
+if (!function_exists('pressable_cache_management_callback_section_edge_cache')) {
+    function pressable_cache_management_callback_section_edge_cache() {
+        echo '<p>' . esc_html__('Manage Edge Cache settings below.', 'pressable_cache_management') . '</p>';
     }
-    add_action('init', 'pressable_edge_cache_purge__button');
+}
+
+/**
+ * Prevent duplicate declaration of cache section
+ */
+if (!function_exists('pressable_cache_management_callback_section_cache')) {
+    function pressable_cache_management_callback_section_cache() {
+        echo '<p>' . esc_html__('Cache management options.', 'pressable_cache_management') . '</p>';
+    }
 }

@@ -16,7 +16,7 @@ var PCM_TOOLBAR_FLUSH_CACHE = {
 		var id = (typeof e.target.id != "undefined" && e.target.id) ? e.target.id : jQuery(e.target).parent("li").attr("id");
 		var action = "";
 		
-		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding"){
+		if(id == "wp-admin-bar-pcm-toolbar-parent"){
 			if(jQuery("div[id^='pcm-modal-toolbarsettings-']").length === 0){
 				self.open_settings();
 			}
@@ -25,6 +25,8 @@ var PCM_TOOLBAR_FLUSH_CACHE = {
 				action = "pcm_delete_cache";
 			}else if(id == "wp-admin-bar-pcm-toolbar-parent-clear-cache-of-this-page"){
 				action = "pcm_delete_current_page_cache";
+			}else if(id == "wp-admin-bar-pcm-toolbar-parent-purge-edge-cache-of-this-page"){
+				action = "pcm_purge_current_page_edge_cache";
 			}
 
 			PCM_TOOLBAR_FLUSH_CACHE.send({"action": action, "path" : window.location.pathname});
@@ -117,9 +119,6 @@ window.addEventListener('load', function(){
 	});
 });
 
-
-
-
 //Run this js when branding is disabled
 var PCM_TOOLBAR_REMOVE_BRANDING = {
 	ajax_url: false,
@@ -138,7 +137,7 @@ var PCM_TOOLBAR_REMOVE_BRANDING = {
 		var id = (typeof e.target.id != "undefined" && e.target.id) ? e.target.id : jQuery(e.target).parent("li").attr("id");
 		var action = "";
 		
-		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-remove-branding"){
+		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding"){
 			if(jQuery("div[id^='pcm-modal-toolbarsettings-']").length === 0){
 				self.open_settings();
 			}
@@ -147,6 +146,8 @@ var PCM_TOOLBAR_REMOVE_BRANDING = {
 				action = "pcm_delete_cache";
 			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-clear-cache-of-this-page"){
 				action = "pcm_delete_current_page_cache";
+			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-purge-edge-cache-of-this-page"){
+				action = "pcm_purge_current_page_edge_cache";
 			}
 
 			PCM_TOOLBAR_REMOVE_BRANDING.send({"action": action, "path" : window.location.pathname});

@@ -1,603 +1,307 @@
-<?php //Pressable Cache Management - Adds a cache purge button to the admin bar
+<?php
+// Pressable Cache Management - Adds a cache purge button to the admin bar
 
 
 /**************************************
  * Pressable Cache Purge Adds a
  * Cache Purge button to the admin bar
- * by Jess Nunez modified by Tarhe
+ * by Jess Nunez modified by Tarhe Otughwor
+ *
+ * Implemented all three cache purge options: Object, Edge, and Combined.
  *************************************/
 
-add_action('admin_footer', 'cache_purge_action_js');
 
-// Function to check when Object Cache button is clicked
-function cache_purge_action_js()
+// --- JavaScript for Admin Bar Buttons (using unique prefixes) ---
+
+add_action('admin_footer', 'pcm_abar_object_js');
+
+// Function for Flush Object Cache button
+function pcm_abar_object_js()
 { ?>
-      <script type="text/javascript" >
-         jQuery("li#wp-admin-bar-cache-purge .ab-item").on( "click", function() {
-            var data = {
-                          'action': 'flush_pressable_cache',
-                        };
+     <script type="text/javascript" >
+          // Object Cache Purge
+          jQuery("li#wp-admin-bar-cache-purge .ab-item").on( "click", function() {
+              var data = {
+                  'action': 'flush_pressable_cache',
+              };
 
-            jQuery.post(ajaxurl, data, function(response) {
-               alert( response );
-            });
-
+              jQuery.post(ajaxurl, data, function(response) {
+                  alert( response.trim() );
+              });
           });
-      </script>
-
-
-       <?php
+     </script>
+        <?php
 }
 
-add_action('admin_footer', 'cdn_cache_purge_action_js');
+add_action('admin_footer', 'pcm_abar_edge_js');
 
-// Function to check when the flush cache button is clicked
-function cdn_cache_purge_action_js()
+// Function for Purge Edge Cache button
+function pcm_abar_edge_js()
 { ?>
-      <script type="text/javascript" >
-         jQuery("li#wp-admin-bar-cdn-purge .ab-item").on( "click", function() {
-            var data = {
-                          'action': 'pressable_cdn_cache_purge',
+     <script type="text/javascript" >
+          // Edge Cache Purge
+          jQuery("li#wp-admin-bar-edge-purge .ab-item").on( "click", function() {
+              var data = {
+                  'action': 'pressable_edge_cache_purge',
+              };
 
-                        };
-
-            jQuery.post(ajaxurl, data, function(response) {
-               alert( response );
-            });
-
+              jQuery.ajax({
+                  url: ajaxurl,
+                  type: 'POST',
+                  data: data,
+                  success: function(response) {
+                      alert(response.trim());
+                  },
+                  error: function() {
+                      alert('An error occurred during the Edge Cache purge request.');
+                  }
+              });
           });
-      </script>
-
-       <?php
+     </script>
+        <?php
 }
 
-add_action('admin_footer', 'edge_cache_purge_action_js');
+add_action('admin_footer', 'pcm_abar_combined_js');
 
-// Function to check when purge edge cache button is clicked
-function edge_cache_purge_action_js()
+// Function for Flush Object & Edge Cache button
+function pcm_abar_combined_js()
 { ?>
-      <script type="text/javascript" >
-         jQuery("li#wp-admin-bar-edge-purge .ab-item").on( "click", function() {
-            var data = {
-                          'action': 'pressable_edge_cache_purge',
+     <script type="text/javascript" >
+          // Combined Cache Purge
+          jQuery("li#wp-admin-bar-combined-cache-purge .ab-item").on( "click", function() {
+              var data = {
+                  'action': 'flush_combined_cache',
+              };
 
-                        };
-
-            jQuery.post(ajaxurl, data, function(response) {
-               alert( response );
-            });
-
+              jQuery.ajax({
+                  url: ajaxurl,
+                  type: 'POST',
+                  data: data,
+                  success: function(response) {
+                      alert(response.trim());
+                  },
+                  error: function() {
+                      alert('An error occurred during the combined cache flush request.');
+                  }
+              });
           });
-      </script>
-
-       <?php
+     </script>
+        <?php
 }
 
 
-// Load plugin admin bar icon
-function load_toolbar_css()
-            {
-
-                wp_enqueue_style('pressable-cache-management-toolbar', plugin_dir_url(dirname(__FILE__)) . 'public/css/toolbar.css', array() , time() , "all");
-            }
-
-            add_action('init', 'load_toolbar_css');
-
-
-
-add_action('wp_ajax_pressable_edge_cache_purge', 'pressable_edge_cache_purge_callback');
-
-add_action('wp_ajax_pressable_cdn_cache_purge', 'pressable_cdn_cache_purge_callback');
-add_action('wp_ajax_flush_pressable_cache', 'flush_pressable_cache_callback');
-
-$remove_pressable_branding_tab_options = false;
-
-//Check if branding Pressable branding is enabled or disabled
-$remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
-
-if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
+// Load plugin admin bar icon (RENAMED to fix redeclaration error)
+function pcm_abar_load_css()
 {
+    // Keeping original logic for CSS enqueue to preserve icons/styling
+    wp_enqueue_style('pressable-cache-management-toolbar', plugin_dir_url(dirname(__FILE__)) . 'public/css/toolbar.css', array() , time() , "all");
+}
 
-    /******************************
-     * Option for Cache Control option
-     *******************************/
+add_action('init', 'pcm_abar_load_css');
 
-    add_action('admin_bar_menu', 'pcm_remove_branding', 100);
 
-    function pcm_remove_branding($admin_bar)
-    {
+// --- WordPress AJAX Hooks (using unique prefixes for local callbacks) ---
 
-        //Display flush cache Admin Top Bar for only Admin and Shop Managers
-        if (current_user_can('administrator') || current_user_can('manage_woocommerce'))
-        {
+// 1. Flush Object Cache
+add_action('wp_ajax_flush_pressable_cache', 'pcm_abar_flush_object_callback');
+// 2. Purge Edge Cache
+add_action('wp_ajax_pressable_edge_cache_purge', 'pcm_abar_purge_edge_callback');
+// 3. Combined Flush
+add_action('wp_ajax_flush_combined_cache', 'pcm_abar_flush_combined_callback');
 
-            global $wp_admin_bar, $pagenow;;
+// NOTE: Obsolete CDN/API hooks (pressable_cdn_cache_purge) are removed.
 
-            $wp_admin_bar->add_node(array(
-                'id' => 'pcm-wp-admin-toolbar-parent-remove-branding',
-                'title' => 'Cache Control'
-            ));
 
-            $wp_admin_bar->add_menu(array(
-                'id' => 'cache-purge',
-                'title' => 'Flush Object Cache',
-                'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
-                'meta' => array(
-                    "class" => "pcm-wp-admin-toolbar-child"
-                )
-            ));
+// --- AJAX Callback Functions ---
 
-            //Check if the Pressable API is connected or hide the CDN purge cache admin bar button
-            $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-            $site_id_con_res = get_option('pcm_site_id_con_res');
-
-            //Check if CDN is enabled before displaying purge CDN button on admin bar
-            $cdn_tab_options = get_option('cdn_settings_tab_options');
-            $hide_cdn_options = get_option('cdnenabled');
-
-            //Check if Edge Cache is enabled before displaying purge Edge Cache button on admin bar
-            $purge_edge_cache_button = get_option('edge-cache-enabled');
-            $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-
-            if (($site_id_con_res === 'OK' && $pcm_con_auth === 'activated') || ($purge_edge_cache_button === 'enabled' && $pcm_con_auth === 'activated'))
-            {
-                if (($cdn_tab_options && $hide_cdn_options === 'enable'))
-                {
-                    $wp_admin_bar->add_menu(array(
-                        'id' => 'cdn-purge',
-                        'title' => 'Purge CDN Cache',
-                        'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
-                        'href' => '#',
-                        'meta' => array(
-                            'class' => 'pcm-wp-admin-toolbar-child'
-                        ) ,
-                        'onclick' => 'purge_cdn_cache()'
-                    ));
-                }
-                if ($purge_edge_cache_button === 'enabled' && $pcm_con_auth === 'activated') $wp_admin_bar->add_menu(array(
-                    'id' => 'edge-purge',
-                    'title' => 'Purge Edge Cache',
-                    'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
-                    'href' => '#',
-                    'meta' => array(
-                        'class' => 'pcm-wp-admin-toolbar-child'
-                    ) ,
-                    'onclick' => 'purge_edge_cache()'
-                ));
-            }
-            else
-            {
-                // Hide CDN admin bar button if not connected to the Pressable API
-                
-            }
-            if (current_user_can('administrator'))
-            {
-                $wp_admin_bar->add_menu(array(
-                    'id' => 'settings',
-                    'title' => 'Cache Settings',
-                    'parent' => 'pcm-wp-admin-toolbar-parent-remove-branding',
-                    'href' => 'admin.php?page=pressable_cache_management',
-                    'meta' => array(
-                        "class" => "pcm-wp-admin-toolbar-child"
-                    )
-                ));
-
-            }
-        }
+/**
+ * Handles the single Flush Object Cache request.
+ */
+function pcm_abar_flush_object_callback()
+{
+    // Check user capability: administrator, editor, or shop manager
+    if (!current_user_can('administrator') && !current_user_can('editor') && !current_user_can('manage_woocommerce')) {
+        echo 'You do not have permission to flush the Object Cache.';
+        wp_die();
     }
 
-}
-else
-{
-
-    /*************************
-     * Show/hide admin bar for (Pressable)branding Option
-     ***************************/
-
-    add_action('admin_bar_menu', 'cache_add_item', 100);
-
-    function cache_add_item($admin_bar)
-    {
-        //Hide the toolbar on network site home
-        if (is_network_admin())
-        {
-
-        }
-        //Display flush cache Admin Top Bar for only Admin and Shop Managers
-        elseif (current_user_can('administrator') || current_user_can('manage_woocommerce'))
-        {
-
-            global $wp_admin_bar, $pagenow;;
-
-            $wp_admin_bar->add_node(array(
-                'id' => 'pcm-wp-admin-toolbar-parent',
-                'title' => 'Cache Management'
-            ));
-
-            $wp_admin_bar->add_menu(array(
-                'id' => 'cache-purge',
-                'title' => 'Flush Object Cache',
-                'parent' => 'pcm-wp-admin-toolbar-parent',
-                'meta' => array(
-                    "class" => "pcm-wp-admin-toolbar-child"
-                )
-            ));
-
-            //Check if the Pressable API is connected or hide the Edge Cache purge cache admin bar button
-            $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-            $site_id_con_res = get_option('pcm_site_id_con_res');
-
-            //Check if CDN is enabled before displaying purge CDN button on admin bar
-            $cdn_tab_options = get_option('cdn_settings_tab_options');
-            $hide_cdn_options = get_option('cdnenabled');
-            //Check if Edge Cache is enabled before displaying purge Edge Cache button on admin bar
-            $purge_edge_cache_button = get_option('edge-cache-enabled');
-            $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-
-            if (($site_id_con_res === 'OK' && $pcm_con_auth === 'activated') || ($purge_edge_cache_button === 'enabled' && $pcm_con_auth === 'activated'))
-            {
-
-                if (($cdn_tab_options && $hide_cdn_options === 'enable'))
-                {
-
-                    $wp_admin_bar->add_menu(array(
-                        'id' => 'cdn-purge',
-                        'title' => 'Purge CDN Cache',
-                        'parent' => 'pcm-wp-admin-toolbar-parent',
-                        'href' => '#',
-                        'meta' => array(
-                            "class" => "pcm-wp-admin-toolbar-child"
-                        ) ,
-                        'onclick' => 'purge_cdn_cache()'
-                    ));
-                }
-
-                if ($purge_edge_cache_button === 'enabled' && $pcm_con_auth === 'activated') $wp_admin_bar->add_menu(array(
-                    'id' => 'edge-purge',
-                    'title' => 'Purge Edge Cache',
-                    'parent' => 'pcm-wp-admin-toolbar-parent',
-                    'href' => '#',
-                    'meta' => array(
-                        'class' => 'pcm-wp-admin-toolbar-child'
-                    ) ,
-                    'onclick' => 'flush_edge_cache()'
-                ));
-
-            }
-            else
-            {
-
-                //Hide CDN admin bar button if not connetced to the Pressable API
-                
-            }
-            if (current_user_can('administrator'))
-            {
-                $wp_admin_bar->add_menu(array(
-                    'id' => 'settings',
-                    'title' => 'Cache Settings',
-                    'parent' => 'pcm-wp-admin-toolbar-parent',
-                    'href' => 'admin.php?page=pressable_cache_management',
-                    'meta' => array(
-                        "class" => "pcm-wp-admin-toolbar-child"
-                    )
-                ));
-            }
-        }
-    }
-
-}
-
-// Save date/time to database when cache is flushed
-function flush_pressable_cache_callback()
-{
     wp_cache_flush();
 
-    //Save time stamp to database if cache is flushed.
-    $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
-
+    // Save time stamp to database
+    $object_cache_flush_time = date(' jS F Y g:ia') . "\nUTC";
     update_option('flush-obj-cache-time-stamp', $object_cache_flush_time);
-    $response = "Object Cache Flushed Successfully!";
+
+    $response = "Object Cache Flushed Successfully! 🗑️";
     echo $response;
     wp_die();
 }
 
-/********************************************************
- * This snippet of code checks if an access token is
- * available and if it is expired. If the token is still
- * valid, it will make a request to the Pressable API
- * to delete the cache and update the timestamp of when
- * the cache was purged.
- ********************************************************/
-
-function pressable_cdn_cache_purge_callback()
+/**
+ * Handles the single Purge Edge Cache request (using local plugin methods).
+ */
+function pcm_abar_purge_edge_callback()
 {
-    purge_cdn_cache();
+    // Check user capability
+    if (!current_user_can('administrator') && !current_user_can('editor') && !current_user_can('manage_woocommerce')) {
+        echo 'You do not have permission to purge the Edge Cache.';
+        wp_die();
+    }
+
+    if (!class_exists('Edge_Cache_Plugin')) {
+        echo esc_html__('Error: Edge Cache Plugin is not active. Purge aborted.', 'pressable_cache_management');
+        wp_die();
+    }
+
+    $edge_cache = Edge_Cache_Plugin::get_instance();
+    $purge_method  = method_exists($edge_cache, 'purge_domain_now') ? 'purge_domain_now' : null;
+
+    if (!$purge_method) {
+        echo esc_html__('Error: Edge Cache Plugin purge method is unavailable. Purge aborted.', 'pressable_cache_management');
+        wp_die();
+    }
+
+    // Purge the entire domain cache
+    $result = $edge_cache->$purge_method('admin-bar-single-edge-purge');
+
+    if ($result) {
+        $edge_cache_purged_time = date(' jS F Y g:ia') . "\nUTC";
+        update_option('edge-cache-purge-time-stamp', $edge_cache_purged_time);
+        $message = __('Edge Cache purged successfully! 🚀', 'pressable_cache_management');
+    } else {
+        $message = esc_html__('Edge Cache purge failed. It might be disabled or rate-limited.', 'pressable_cache_management');
+    }
+
+    echo $message;
     wp_die();
 }
 
-function purge_cdn_cache()
+/**
+ * Handles the Flush Object & Edge Cache request.
+ */
+function pcm_abar_flush_combined_callback()
 {
-
-    //Flush CDN cache
-    // Check if the access token is not expired, otherwise use cached access token
-    $check_access_token_expiry = get_option('access_token_expiry');
-
-    if (time() < $check_access_token_expiry && false !== get_transient('access_token'))
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        $access_token = get_transient('access_token');
-        $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-        $pressable_api_request_headers = array(
-            'Authorization' => 'Bearer ' . ($access_token)
-        );
-        $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/cache';
-
-        $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-            'method' => 'DELETE',
-            'headers' => $pressable_api_request_headers
-        ));
-
-        $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-        if ($response["message"] == "Success")
-        {
-
-            $cdn_purged_time = date(' jS F Y  g:ia') . "\nUTC";
-            update_option('cdn-cache-purge-time-stamp', $cdn_purged_time);
-            $message = __('CDN Cache Purged Successfully!', 'pressable_cache_management');
-            echo $message;
-        }
-        elseif ($response["errors"][0] == "CDN can only be purged once per minute")
-        {
-            $message = __('CDN can only be purged once per minute :(', 'pressable_cache_management');
-            echo $message;
-        }
-
-        /**********************************************
-         * Check if access token is valid and if access
-         * token transient is created in the database
-         * else it will generate a new access token.
-         **********************************************/
-    }
-    else
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        if (isset($api_auth_tab_options['pressable_site_id'], $api_auth_tab_options['api_client_id'], $api_auth_tab_options['api_client_secret']) && (!empty($api_auth_tab_options['pressable_site_id']) || !empty($api_auth_tab_options['api_client_id']) || !empty($api_auth_tab_options['api_client_secret'])))
-        {
-            $client_id = $api_auth_tab_options['api_client_id'];
-            $client_secret = $api_auth_tab_options['api_client_secret'];
-
-            $response = wp_remote_post('https://my.pressable.com/auth/token', array(
-                'body' => array(
-                    'client_id' => $client_id,
-                    'client_secret' => $client_secret,
-                    'grant_type' => 'client_credentials'
-                )
-            ));
-
-            $results = json_decode(wp_remote_retrieve_body($response) , true);
-
-            if (is_wp_error($results))
-            {
-                return;
-            }
-            if (!$results)
-            {
-                return;
-            }
-
-            $token_expires_in = $results["expires_in"];
-
-            $access_token_expiry = time() + $token_expires_in;
-            update_option('access_token_expiry', $access_token_expiry);
-
-            set_transient('access_token', $results["access_token"], $token_expires_in);
-
-            $access_token = get_transient('access_token');
-
-            $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-            //Connecting to Pressable API
-            $pressable_api_request_headers = array(
-                //Add your Bearer Token
-                'Authorization' => 'Bearer ' . ($access_token)
-            );
-            //Pressable API request URL example: https://my.pressable.com/v1/sites
-            $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/cache';
-
-            //initiating connection to the API using WordPress request function
-            $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-                'method' => 'DELETE',
-                'headers' => $pressable_api_request_headers,
-                //  'timeout'   => 0.01,
-                //     'blocking'  => false
-                
-            ));
-
-            //Display request message
-            // $response = wp_remote_retrieve_response_message($pressable_api_response_post_request);
-            $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-            if ($response["message"] == "Success")
-            {
-
-                $cdn_purged_time = date(' jS F Y  g:ia') . "\nUTC";
-                update_option('cdn-cache-purge-time-stamp', $cdn_purged_time);
-                $message = __('CDN Cache Purged Successfully!', 'pressable_cache_management');
-                echo $message;
-            }
-            elseif ($response["errors"][0] == "CDN can only be purged once per minute")
-            {
-                $message = __('CDN can only be purged once per minute :(', 'pressable_cache_management');
-                echo $message;
-            }
-            else
-            {
-
-                $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin.', 'pressable_cache_management');
-                echo $message;
-
-            }
-
-        }
+    // Check user capability
+    if (!current_user_can('administrator') && !current_user_can('editor') && !current_user_can('manage_woocommerce')) {
+        echo 'You do not have permission to flush the combined cache.';
+        wp_die();
     }
 
-}
+    $messages = [];
 
-//Purge Edge Cache
-function pressable_edge_cache_purge_callback()
-{
-    purge_edge_cache();
-    wp_die();
-}
+    // --- 1. Flush Object Cache ---
+    wp_cache_flush();
+    $object_cache_flush_time = date(' jS F Y g:ia') . "\nUTC";
+    update_option('flush-obj-cache-time-stamp', $object_cache_flush_time);
+    $messages[] = "Object Cache Flushed successfully.";
 
-function purge_edge_cache()
-{
+    // --- 2. Flush Edge Cache ---
+    if (class_exists('Edge_Cache_Plugin')) {
+        $edge_cache = Edge_Cache_Plugin::get_instance();
+        $purge_method = method_exists($edge_cache, 'purge_domain_now') ? 'purge_domain_now' : null;
 
-    // Check if the access token is not expired, otherwise use cached access token
-    $check_access_token_expiry = get_option('access_token_expiry');
+        if ($purge_method) {
+            $result = $edge_cache->$purge_method('admin-bar-combined-purge');
 
-    if (time() < $check_access_token_expiry && false !== get_transient('access_token'))
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        $access_token = get_transient('access_token');
-        $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-        $pressable_api_request_headers = array(
-            'Authorization' => 'Bearer ' . ($access_token)
-        );
-        $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-
-        $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-            'method' => 'DELETE',
-            'headers' => $pressable_api_request_headers
-        ));
-
-        $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-        if ($response["message"] == "Success")
-        {
-
-            $edge_cache_purged_time = date(' jS F Y  g:ia') . "\nUTC";
-            update_option('edge-cache-purge-time-stamp', $edge_cache_purged_time);
-            $message = __('Edge Cache Purged Successfully!', 'pressable_cache_management');
-            echo $message;
-        }
-       elseif ($response["errors"][0] == "Edge cache must be enabled")
-        {
-
-
-                // Make an API call to turn on the Edge Cache
-                $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-                $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
-                    'method' => 'PUT',
-                    'headers' => $pressable_api_request_headers,
-                ));
-
-                $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
-
-
-            $message = __('We\'ve turned on Edge Cache because it was switched off, you can purge the cache now! 🚀', 'pressable_cache_management');
-            echo $message;
-        }
-
-        /**********************************************
-         * Check if access token is valid and if access
-         * token transient is created in the database
-         * else it will generate a new access token.
-         **********************************************/
-    }
-    else
-    {
-        $api_auth_tab_options = get_option('pressable_api_authentication_tab_options');
-
-        if (isset($api_auth_tab_options['pressable_site_id'], $api_auth_tab_options['api_client_id'], $api_auth_tab_options['api_client_secret']) && (!empty($api_auth_tab_options['pressable_site_id']) || !empty($api_auth_tab_options['api_client_id']) || !empty($api_auth_tab_options['api_client_secret'])))
-        {
-            $client_id = $api_auth_tab_options['api_client_id'];
-            $client_secret = $api_auth_tab_options['api_client_secret'];
-
-            $response = wp_remote_post('https://my.pressable.com/auth/token', array(
-                'body' => array(
-                    'client_id' => $client_id,
-                    'client_secret' => $client_secret,
-                    'grant_type' => 'client_credentials'
-                )
-            ));
-
-            $results = json_decode(wp_remote_retrieve_body($response) , true);
-
-            if (is_wp_error($results))
-            {
-                return;
-            }
-            if (!$results)
-            {
-                return;
-            }
-
-            $token_expires_in = $results["expires_in"];
-
-            $access_token_expiry = time() + $token_expires_in;
-            update_option('access_token_expiry', $access_token_expiry);
-
-            set_transient('access_token', $results["access_token"], $token_expires_in);
-
-            $access_token = get_transient('access_token');
-
-            $pressable_site_id = $api_auth_tab_options['pressable_site_id'];
-            //Connecting to Pressable API
-            $pressable_api_request_headers = array(
-                //Add your Bearer Token
-                'Authorization' => 'Bearer ' . ($access_token)
-            );
-            //Pressable API request URL example: https://my.pressable.com/v1/sites
-            $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-
-            //initiating connection to the API using WordPress request function
-            $pressable_api_response_post_request = wp_remote_request($pressable_api_request_url, array(
-                'method' => 'DELETE',
-                'headers' => $pressable_api_request_headers,
-                //  'timeout'   => 0.01,
-                //     'blocking'  => false
-                
-            ));
-
-            //Display request message
-            // $response = wp_remote_retrieve_response_message($pressable_api_response_post_request);
-            $response = json_decode(wp_remote_retrieve_body($pressable_api_response_post_request) , true);
-
-            if ($response["message"] == "Success")
-            {
-
-                $edge_cache_purged_time = date(' jS F Y  g:ia') . "\nUTC";
+            if ($result) {
+                $edge_cache_purged_time = date(' jS F Y g:ia') . "\nUTC";
                 update_option('edge-cache-purge-time-stamp', $edge_cache_purged_time);
-                $message = __('Edge Cache Purged Successfully!', 'pressable_cache_management');
-                echo $message;
+                $messages[] = "Edge Cache Purged successfully.";
+            } else {
+                $messages[] = "Edge Cache purge failed (possibly disabled or rate-limited).";
             }
-             elseif ($response["errors"][0] == "Edge cache must be enabled")
-            {
-                $message = __('We\'ve turned on Edge Cache because it was switched off, you can purge the cache now! 🚀');
-                echo $message;
-
-                // Make an API call to turn on the Edge Cache
-                $pressable_api_request_url = 'https://my.pressable.com/v1/sites/' . $pressable_site_id . '/edge-cache';
-                $pressable_api_response_put_request = wp_remote_request($pressable_api_request_url, array(
-                    'method' => 'PUT',
-                    'headers' => $pressable_api_request_headers,
-                ));
-
-                $response = json_decode(wp_remote_retrieve_body($pressable_api_response_put_request) , true);
-            }
-            else
-            {
-
-                $message = __('Something went wrong try again. If it persist uninstall/reinstall the plugin.', 'pressable_cache_management');
-                echo $message;
-
-            }
-
+        } else {
+             $messages[] = "Edge Cache Plugin active, but purge method is unavailable.";
         }
+    } else {
+         $messages[] = "Edge Cache Plugin not found; skipping Edge Cache purge.";
     }
 
+
+    echo "\n- " . implode("\n- ", $messages);
+    wp_die();
 }
+
+
+// --- Admin Bar Logic (Unified and Fixed) ---
+
+// Helper function to check required capabilities
+function pcm_abar_can_view() {
+    // Administrator, Editor, or Shop Manager
+    return current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce');
+}
+
+// Register the single function to add the menu item (UNIFIED to prevent double menu)
+add_action('admin_bar_menu', 'pcm_abar_add_menu', 100);
+
+/**
+ * Unified function to add the Admin Bar cache menu, handling both branded and non-branded modes.
+ */
+function pcm_abar_add_menu($wp_admin_bar)
+{
+    // Exit if not in the right context or user lacks permissions
+    if (is_network_admin() || !pcm_abar_can_view()) {
+        return;
+    }
+
+    // Determine branding status and set Parent Node details
+    $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
+    $is_branding_disabled = $remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'];
+
+    $parent_id = $is_branding_disabled ? 'pcm-wp-admin-toolbar-parent-remove-branding' : 'pcm-wp-admin-toolbar-parent';
+    $parent_title = $is_branding_disabled ? 'Cache Control' : 'Cache Management';
+    $edge_cache_is_enabled = get_option('edge-cache-enabled') === 'enabled';
+
+    // 1. Add Parent Node
+    $wp_admin_bar->add_node(array(
+        'id' => $parent_id,
+        'title' => $parent_title
+    ));
+
+    // 2. Add Flush Object Cache
+    $wp_admin_bar->add_menu(array(
+        'id' => 'cache-purge',
+        'title' => 'Flush Object Cache',
+        'parent' => $parent_id,
+        'meta' => array(
+            "class" => "pcm-wp-admin-toolbar-child"
+        )
+    ));
+
+    // 3. Add Edge Cache Options (Only if enabled)
+    if ($edge_cache_is_enabled) {
+        // Purge Edge Cache
+        $wp_admin_bar->add_menu(array(
+            'id' => 'edge-purge',
+            'title' => 'Purge Edge Cache',
+            'parent' => $parent_id,
+            'href' => '',
+            'meta' => array(
+                'class' => 'pcm-wp-admin-toolbar-child'
+            )
+        ));
+
+        // Flush Object & Edge Cache (Combined)
+         $wp_admin_bar->add_menu(array(
+            'id' => 'combined-cache-purge',
+            'title' => 'Flush Object & Edge Cache',
+            'parent' => $parent_id,
+            'meta' => array(
+                "class" => "pcm-wp-admin-toolbar-child"
+            )
+        ));
+    }
+
+    // 4. Add Cache Settings (Admin only)
+    if (current_user_can('administrator')) {
+        $wp_admin_bar->add_menu(array(
+            'id' => 'settings',
+            'title' => 'Cache Settings',
+            'parent' => $parent_id,
+            'href' => 'admin.php?page=pressable_cache_management',
+            'meta' => array(
+                "class" => "pcm-wp-admin-toolbar-child"
+            )
+        ));
+    }
+}
+

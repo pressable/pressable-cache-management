@@ -26,16 +26,7 @@ function pressable_cache_management_display_settings_page()
         <!-- Tabs -->
         <nav class="nav-tab-wrapper">
             <a href="admin.php?page=pressable_cache_management" class="nav-tab nav-tab-object-cache <?php if ($tab === null): ?>nav-tab-active<?php endif; ?>">Object Cache</a>
-
-            <!-- CDN tab commented out: feature discontinued -->
-            <?php /*
-            <a href="admin.php?page=pressable_cache_management&tab=cdn_settings_tab" class="nav-tab nav-tab-cdn <?php if ($tab === 'cdn_settings_tab'): ?>nav-tab-active<?php endif; ?>">CDN</a>
-            */ ?>
-
             <a href="admin.php?page=pressable_cache_management&tab=edge_cache_settings_tab" class="nav-tab nav-tab-edge-cache <?php if ($tab === 'edge_cache_settings_tab'): ?>nav-tab-active<?php endif; ?>">Edge Cache</a>
-            <a href="admin.php?page=pressable_cache_management&tab=pressable_api_authentication_tab" class="nav-tab nav-tab-api <?php if ($tab === 'pressable_api_authentication_tab'): ?>nav-tab-active<?php endif; ?>">API Authentication</a>
-
-            <!-- Hidden tab -->
             <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" class="nav-tab nav-tab-hidden <?php if ($tab === 'remove_pressable_branding_tab'): ?>nav-tab-active<?php endif; ?>">Hidden Tab Remove Branding</a>
         </nav>
 
@@ -44,7 +35,6 @@ function pressable_cache_management_display_settings_page()
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             <form action="options.php" method="post">
                 <?php
-
                 if ($default_tab == $tab) {
                     settings_fields('pressable_cache_management_options');
                     do_settings_sections('pressable_cache_management');
@@ -52,16 +42,6 @@ function pressable_cache_management_display_settings_page()
                 } elseif ($tab == 'edge_cache_settings_tab') {
                     settings_fields('edge_cache_settings_tab_options');
                     do_settings_sections('edge_cache_settings_tab');
-                } elseif ($tab == 'pressable_api_authentication_tab') {
-                    settings_fields('pressable_api_authentication_tab_options');
-                    do_settings_sections('pressable_api_authentication_tab');
-
-                    $pcm_con_auth = get_option('pressable_api_admin_notice__status');
-                    $site_id_con_res = get_option('pcm_site_id_con_res');
-
-                    if (!($site_id_con_res === 'OK' && $pcm_con_auth === 'activated')) {
-                        submit_button('Save Credentials', 'custom-class');
-                    }
                 } elseif ($tab == 'remove_pressable_branding_tab') {
                     settings_fields('remove_pressable_branding_tab_options');
                     do_settings_sections('remove_pressable_branding_tab');
@@ -82,15 +62,7 @@ function pressable_cache_management_display_settings_page()
             </form>
         </div>
     </div>
-
     <?php
-    // Optional: Still remove the CDN tab in case someone force-enables it
-    /*
-    $cdn_api_state = get_option('cdn-api-state');
-    if ($cdn_api_state == 'Not Found') {
-        echo '<style>a.nav-tab.nav-tab-cdn { display: none !important; }</style>';
-    }
-    */
 }
 
 // Footer message logic
