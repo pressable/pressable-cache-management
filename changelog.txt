@@ -53,7 +53,6 @@
 * Fixed the warning error bug with DOMDocument – PHP Warning: DOMDocument::loadHTML():
 
 = Version 4.2.2 (December 1, 2023) =
-
 * Fixed footer conflict with Yoursite plugin which causes critical error
 
 = Version 4.2.1 (September 14, 2023) =
@@ -62,16 +61,13 @@
 * Fixed bug with edge Cache turn on/off not syncing properly with MyPressable Control Panel
 
 = Version 4.2.0 (June 22, 2023) =
-
- * Changed the location for mu-plugins used to flush cache when Woo product is updated via API
+* Changed the location for mu-plugins used to flush cache when Woo product is updated via API
 
 = Version 4.1.0 (June 22, 2023) =
-
- * Fixed issue double function deceleration 
+* Fixed issue double function deceleration 
 
 = Version 4.0.0 (June 21, 2023) =
-
- * Removed edge cache purge time stamp from database
+* Removed edge cache purge time stamp from database
 
 = Version 3.10.10 (June 20, 2023) =
 
@@ -90,11 +86,9 @@
 * Fixed bug for broken images inside 
 
 = Version 3.8.10  (May 12, 2023) =
-
 * Added features and notification to check if Cloudflare is interfering with Batcache
 
 = Version 3.7.10  (May 2, 2023) =
-
 * Code cleanup and changelog update
 
 = Version 3.6.10  (Apr 20, 2023) =
@@ -107,27 +101,21 @@
 * Updated new option
 
 = Version 3.4.10  (Mar 23, 2023) =
-
 *  Hide option from UI which does not function correctly yet
 
 = Version 3.3.10 (Mar 20, 2023) =
-
 * Updated batcache code 
 
 = Version 3.3.9 (Feb 26, 2023) =
-
 * Updated language functionality 
 
 = Version 3.3.8 (Feb 23, 2023) =
-
 * Added support to move mu-plugin from PCM to a private folder 
 
 = Version 3.3.7 (Feb 20, 2023) =
-
 * Bug fixes and new features added 
 
 = Version 3.3.6 (Feb 07, 2023) =
-
 * Updated footer icon
 
 = Version 3.3.5 (Jan 07, 2023) =
@@ -140,7 +128,6 @@
 * Added option to exclude pages from Batcache
 
 = Version 3.3.4 (Aug 12, 2022) =
-
 * Fixed function conflict on Flush cache on theme plugin update
 
 = Version 3.3.4 (Aug 12, 2022) =
@@ -149,8 +136,7 @@
 *  Fixed admin notice not displaying when extend batcache is enabled and disabled
 
 = Version 3.3.4 (Aug 4, 2022) =
-
-Fixed bug for site id not entering on multi-network site
+* Fixed bug for site id not entering on multi-network site
 
 = Version 3.3.4 (Jul 10, 2022) =
 
@@ -170,30 +156,20 @@ Fixed bug for site id not entering on multi-network site
 * Added error message to alert user if the plugin is installed on site hosted on another platform
 
 = Version 3.2.3 (Jul 03, 2022) =
-
-Fixed CSS conflict issue with some third-party plugin
+* Fixed CSS conflict issue with some third-party plugin
 
 = Version 3.1.4 (May 21, 2022) =
-
 * Added warning notice to CDN cache extender when enabled to notify user to disable the option if it causes any issue(The CDN extender features is buggy and know 
 
 = Version 3.0.3 (May 21, 2022) =
-
 * Fixed issue with api_connection which adds extra time to site TTFB
 
 = Version 3.0.2 (April 28, 2022) =
-
 * Fixed ?extend_cdn appended to the word style.css which is added to blog post/page
 
 = Version 3.0.2 (April 22, 2022) =
-
 * Applied patch to prevent HTML injection from all CDN exemption features
 cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_specificfile.
 
-
-=== Pressable Cache Management Change log ===
-
-
 = Version 3.0.1 (April 17, 2022) =
-
 * Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug
