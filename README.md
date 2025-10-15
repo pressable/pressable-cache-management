@@ -55,6 +55,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 5.2.2 (Oct 15, 2025) =
+* Fix bug for admin bar option not updating quicky after Edge cache is enabled/disabled 
+
 = Version 5.2.1 (Oct 7, 2025) =
 * Added option to purge Edge Cache for single URL
 * Removed API connection features for edge cache
