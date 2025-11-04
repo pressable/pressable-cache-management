@@ -1,6 +1,11 @@
-<?php // Pressable Cache Management - Cache pages which sets wpp_ cookies
+<?php
+/**
+ * Pressable Cache Management - Cache pages which sets wpp_ cookies.
+ *
+ * @package Pressable
+ */
 
-// disable direct file access
+// Disable direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
 
 	exit;
@@ -14,20 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * Wonder plugin sets cookies starting with wpp which was preventing pages
  * getting cached. We collect all the cookies starting with wpp_ below
- * and adds it to the list that can be cached
+ * and adds it to the list that can be cached.
  */
 
 $all_wpp_cookies = array();
 if ( is_array( $_COOKIE ) && ! empty( $_COOKIE ) ) {
 	foreach ( array_keys( $_COOKIE ) as $maybe_wpp ) {
-		if ( substr( $maybe_wpp, 0, 4 ) == 'wpp_' ) {
+		if ( 0 === strpos( $maybe_wpp, 'wpp_' ) ) {
 			$all_wpp_cookies[] = $maybe_wpp;
 		}
 	}
 }
 
-// Only add cookies to noskip if we found any starting with wpp_
-// The wordpress_test_cookies is the default one
+// Only add cookies to noskip if we found any starting with wpp_.
+// The wordpress_test_cookies is the default one.
 if ( count( $all_wpp_cookies ) > 0 ) {
 	global $batcache;
 	$batcache['noskip_cookies'] = array_merge( array( 'wordpress_test_cookie' ), $all_wpp_cookies );

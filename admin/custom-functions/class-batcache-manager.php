@@ -1,12 +1,14 @@
 <?php
-/*
+/**
  * Plugin name: Batcache Manager
  * Plugin URI: http://www.github.com/spacedmonkey/batcache-manager
  * Description: Cache clearing for batcache
  * Author: Jonathan Harris
  * Author URI: http://www.jonathandavidharris.co.uk
  * Version: 2.0.2
-*/
+ *
+ * @package Pressable
+ */
 
 /**
  * Class Batcache_Manager
@@ -14,7 +16,7 @@
 class Batcache_Manager {
 
 	/**
-	 * List of feeds
+	 * List of feeds.
 	 *
 	 * @since    2.0.0
 	 *
@@ -23,7 +25,7 @@ class Batcache_Manager {
 	private $feeds = array( 'rss', 'rss2', 'rdf', 'atom' );
 
 	/**
-	 * List of links to process
+	 * List of links to process.
 	 *
 	 * @since    2.0.0
 	 *
@@ -41,44 +43,44 @@ class Batcache_Manager {
 	protected static $instance = null;
 
 	/**
-	 *
+	 * Constructor.
 	 */
 	private function __construct() {
 
 		global $batcache, $wp_object_cache;
 
-		// Do not load if our advanced-cache.php isn't loaded
+		// Do not load if our advanced-cache.php isn't loaded.
 		if ( ! isset( $batcache ) || ! is_object( $batcache ) || ! method_exists( $wp_object_cache, 'incr' ) ) {
 			return;
 		}
 
 		$batcache->configure_groups();
 
-		// Posts
+		// Posts.
 		add_action( 'clean_post_cache', array( $this, 'action_clean_post_cache' ), 15 );
-		// Terms
+		// Terms.
 		add_action( 'clean_term_cache', array( $this, 'action_clean_term_cache' ), 10, 3 );
-		// Comments
-		add_action( 'clean_comment_cache', array( $this, 'action_update_comment' ) ); // Only supported in 4.5
+		// Comments.
+		add_action( 'clean_comment_cache', array( $this, 'action_update_comment' ) ); // Only supported in 4.5.
 		add_action( 'comment_post', array( $this, 'action_update_comment' ) );
 		add_action( 'wp_set_comment_status', array( $this, 'action_update_comment' ) );
 		add_action( 'edit_comment', array( $this, 'action_update_comment' ) );
-		// Users
+		// Users.
 		add_action( 'clean_user_cache', array( $this, 'action_update_user' ) );
 		add_action( 'profile_update', array( $this, 'action_update_user' ) );
-		// Widgets
+		// Widgets.
 		add_filter( 'widget_update_callback', array( $this, 'action_update_widget' ), 50 );
-		// Customiser
+		// Customiser.
 		add_action( 'customize_save_after', array( $this, 'flush_all' ) );
-		// Theme
+		// Theme.
 		add_action( 'switch_theme', array( $this, 'flush_all' ) );
-		// Nav
+		// Nav.
 		add_action( 'wp_update_nav_menu', array( $this, 'flush_all' ) );
 
-		// Add site aliases to list of links
+		// Add site aliases to list of links.
 		add_filter( 'batcache_manager_links', array( $this, 'add_site_alias' ) );
 
-		// Do the flush of the urls on shutdown
+		// Do the flush of the urls on shutdown.
 		add_action( 'shutdown', array( $this, 'clear_urls' ) );
 	}
 
@@ -91,7 +93,7 @@ class Batcache_Manager {
 	 */
 	public static function get_instance() {
 		// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 
@@ -131,7 +133,7 @@ class Batcache_Manager {
 	 *
 	 * @return bool Whether the taxonomy is public.
 	 */
-	function is_taxonomy_viewable( $taxonomy ) {
+	public function is_taxonomy_viewable( $taxonomy ) {
 		if ( ! taxonomy_exists( $taxonomy ) ) {
 			return false;
 		}
@@ -142,21 +144,14 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Clear post on post update
+	 * Clear post on post update.
 	 *
-	 * @param $post_id
+	 * @param int $post_id The post ID.
 	 */
 	public function action_clean_post_cache( $post_id ) {
 
 		$post = get_post( $post_id );
-		// if ( ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
-		if ( $post && $post->post_type && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array(
-			get_post_status( $post_id ),
-			array(
-				'publish',
-				'trash',
-			)
-		) ) {
+		if ( ( $post && $post->post_type && ! $this->is_post_type_viewable( $post->post_type ) ) || ! in_array( get_post_status( $post_id ), array( 'publish', 'trash' ), true ) ) {
 			return;
 		}
 		$this->setup_post_urls( $post );
@@ -165,34 +160,27 @@ class Batcache_Manager {
 
 		// --- START OF MODIFIED CODE ---
 
-		// Check if the updated post is a WooCommerce product
+		// Check if the updated post is a WooCommerce product.
 		if ( 'product' === $post->post_type ) {
 			$product_url = get_permalink( $post );
 
-			// 1. Flush the specific product URL (Batcache)
+			// 1. Flush the specific product URL (Batcache).
 			self::clear_url( $product_url );
 
-			// 2. Store the product URL in the option table
+			// 2. Store the product URL in the option table.
 			update_option( 'edge-cache-single-page-url-purged', $product_url );
 
-			// 3. Purge Edge Cache for the specific URL
+			// 3. Purge Edge Cache for the specific URL.
 			if ( class_exists( 'Edge_Cache_Plugin' ) ) {
-				// Set the default timezone to UTC before calling date()
-				$timezone_backup = date_default_timezone_get();
-				date_default_timezone_set( 'UTC' );
-
 				$edge_cache = Edge_Cache_Plugin::get_instance();
 				$urls       = array( $product_url );
 
-				// Use the correct method to purge URIs
+				// Use the correct method to purge URIs.
 				$result = $edge_cache->purge_uris_now( $urls );
 
-				// Save time stamp to database if edge cache is purged for particular page
-				$edge_cache_purge_time = date( 'jS F Y g:ia' ) . "\nUTC";
+				// Save time stamp to database if edge cache is purged for particular page.
+				$edge_cache_purge_time = gmdate( 'jS F Y g:ia' ) . "\nUTC";
 				update_option( 'single-page-edge-cache-purge-time-stamp', $edge_cache_purge_time );
-
-				// Restore the original timezone
-				date_default_timezone_set( $timezone_backup );
 			}
 		}
 
@@ -200,12 +188,12 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Clear terms on term update
+	 * Clear terms on term update.
 	 *
 	 * @param array  $ids Single or list of Term IDs.
-	 * @param string $taxonomy
+	 * @param string $taxonomy The taxonomy.
 	 * @param bool   $clean_taxonomy Optional. Whether to clean taxonomy wide caches (true), or just individual
-	 *   term object caches (false). Default true. Only support in WP 4.5
+	 *   term object caches (false). Default true. Only support in WP 4.5.
 	 */
 	public function action_clean_term_cache( $ids, $taxonomy, $clean_taxonomy = true ) {
 		// Clear taxonomy global caches. If false, lets not both.
@@ -223,9 +211,9 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Clear post page on comment update
+	 * Clear post page on comment update.
 	 *
-	 * @param $comment_id
+	 * @param int $comment_id The comment ID.
 	 */
 	public function action_update_comment( $comment_id ) {
 		$comment = get_comment( $comment_id );
@@ -237,12 +225,15 @@ class Batcache_Manager {
 	/**
 	 * Clear author links on update user.
 	 *
-	 * @param $user_id
+	 * @param int $user_id The user ID.
 	 */
 	public function action_update_user( $user_id ) {
 		$this->setup_author_urls( $user_id );
 	}
 
+	/**
+	 * Flush all caches.
+	 */
 	public function flush_all() {
 		if ( function_exists( 'batcache_flush_all' ) ) {
 			batcache_flush_all();
@@ -263,10 +254,10 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Get term archive and feed links for each term
+	 * Get term archive and feed links for each term.
 	 *
-	 * @param $term
-	 * @param $taxonomy
+	 * @param int    $term The term ID.
+	 * @param string $taxonomy The taxonomy.
 	 */
 	public function setup_term_urls( $term, $taxonomy ) {
 
@@ -290,10 +281,10 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Home page / blog page and feed links
+	 * Home page / blog page and feed links.
 	 */
 	public function setup_site_urls() {
-		if ( get_option( 'show_on_front' ) == 'page' ) {
+		if ( 'page' === get_option( 'show_on_front' ) ) {
 			$this->links[] = get_permalink( get_option( 'page_for_posts' ) );
 		}
 
@@ -305,27 +296,29 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Get permalink, date archives and custom post type links
+	 * Get permalink, date archives and custom post type links.
 	 *
-	 * @param $post
+	 * @param WP_Post $post The post object.
 	 */
 	public function setup_post_urls( $post ) {
 		$post = get_post( $post );
 
 		$this->links[] = get_permalink( $post );
-		if ( $post->post_type == 'post' ) {
+		if ( 'post' === $post->post_type ) {
 			$year          = get_the_time( 'Y', $post );
 			$month         = get_the_time( 'm', $post );
 			$day           = get_the_time( 'd', $post );
 			$this->links[] = get_year_link( $year );
 			$this->links[] = get_month_link( $year, $month );
 			$this->links[] = get_day_link( $year, $month, $day );
-		} elseif ( ! in_array( $post->post_type, get_post_types( array( 'public' => true ) ) ) ) {
-			if ( $archive_link = get_post_type_archive_link( $post->post_type ) ) {
+		} elseif ( ! in_array( $post->post_type, get_post_types( array( 'public' => true ) ), true ) ) {
+			$archive_link = get_post_type_archive_link( $post->post_type );
+			if ( $archive_link ) {
 				$this->links[] = $archive_link;
 			}
 			foreach ( $this->feeds as $feed ) {
-				if ( $archive_link_feed = get_post_type_archive_feed_link( $post->post_type, $feed ) ) {
+				$archive_link_feed = get_post_type_archive_feed_link( $post->post_type, $feed );
+				if ( $archive_link_feed ) {
 					$this->links[] = $archive_link_feed;
 				}
 			}
@@ -339,9 +332,9 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Author profile and feed links
+	 * Author profile and feed links.
 	 *
-	 * @param $author_id
+	 * @param int $author_id The author ID.
 	 */
 	public function setup_author_urls( $author_id ) {
 		$this->links[] = get_author_posts_url( $author_id );
@@ -353,9 +346,10 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Get feed urls for comments for single posts
+	 * Get feed urls for comments for single posts.
 	 *
-	 * @param $post_id
+	 * @param int $post_id The post ID.
+	 * @param int $comment_id The comment ID.
 	 */
 	public function setup_post_comment_urls( $post_id, $comment_id = 0 ) {
 		foreach ( $this->feeds as $feed ) {
@@ -373,20 +367,20 @@ class Batcache_Manager {
 	/**
 	 * Work around for those using Domain mapping or have CMS on different url.
 	 *
-	 * @param $links
+	 * @param array $links The links.
 	 */
 	public function add_site_alias( $links ) {
-		$home = parse_url( home_url(), PHP_URL_HOST );
+		$home = wp_parse_url( home_url(), PHP_URL_HOST );
 
 		$compare_urls = array(
-			parse_url( get_option( 'home' ), PHP_URL_HOST ),
-			parse_url( get_option( 'siteurl' ), PHP_URL_HOST ),
-			parse_url( site_url(), PHP_URL_HOST ),
+			wp_parse_url( get_option( 'home' ), PHP_URL_HOST ),
+			wp_parse_url( get_option( 'siteurl' ), PHP_URL_HOST ),
+			wp_parse_url( site_url(), PHP_URL_HOST ),
 		);
 
-		// Compare home, site urls with filtered home url
+		// Compare home, site urls with filtered home url.
 		foreach ( $compare_urls as $compare_url ) {
-			if ( $compare_url != $home ) {
+			if ( $compare_url !== $home ) {
 				foreach ( $links as $url ) {
 					$links[] = str_replace( $home, $compare_url, $url );
 				}
@@ -397,7 +391,7 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Loop around all urls and clear
+	 * Loop around all urls and clear.
 	 */
 	public function clear_urls() {
 		if ( empty( $this->get_links() ) ) {
@@ -407,28 +401,22 @@ class Batcache_Manager {
 		foreach ( $this->get_links() as $url ) {
 			self::clear_url( $url );
 		}
-		// Clear out links
+		// Clear out links.
 		$this->links = array();
 
 		// --- START OF MODIFIED CODE ---
 
-		// Set the default timezone to UTC before calling date()
-		$timezone_backup = date_default_timezone_get();
-		date_default_timezone_set( 'UTC' );
-
-		// Update the timestamp option with the specified format
-		$batcache_flush_time = date( 'jS F Y g:ia' ) . "\nUTC";
+		// Update the timestamp option with the specified format.
+		$batcache_flush_time = gmdate( 'jS F Y g:ia' ) . "\nUTC";
 		update_option( 'flush-object-cache-for-single-page-time-stamp', $batcache_flush_time );
-
-		// Restore the original timezone
-		date_default_timezone_set( $timezone_backup );
 
 		// --- END OF MODIFIED CODE ---
 	}
 
 	/**
+	 * Clear a URL.
 	 *
-	 * @param $url
+	 * @param string $url The URL to clear.
 	 *
 	 * @return bool|false|int
 	 */
@@ -443,7 +431,7 @@ class Batcache_Manager {
 
 		do_action( 'batcache_manager_before_flush', $url );
 
-		// Force to http
+		// Force to http.
 		$url = set_url_scheme( $url, 'http' );
 
 		$url_key = md5( $url );
@@ -451,8 +439,7 @@ class Batcache_Manager {
 		wp_cache_add( "{$url_key}_version", 0, $batcache->group );
 		$retval = wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
 
-		// $batcache_no_remote_group_key = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
-		$batcache_no_remote_group_key = property_exists( $wp_object_cache, 'no_remote_groups' ) ? array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups ) : false;
+		$batcache_no_remote_group_key = property_exists( $wp_object_cache, 'no_remote_groups' ) ? array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups, true ) : false;
 
 		if ( false !== $batcache_no_remote_group_key ) {
 			// The *_version key needs to be replicated remotely, otherwise invalidation won't work.
@@ -468,7 +455,7 @@ class Batcache_Manager {
 	}
 
 	/**
-	 * Filter links
+	 * Filter links.
 	 *
 	 * @return array
 	 */

@@ -1,23 +1,22 @@
-<?php // Pressable Cache Management mu-plugins index
+<?php
+/**
+ * Pressable Cache Management mu-plugins index.
+ *
+ * @package Pressable
+ */
 
-
-// disable direct file access
+// Disable direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
-
 	exit;
-
 }
 
-
 /*****
- * This file references the Pressable Cache Management mu-plugins
+ * This file references the Pressable Cache Management mu-plugins.
  * https://wordpress.org/documentation/article/must-use-plugins/
  */
 
-
-
-if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_extend_batcache.php' ) ) {
-	require WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_extend_batcache.php';
+if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/extend_batcache_mu_plugin.php' ) ) {
+	require WPMU_PLUGIN_DIR . '/pressable-cache-management/extend_batcache_mu_plugin.php';
 }
 
 if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/cdn_exclude_specific_file.php' ) ) {
@@ -44,10 +43,6 @@ if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_fon
 	require WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_font_files_from_cdn.php';
 }
 
-// if(file_exists(WPMU_PLUGIN_DIR.'/pressable-cache-management/batcache_manager.php')) {
-// require WPMU_PLUGIN_DIR.'/pressable-cache-management/pcm_batcache_manager.php.php';
-// }
-
 if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_cache_wpp_cookies_pages.php' ) ) {
 	require WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_cache_wpp_cookies_pages.php';
 }
@@ -55,8 +50,6 @@ if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_cache_wpp_c
 if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_query_string_gclid.php' ) ) {
 	require WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_query_string_gclid.php';
 }
-
-
 
 if ( file_exists( WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_pages_from_batcache.php' ) ) {
 	require WPMU_PLUGIN_DIR . '/pressable-cache-management/pcm_exclude_pages_from_batcache.php';

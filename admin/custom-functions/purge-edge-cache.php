@@ -5,6 +5,8 @@
  * Handles purge requests directly from the WordPress dashboard.
  * - Checks the Edge Cache status first
  * - Displays admin notices for all outcomes
+ *
+ * @package Pressable
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,17 +19,20 @@ if ( ! defined( 'ABSPATH' ) ) {
 if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 
 	if ( ! function_exists( 'pcm_pressable_edge_cache_purge_local' ) ) {
+		/**
+		 * Purge the Edge Cache.
+		 */
 		function pcm_pressable_edge_cache_purge_local() {
-			// 1. Verify security nonce and permission
+			// 1. Verify security nonce and permission.
 			if (
 				! isset( $_POST['purge_edge_cache_nonce'] ) ||
-				! wp_verify_nonce( $_POST['purge_edge_cache_nonce'], 'purge_edge_cache_nonce' ) ||
+				! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['purge_edge_cache_nonce'] ) ), 'purge_edge_cache_nonce' ) ||
 				! current_user_can( 'manage_options' )
 			) {
 				return;
 			}
 
-			// 2. Ensure Edge Cache Plugin exists
+			// 2. Ensure Edge Cache Plugin exists.
 			if ( ! class_exists( 'Edge_Cache_Plugin' ) ) {
 				add_action(
 					'admin_notices',
@@ -41,7 +46,7 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 				return;
 			}
 
-			// 3. Get Edge Cache instance and current status
+			// 3. Get Edge Cache instance and current status.
 			$edge_cache = Edge_Cache_Plugin::get_instance();
 
 			$status_method = method_exists( $edge_cache, 'get_ec_status' ) ? 'get_ec_status' : null;
@@ -50,16 +55,16 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 			$server_status = $status_method ? $edge_cache->$status_method() : null;
 			$auto_enabled  = false;
 
-			// 4. If disabled, handle based on availability of enable_ec()
-			if ( $server_status === Edge_Cache_Plugin::EC_DISABLED ) {
-				if ( $enable_method ) {
-					// Try to enable Edge Cache automatically
+			// 4. If disabled, handle based on availability of enable_ec().
+			if ( Edge_Cache_Plugin::EC_DISABLED === $server_status ) {
+				if ( null !== $enable_method ) {
+					// Try to enable Edge Cache automatically.
 					$enabled = $edge_cache->$enable_method();
 					if ( $enabled ) {
 						$auto_enabled = true;
-						sleep( 2 ); // allow enable to take effect
+						sleep( 2 ); // allow enable to take effect.
 					} else {
-						// Could not enable Edge Cache
+						// Could not enable Edge Cache.
 						add_action(
 							'admin_notices',
 							function () {
@@ -72,7 +77,7 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 						return;
 					}
 				} else {
-					// ⚙️ Edge Cache cannot be enabled automatically — stop purge and show notice
+					// Edge Cache cannot be enabled automatically — stop purge and show notice.
 					add_action(
 						'admin_notices',
 						function () {
@@ -82,11 +87,11 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 							);
 						}
 					);
-					return; // do not purge
+					return; // do not purge.
 				}
 			}
 
-			// 5. Purge domain cache if method exists
+			// 5. Purge domain cache if method exists.
 			if ( method_exists( $edge_cache, 'purge_domain_now' ) ) {
 				$result = $edge_cache->purge_domain_now( 'dashboard-auto-purge' );
 			} else {
@@ -125,19 +130,19 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
 	}
 }
 
-/**
- * Prevent "callback not found" fatal by defining empty section callback
- */
 if ( ! function_exists( 'pressable_cache_management_callback_section_edge_cache' ) ) {
+	/**
+	 * Callback for the Edge Cache section.
+	 */
 	function pressable_cache_management_callback_section_edge_cache() {
 		echo '<p>' . esc_html__( 'Manage Edge Cache settings below.', 'pressable_cache_management' ) . '</p>';
 	}
 }
 
-/**
- * Prevent duplicate declaration of cache section
- */
 if ( ! function_exists( 'pressable_cache_management_callback_section_cache' ) ) {
+	/**
+	 * Callback for the Cache section.
+	 */
 	function pressable_cache_management_callback_section_cache() {
 		echo '<p>' . esc_html__( 'Cache management options.', 'pressable_cache_management' ) . '</p>';
 	}

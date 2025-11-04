@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Runs on Uninstall of Pressable Cache Management
  *
@@ -9,18 +8,15 @@
  * @link      http://pressable.com
  */
 
-// include file containing function to remove batcache on wp-config.php
-// include_once ('remove_mu_plugins_batcache_on_uninstall.php');
-require_once plugin_dir_path( __FILE__ ) . 'remove_mu_plugins_batcache_on_uninstall.php';
+// Include file containing function to remove batcache on wp-config.php.
+require_once plugin_dir_path( __FILE__ ) . 'remove-mu-plugins-batcache-on-uninstall.php';
 
-// exit if uninstall constant is not defined
+// Exit if uninstall constant is not defined.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-
 	exit;
-
 }
 
-// Delete the plugin options from the site database
+// Delete the plugin options from the site database.
 delete_option( 'pressable_cache_management_options' );
 delete_option( 'cdn_settings_tab_options' );
 delete_option( 'pressable_api_authentication_tab_options' );

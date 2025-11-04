@@ -1,28 +1,34 @@
 <?php
-// Pressable Cache Management - Register Settings
+/**
+ * Pressable Cache Management - Register Settings.
+ *
+ * @package Pressable_Cache_Management
+ */
 
-// Disable direct file access
+// Disable direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit();
 }
 
-// Register plugin settings
+/**
+ * Register settings, sections and fields.
+ */
 function pressable_cache_management_register_settings() {
-	// Save options for object cache tab
+	// Save options for object cache tab.
 	register_setting(
 		'pressable_cache_management_options',
 		'pressable_cache_management_options',
 		'pressable_cache_management_callback_validate_options'
 	);
 
-	// Save options for edge cache tab
+	// Save options for edge cache tab.
 	register_setting(
 		'edge_cache_tab_options',
 		'edge_cache_settings_tab_options',
 		'edge_cache_settings_tab_callback_validate_options'
 	);
 
-	// Save options for branding tab
+	// Save options for branding tab.
 	register_setting(
 		'remove_pressable_branding_tab_options',
 		'remove_pressable_branding_tab_options',
@@ -31,7 +37,7 @@ function pressable_cache_management_register_settings() {
 
 	$remove_pressable_branding_tab_options = get_option( 'remove_pressable_branding_tab_options' );
 
-	if ( $remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'] ) {
+	if ( $remove_pressable_branding_tab_options && 'disable' === $remove_pressable_branding_tab_options['branding_on_off_radio_button'] ) {
 		add_settings_section(
 			'pressable_cache_management_section_cache',
 			esc_html__( 'Cache Control Management', 'pressable_cache_management' ),
@@ -47,7 +53,7 @@ function pressable_cache_management_register_settings() {
 		);
 	}
 
-	// Edge Cache settings tab page
+	// Edge Cache settings tab page.
 	add_settings_section(
 		'pressable_cache_management_section_edge_cache',
 		esc_html__( 'Manage Edge Cache Settings', 'edge_cache_settings_tab' ),
@@ -55,7 +61,7 @@ function pressable_cache_management_register_settings() {
 		'edge_cache_settings_tab'
 	);
 
-	// Remove Pressable branding tab page
+	// Remove Pressable branding tab page.
 	add_settings_section(
 		'pressable_cache_management_section_branding',
 		esc_html__( 'Show or Hide Plugin Branding', 'remove_pressable_branding_tab' ),
@@ -63,13 +69,13 @@ function pressable_cache_management_register_settings() {
 		'remove_pressable_branding_tab'
 	);
 
-	// Verify if the options exist
-	if ( false == get_option( 'pressable_cache_management_options' ) ) {
+	// Verify if the options exist.
+	if ( false === get_option( 'pressable_cache_management_options' ) ) {
 		add_option( 'pressable_cache_management_options' );
 	}
 
 	/*
-	 * Object Cache Management Tab
+	 * Object Cache Management Tab.
 	 */
 	add_settings_field(
 		'flush_cache_button',
@@ -180,7 +186,7 @@ function pressable_cache_management_register_settings() {
 	);
 
 	/*
-	 * Edge Cache Management Tab
+	 * Edge Cache Management Tab.
 	 */
 	add_settings_field(
 		'edge_cache_on_off_radio_button',
@@ -195,7 +201,7 @@ function pressable_cache_management_register_settings() {
 	);
 
 	/*
-	 * Display Purge Edge Cache button
+	 * Display Purge Edge Cache button.
 	 */
 		add_settings_field(
 			'purge_edge_cache_button',
@@ -210,7 +216,7 @@ function pressable_cache_management_register_settings() {
 		);
 
 	/*
-	 * Remove Pressable Branding Tab
+	 * Remove Pressable Branding Tab.
 	 */
 	add_settings_field(
 		'branding_on_off_radio_button',

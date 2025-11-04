@@ -1,145 +1,109 @@
 <?php
+/**
+ * Library for writing to WordPress configuration files.
+ *
+ * @package Pressable
+ */
 
+/**
+ * Extends the Pressable cache.
+ */
 function pressable_cache_extend() {
 }
 
-// http://www.php.net/is_writable
+/**
+ * Checks if the wp-config.php file is writable.
+ *
+ * @param string $path The path to the wp-config.php file.
+ * @return bool True if the file is writable, false otherwise.
+ */
 function is_writeable_wp_config( $path ) {
-
-	if ( ( defined( 'PHP_OS_FAMILY' ) && 'Windows' !== constant( 'PHP_OS_FAMILY' ) ) || stristr( PHP_OS, 'DAR' ) || ! stristr( PHP_OS, 'WIN' ) ) {
-		return is_writeable( $path );
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . '/wp-admin/includes/file.php';
+		WP_Filesystem();
 	}
 
-	// PHP's is_writable does not work with Win32 NTFS
-	if ( $path[ strlen( $path ) - 1 ] == '/' ) { // recursively return a temporary file path
-		return is_writeable_wp_config( $path . uniqid( mt_rand() ) . '.tmp' );
-	} elseif ( is_dir( $path ) ) {
-		return is_writeable_wp_config( $path . '/' . uniqid( mt_rand() ) . '.tmp' );
-	}
-
-	// check tmp file for read/write capabilities
-	$rm = file_exists( $path );
-	$f  = @fopen( $path, 'a' );
-	if ( $f === false ) {
-		return false;
-	}
-	fclose( $f );
-	if ( ! $rm ) {
-		unlink( $path );
-	}
-
-	return true;
+	return $wp_filesystem->is_writable( $path );
 }
 
-// function wp_cache_setting( $field, $value ) {
-// global $wp_cache_config_file;
-// $GLOBALS[ $field ] = $value;
-// if ( is_numeric( $value ) ) {
-// return wp_config_file_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
-// } elseif ( is_bool( $value ) ) {
-// $output_value = $value === true ? 'true' : 'false';
-// return wp_config_file_replace_line( '^ *\$' . $field, "\$$field = $output_value;", $wp_cache_config_file );
-// } elseif ( is_object( $value ) || is_array( $value ) ) {
-// $text = var_export( $value, true );
-// $text = preg_replace( '/[\s]+/', ' ', $text );
-// return wp_config_file_replace_line( '^ *\$' . $field, "\$$field = $text;", $wp_cache_config_file );
-// } else {
-// return wp_config_file_replace_line( '^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file );
-// }
-// }
-function wp_config_file_replace_line( $old, $new, $my_file ) {
-	if ( @is_file( $my_file ) == false ) {
+/**
+ * Replaces a line in the wp-config.php file.
+ *
+ * @param string $old      The old line to replace.
+ * @param string $new_line The new line to insert.
+ * @param string $my_file  The path to the wp-config.php file.
+ * @return bool True on success, false on failure.
+ */
+function wp_config_file_replace_line( $old, $new_line, $my_file ) {
+	global $wp_filesystem;
+	if ( empty( $wp_filesystem ) ) {
+		require_once ABSPATH . '/wp-admin/includes/file.php';
+		WP_Filesystem();
+	}
+
+	if ( ! $wp_filesystem->is_file( $my_file ) ) {
 		if ( function_exists( 'set_transient' ) ) {
 			set_transient( 'wpsc_config_error', 'config_file_missing', 10 );
 		}
 		return false;
 	}
+
 	if ( ! is_writeable_wp_config( $my_file ) ) {
 		if ( function_exists( 'set_transient' ) ) {
 			set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
 		}
-		trigger_error( "Error: file $my_file is not writable." );
 		return false;
 	}
 
-	$found  = false;
-	$loaded = false;
-	$c      = 0;
-	$lines  = array();
-	while ( ! $loaded ) {
-		$lines = file( $my_file );
-		if ( ! empty( $lines ) && is_array( $lines ) ) {
-			$loaded = true;
-		} else {
-			++$c;
-			if ( $c > 100 ) {
-				if ( function_exists( 'set_transient' ) ) {
-					set_transient( 'wpsc_config_error', 'config_file_not_loaded', 10 );
-				}
-				trigger_error( "wp_config_file_replace_line: Error  - file $my_file could not be loaded." );
-				return false;
-			}
+	$lines = $wp_filesystem->get_contents_array( $my_file );
+	if ( false === $lines ) {
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'wpsc_config_error', 'config_file_not_loaded', 10 );
 		}
+		return false;
 	}
-	foreach ( (array) $lines as $line ) {
-		if ( trim( $new ) != '' && trim( $new ) == trim( $line ) ) {
-			pressable_cache_extend( "wp_config_file_replace_line: setting not changed - $new" );
+
+	$found = false;
+	foreach ( $lines as $line ) {
+		if ( trim( $new_line ) !== '' && trim( $new_line ) === trim( $line ) ) {
 			return true;
 		} elseif ( preg_match( "/$old/", $line ) ) {
-			pressable_cache_extend( 'wp_config_file_replace_line: changing line ' . trim( $line ) . " to *$new*" );
 			$found = true;
 		}
 	}
 
-	global $cache_path;
-	$tmp_config_filename = tempnam( $GLOBALS['cache_path'], 'wpsc' );
-	rename( $tmp_config_filename, $tmp_config_filename . '.php' );
-	$tmp_config_filename .= '.php';
-	pressable_cache_extend( 'wp_config_file_replace_line: writing to ' . $tmp_config_filename );
-	$fd = fopen( $tmp_config_filename, 'w' );
-	if ( ! $fd ) {
-		if ( function_exists( 'set_transient' ) ) {
-			set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
-		}
-		trigger_error( "wp_config_file_replace_line: Error  - could not write to $my_file" );
-		return false;
-	}
+	$new_contents = '';
 	if ( $found ) {
-		foreach ( (array) $lines as $line ) {
+		foreach ( $lines as $line ) {
 			if ( ! preg_match( "/$old/", $line ) ) {
-				fputs( $fd, $line );
-			} elseif ( $new != '' ) {
-				fputs( $fd, "$new\n" );
+				$new_contents .= $line;
+			} elseif ( '' !== $new_line ) {
+				$new_contents .= "$new_line\n";
 			}
 		}
 	} else {
 		$done = false;
-		foreach ( (array) $lines as $line ) {
-			// if ( $done || ! preg_match( '/\brequire_once\b/i', $line ) ) {
+		foreach ( $lines as $line ) {
 			if ( $done || ! preg_match( '/\b(require_once)\b/', $line ) ) {
-				fputs( $fd, $line );
+				$new_contents .= $line;
 			} else {
-				// add fputs($fd, "$new\n"); here to write function above require_once
-
-				fputs( $fd, $line );
-				// Write function at the button of require_once
-				fputs( $fd, "$new\n" );
-				$done = true;
-
+				$new_contents .= $line;
+				$new_contents .= "$new_line\n";
+				$done          = true;
 			}
 		}
 	}
-	fclose( $fd );
-	rename( $tmp_config_filename, $my_file );
-	pressable_cache_extend( 'wp_config_file_replace_line: moved ' . $tmp_config_filename . ' to ' . $my_file );
 
-	// if (function_exists("opcache_invalidate"))
-	// {
-	// @opcache_invalidate($my_file);
-	// }
+	if ( ! $wp_filesystem->put_contents( $my_file, $new_contents ) ) {
+		if ( function_exists( 'set_transient' ) ) {
+			set_transient( 'wpsc_config_error', 'config_file_ro', 10 );
+		}
+		return false;
+	}
 
 	if ( function_exists( 'wp_opcache_invalidate' ) ) {
-			wp_opcache_invalidate( $my_file );
+		wp_opcache_invalidate( $my_file );
 	}
 
 	return true;
