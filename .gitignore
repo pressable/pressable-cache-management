@@ -12,3 +12,5 @@ tmux*
 
 # mac
 .DS_Store
+
+vendor/*

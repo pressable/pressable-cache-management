@@ -1,1 +1,10 @@
-<?php // Silence is golden
+<?php
+/**
+ * Silence is golden.
+ *
+ * @package Pressable
+ */
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
