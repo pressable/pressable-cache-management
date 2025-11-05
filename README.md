@@ -55,9 +55,6 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
-= Version 5.2.3 (Nov 5, 2025) =
-* Updated all files for WordPress Coding Standards
-
 = Version 5.2.2 (Oct 15, 2025) =
 * Fix bug for admin bar option not updating quicky after Edge cache is enabled/disabled 
 
