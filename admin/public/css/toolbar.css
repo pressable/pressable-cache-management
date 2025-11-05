@@ -8,7 +8,7 @@
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    height: 100%; 
     z-index: 9998;
 }
 #wp-admin-bar-pcm-toolbar-parent, #wp-admin-bar-cache-purge, #wp-admin-bar-pcm-toolbar-parent-delete-cache, #wp-admin-bar-pcm-toolbar-parent-remove-branding{
@@ -20,14 +20,14 @@
  * Show branding Option CSS
  *******************************/
 
-/* Pressable admin bar icon flush cache for single page Pressable icon. */
+/* Pressable admin bar icon flush cache for single page Pressable icon*/
 @supports not (-ms-high-contrast: none) {
     #wp-admin-bar-pcm-toolbar-parent > .ab-empty-item::before{
         content: url("../img/icon.svg");
     }
 }
 
-/* Pressable admin bar icon. */
+/* Pressable admin bar icon*/
 @supports not (-ms-high-contrast: none) {
     #wp-admin-bar-pcm-wp-admin-toolbar-parent > .ab-item::before{
         content: url("../img/icon.svg");
@@ -35,13 +35,13 @@
 }
 
 
-/* Pressable flush batcache for single page button background color. */
+/* Pressable flush batcache for single page button background color*/
 #wp-admin-bar-pcm-toolbar-parent .ab-empty-item:hover{
     background-color: #0AD8C7;
 }
 
-/* Pressable flush cache admin bar button background color. */
-#wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:hover{
+/* Pressable flush cache admin bar button background color*/
+#wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:hover{ 
   background-color: #0AD8C7;
 }
 
@@ -53,7 +53,7 @@
  *******************************/
 
 
-/* Pressable admin bar icon when branding is removed from WP side menu. */
+/* Pressable admin bar icon when branding is removed from WP side menue*/
 @supports not (-ms-high-contrast: none) {
     #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding > .ab-item::before{
         content: url("../img/cache_control.png");
@@ -62,31 +62,32 @@
 
 
 
-/* Pressable admin bar icon flush cache for single page Pressable icon. */
+/* Pressable admin bar icon flush cache for single page Pressable icon*/
 @supports not (-ms-high-contrast: none) {
-    #wp-admin-bar-pcm-toolbar-parent-remove-branding > .ab-empty-item::before{
+    #wp-admin-bar-pcm-toolbar-parent-remove-branding > .ab-empty-item::before{ 
         content: url("../img/cache_control.png");
     }
 }
 
 
-/* Pressable flush cache for admin bar button background color. */
-#wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding  .ab-item:hover{
+/* Pressable flush cache for admin bar button background color*/
+#wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding  .ab-item:hover{ 
   background-color: #0AD8C7;
+  
 }
 
-/* wp-admin-bar-pcm-wp-admin-toolbar-parent-default text color. */
+/* wp-admin-bar-pcm-wp-admin-toolbar-parent-default text color*/
 #wpadminbar .ab-submenu .ab-item {
   color: #fff;
 }
 
-/* pcm-wp-admin-toolbar-child text color. */
+/* pcm-wp-admin-toolbar-child text color*/
 #wpadminbar .quicklinks .ab-sub-wrapper .menupop.hover > a, #wpadminbar .quicklinks .menupop ul li a:focus, #wpadminbar .quicklinks .menupop ul li a:focus strong, #wpadminbar .quicklinks .menupop ul li a:hover, #wpadminbar .quicklinks .menupop ul li a:hover strong, #wpadminbar .quicklinks .menupop.hover ul li a:focus, #wpadminbar .quicklinks .menupop.hover ul li a:hover, #wpadminbar .quicklinks .menupop.hover ul li div[tabindex]:focus, #wpadminbar .quicklinks .menupop.hover ul li div[tabindex]:hover, #wpadminbar li #adminbarsearch.adminbar-focused::before, #wpadminbar li .ab-item:focus .ab-icon::before, #wpadminbar li .ab-item:focus::before, #wpadminbar li a:focus .ab-icon::before, #wpadminbar li.hover .ab-icon::before, #wpadminbar li.hover .ab-item::before, #wpadminbar li:hover #adminbarsearch::before, #wpadminbar li:hover .ab-icon::before, #wpadminbar li:hover .ab-item::before, #wpadminbar.nojs .quicklinks .menupop:hover ul li a:focus, #wpadminbar.nojs .quicklinks .menupop:hover ul li a:hover {
   color: #fff;
 }
 
 
-/* Pressable flush cache for single page admin bar button background color. */
-#wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item:hover{
+/* Pressable flush cache for single page admin bar button background color*/
+#wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item:hover{ 
   background-color: #0AD8C7;
 }
