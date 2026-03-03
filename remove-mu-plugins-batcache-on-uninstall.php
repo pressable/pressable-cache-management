@@ -56,7 +56,7 @@ function rrmdir( $dir ) {
 
 
 // Remove batcache manager plugin from mu-plugins directory.
-$mu_plugins = array( 'class-batcache-manager.php' );
+$mu_plugins = array( 'pcm-batcache-manager.php' );
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 foreach ( $mu_plugins as $mu_plugin ) {
