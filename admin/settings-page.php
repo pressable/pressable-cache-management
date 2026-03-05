@@ -185,7 +185,8 @@ function pressable_cache_management_display_settings_page() {
     wp_enqueue_style( 'pcm-google-fonts',
         'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', array(), null );
     ?>
-    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
+    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;margin-right:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
+    <div style="max-width:1120px;margin:0 auto;">
     <h1 style="display:none;"><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
     <!-- ── Tabs ── -->
@@ -341,7 +342,7 @@ function pressable_cache_management_display_settings_page() {
     </div>
 
     <!-- ── 2-column grid ── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1060px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
         <!-- LEFT -->
         <div style="display:flex;flex-direction:column;gap:20px;">
@@ -601,6 +602,7 @@ function pressable_cache_management_display_settings_page() {
 
     <?php endif; ?>
 
+    </div><!-- /inner-center -->
     </div><!-- /wrap -->
 
     <style>
