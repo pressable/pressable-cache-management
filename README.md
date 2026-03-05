@@ -55,6 +55,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 5.3.2 (Mar 05, 2026) =
+* Update the grid to also fill the full width of the centred container
+
 = Version 5.3.1 (Mar 05, 2026) =
 * Updated plugin updater
 
