@@ -1,0 +1,205 @@
+# Pressable Cache Management
+msgid ""
+msgstr ""
+"Project-Id-Version: pressable-cache-management\n"
+"PO-Revision-Date: 2026-03-05 00:00+0000\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "&#10003;&nbsp; Save Settings"
+msgstr "&#10003;&nbsp; 保存设置"
+
+msgid "Automated Rules"
+msgstr "自动规则"
+
+msgid "Batcache & Page Rules"
+msgstr "Batcache 与页面规则"
+
+msgid "Batcache Active"
+msgstr "Batcache 已激活"
+
+msgid "Batcache Broken"
+msgstr "Batcache 故障"
+
+msgid "Cache Control Management"
+msgstr "缓存控制管理"
+
+msgid "Cache Exclusions"
+msgstr "缓存排除"
+
+msgid "Cache Management by"
+msgstr "缓存管理，来自"
+
+msgid "Cache settings updated."
+msgstr "缓存设置已更新。"
+
+msgid "Cloudflare Detected"
+msgstr "检测到 Cloudflare"
+
+msgid "Disable Edge Cache"
+msgstr "禁用边缘缓存"
+
+msgid "Edge Cache Deactivated."
+msgstr "边缘缓存已停用。"
+
+msgid "Edge Cache Enabled!"
+msgstr "边缘缓存已启用！"
+
+msgid "Edge Cache is disabled on the server. Enable Edge Cache."
+msgstr "服务器上的边缘缓存已禁用，请启用边缘缓存。"
+
+msgid "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+msgstr "边缘缓存通过从最近的服务器提供页面缓存，提升性能（尤其是首字节时间 TTFB）。"
+
+msgid "Edge Cache purge failed. Please try again."
+msgstr "边缘缓存清除失败，请重试。"
+
+msgid "Edge Cache purged successfully."
+msgstr "边缘缓存清除成功。"
+
+msgid "Edge Cache was disabled and could not be auto-enabled. Purge aborted."
+msgstr "边缘缓存已禁用且无法自动启用，清除已中止。"
+
+msgid "Edge Cache was disabled on the server. It has been automatically enabled and purged successfully."
+msgstr "边缘缓存已被禁用，现已自动启用并成功清除。"
+
+msgid "Enable Edge Cache"
+msgstr "启用边缘缓存"
+
+msgid "Enter single URL (e.g., /pagename/)."
+msgstr "输入单个网址（例如 /页面名称/）。"
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr "错误：边缘缓存插件未激活。"
+
+msgid "Error: Edge Cache dependency is missing."
+msgstr "错误：缺少边缘缓存依赖项。"
+
+msgid "Exclude Pages"
+msgstr "排除页面"
+
+msgid "Extend Batcache (by 24 hrs)"
+msgstr "延长 Batcache（24 小时）"
+
+msgid "Extend Batcache storage time by 24 hours."
+msgstr "将 Batcache 存储时间延长 24 小时。"
+
+msgid "Extending Batcache for 24 hours — see "
+msgstr "Batcache 已延长 24 小时——请参阅 "
+
+msgid "Flush Cache for all Pages"
+msgstr "清除所有页面缓存"
+
+msgid "Flush Batcache for Individual Pages"
+msgstr "清除单个页面的 Batcache"
+
+msgid "Flush Batcache for WooCommerce product pages"
+msgstr "清除 WooCommerce 商品页面的 Batcache"
+
+msgid "Flush Batcache for WooCommerce product pages."
+msgstr "清除 WooCommerce 商品页面的 Batcache。"
+
+msgid "Flush Batcache for individual pages from page preview toolbar."
+msgstr "通过页面预览工具栏清除单个页面的 Batcache。"
+
+msgid "Flush Cache on Comment Delete"
+msgstr "删除评论时清除缓存"
+
+msgid "Flush Cache on Page Delete"
+msgstr "删除页面时清除缓存"
+
+msgid "Flush Cache on Plugin/Theme Update"
+msgstr "插件/主题更新时清除缓存"
+
+msgid "Flush Cache on Post/Page Edit"
+msgstr "编辑文章/页面时清除缓存"
+
+msgid "Flush Object Cache"
+msgstr "清除对象缓存"
+
+msgid "Flush cache automatically on plugin & theme update."
+msgstr "插件和主题更新时自动清除缓存。"
+
+msgid "Flush cache automatically when comments are deleted."
+msgstr "删除评论时自动清除缓存。"
+
+msgid "Flush cache automatically when page/post/post_types are updated."
+msgstr "更新页面或文章时自动清除缓存。"
+
+msgid "Flush cache automatically when published pages/posts are deleted."
+msgstr "删除已发布的页面或文章时自动清除缓存。"
+
+msgid "Flushes Batcache for the specific page when it is deleted."
+msgstr "删除特定页面时清除其 Batcache。"
+
+msgid "Global Controls"
+msgstr "全局控制"
+
+msgid "Hide Pressable Branding"
+msgstr "隐藏 Pressable 品牌"
+
+msgid "Hide or Show Plugin Branding"
+msgstr "隐藏或显示插件品牌"
+
+msgid "Hide or show plugin branding"
+msgstr "隐藏或显示插件品牌"
+
+msgid "LAST FLUSHED"
+msgstr "上次清除时间"
+
+msgid "Last flushed at:"
+msgstr "上次清除时间："
+
+msgid "Manage Edge Cache settings below."
+msgstr "在下方管理边缘缓存设置。"
+
+msgid "Modifying Batcache Times."
+msgstr "修改 Batcache 时间。"
+
+msgid "Object Cache Flushed Successfully."
+msgstr "对象缓存清除成功。"
+
+msgid "Page URL:"
+msgstr "页面网址："
+
+msgid "Purge Edge Cache"
+msgstr "清除边缘缓存"
+
+msgid "Purging cache will temporarily slow down your site for all visitors while the cache rebuilds."
+msgstr "清除缓存期间，网站对所有访客可能会暂时变慢。"
+
+msgid "Settings to manage the object cache."
+msgstr "用于管理对象缓存的设置。"
+
+msgid "Show Pressable Branding"
+msgstr "显示 Pressable 品牌"
+
+msgid "Show or Hide Plugin Branding"
+msgstr "显示或隐藏插件品牌"
+
+msgid "Something went wrong trying to communicate with the Edge Cache system. Try again."
+msgstr "与边缘缓存系统通信时出错，请重试。"
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "这些设置用于管理边缘缓存配置。"
+
+msgid "These settings enable you to manage the object cache."
+msgstr "这些设置用于管理对象缓存。"
+
+msgid "This setting allows you to show or hide the plugin branding."
+msgstr "此设置允许您显示或隐藏插件品牌。"
+
+msgid "To exclude a single page use"
+msgstr "要排除单个页面，请使用"
+
+msgid "for multiple pages separate with comma, e.g."
+msgstr "多个页面请用逗号分隔，例如"
+
+msgid "Manage Edge Cache Settings"
+msgstr "管理边缘缓存设置"
+
+msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+msgstr "缓存状态检查器在状态显示为损坏时自动启动——每15秒重新检查一次，最多持续3分钟，一旦缓存活跃即停止，因此在Batcache重建后15秒内即可显示恢复状态。如果缓存状态持续损坏超过4分钟，则可能是由于Cookie干扰导致缓存损坏。"

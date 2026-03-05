@@ -51,7 +51,7 @@ function pressable_cache_management_register_settings()
     // Edge Cache settings tab page
     add_settings_section(
         'pressable_cache_management_section_edge_cache',
-        esc_html__('Manage Edge Cache Settings', 'edge_cache_settings_tab'),
+        esc_html__('Manage Edge Cache Settings', 'pressable_cache_management'),
         'pressable_cache_management_callback_section_edge_cache',
         'edge_cache_settings_tab'
     );
@@ -59,7 +59,7 @@ function pressable_cache_management_register_settings()
     // Remove Pressable branding tab page
     add_settings_section(
         'pressable_cache_management_section_branding',
-        esc_html__('Show or Hide Plugin Branding', 'remove_pressable_branding_tab'),
+        esc_html__('Show or Hide Plugin Branding', 'pressable_cache_management'),
         'pressable_cache_management_callback_section_branding',
         'remove_pressable_branding_tab'
     );
@@ -158,11 +158,11 @@ function pressable_cache_management_register_settings()
      */
     add_settings_field(
         'edge_cache_on_off_radio_button',
-        esc_html__('Turn On/Off Edge Cache', 'edge_cache_settings_tab'),
+        esc_html__('Turn On/Off Edge Cache', 'pressable_cache_management'),
         'pressable_cache_management_callback_field_extend_edge_cache_radio_button',
         'edge_cache_settings_tab',
         'pressable_cache_management_section_edge_cache',
-        ['id' => 'edge_cache_on_off_radio_button', 'label' => esc_html__('Turn on/off Edge Cache', 'edge_cache_settings_tab')]
+        ['id' => 'edge_cache_on_off_radio_button', 'label' => esc_html__('Turn on/off Edge Cache', 'pressable_cache_management')]
     );
 
   
@@ -171,11 +171,11 @@ function pressable_cache_management_register_settings()
      */
         add_settings_field(
             'purge_edge_cache_button',
-            esc_html__('Purge Edge Cache', 'edge_cache_settings_tab'),
+            esc_html__('Purge Edge Cache', 'pressable_cache_management'),
             'pressable_edge_cache_flush_management_callback_field_button',
             'edge_cache_settings_tab',
             'pressable_cache_management_section_edge_cache',
-            ['id' => 'purge_edge_cache_button', 'label' => esc_html__('Purge Edge Cache', 'edge_cache_settings_tab')]
+            ['id' => 'purge_edge_cache_button', 'label' => esc_html__('Purge Edge Cache', 'pressable_cache_management')]
         );
 
     /*
@@ -183,11 +183,11 @@ function pressable_cache_management_register_settings()
      */
     add_settings_field(
         'branding_on_off_radio_button',
-        esc_html__('Hide or Show Plugin Branding', 'remove_pressable_branding_tab'),
+        esc_html__('Hide or Show Plugin Branding', 'pressable_cache_management'),
         'pressable_cache_management_callback_field_extend_remove_branding_radio_button',
         'remove_pressable_branding_tab',
         'pressable_cache_management_section_branding',
-        ['id' => 'branding_on_off_radio_button', 'label' => esc_html__('Hide or show plugin branding', 'remove_pressable_branding_tab')]
+        ['id' => 'branding_on_off_radio_button', 'label' => esc_html__('Hide or show plugin branding', 'pressable_cache_management')]
     );
 }
 

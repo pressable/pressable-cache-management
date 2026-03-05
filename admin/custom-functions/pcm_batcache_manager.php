@@ -150,16 +150,18 @@ class Batcache_Manager {
     public function action_clean_post_cache( $post_id ) {
 
         $post = get_post( $post_id );
-        // if ( ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
-        if ( $post && $post->post_type && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array(
-    'publish',
-    'trash'
-) ) ) {
-    return;
-}
-        $this->setup_post_urls( $post );
-        $this->setup_author_urls( $post->post_author );
-        $this->setup_site_urls();
+        if ( $post && $post->post_type && ! $this->is_post_type_viewable( $post->post_type ) || ! in_array( get_post_status( $post_id ), array( 'publish', 'trash' ) ) ) {
+            return;
+        }
+
+        // Only flush the permalink of the specific post that changed.
+        // Date archives, author archives, feeds, and the homepage are intentionally
+        // NOT flushed here — those shared URLs should only be invalidated on a
+        // full manual flush, not on every individual page save.
+        $permalink = get_permalink( $post );
+        if ( ! empty( $permalink ) ) {
+            $this->links[] = $permalink;
+        }
 
         // --- START OF MODIFIED CODE ---
 

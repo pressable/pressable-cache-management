@@ -84,25 +84,7 @@ function plugin_admin_notice()
     //return if not plugin settings page
     if ($screen->id !== 'toplevel_page_pressable_cache_management') return;
 
-    //Checks if settings updated
-    if (isset($_GET['settings-updated']))
-    {
-        //if settings updated successfully
-        if ('true' === $_GET['settings-updated']): ?>
- 
-            <div class="notice notice-success is-dismissible">
-                <p><?php _e('Cache settings updated.', 'textdomain') ?></p>
-            </div>
-
-            <?php
-        else: ?>
-
-            	<div class="notice notice-warning is-dismissible">
-                <p><?php _e('Sorry, I was unable to save your cache settings try again :(', 'pressable_cache_management') ?></p>
-            </div>
-
-        <?php
-        endif;
-    }
+    // Settings saved notice is handled by settings-page.php (pcm_branded_settings_saved_notice)
+    // which outputs a single branded card. This block intentionally left empty.
 }
 add_action('admin_notices', 'plugin_admin_notice');

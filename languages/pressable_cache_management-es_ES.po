@@ -1,0 +1,205 @@
+# Pressable Cache Management
+msgid ""
+msgstr ""
+"Project-Id-Version: pressable-cache-management\n"
+"PO-Revision-Date: 2026-03-05 00:00+0000\n"
+"Language: es_ES\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "&#10003;&nbsp; Save Settings"
+msgstr "&#10003;&nbsp; Guardar configuración"
+
+msgid "Automated Rules"
+msgstr "Reglas automáticas"
+
+msgid "Batcache & Page Rules"
+msgstr "Batcache y reglas de página"
+
+msgid "Batcache Active"
+msgstr "Batcache activo"
+
+msgid "Batcache Broken"
+msgstr "Batcache roto"
+
+msgid "Cache Control Management"
+msgstr "Gestión de control de caché"
+
+msgid "Cache Exclusions"
+msgstr "Exclusiones de caché"
+
+msgid "Cache Management by"
+msgstr "Gestión de caché por"
+
+msgid "Cache settings updated."
+msgstr "Configuración de caché actualizada."
+
+msgid "Cloudflare Detected"
+msgstr "Cloudflare detectado"
+
+msgid "Disable Edge Cache"
+msgstr "Desactivar Edge Cache"
+
+msgid "Edge Cache Deactivated."
+msgstr "Edge Cache desactivado."
+
+msgid "Edge Cache Enabled!"
+msgstr "¡Edge Cache activado!"
+
+msgid "Edge Cache is disabled on the server. Enable Edge Cache."
+msgstr "Edge Cache está desactivado en el servidor. Active Edge Cache."
+
+msgid "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+msgstr "Edge Cache mejora el rendimiento, especialmente el Tiempo hasta el Primer Byte (TTFB), sirviendo el caché desde el servidor más cercano a sus visitantes."
+
+msgid "Edge Cache purge failed. Please try again."
+msgstr "Error al purgar Edge Cache. Por favor, inténtelo de nuevo."
+
+msgid "Edge Cache purged successfully."
+msgstr "Edge Cache purgado correctamente."
+
+msgid "Edge Cache was disabled and could not be auto-enabled. Purge aborted."
+msgstr "Edge Cache estaba desactivado y no se pudo activar automáticamente. Purga cancelada."
+
+msgid "Edge Cache was disabled on the server. It has been automatically enabled and purged successfully."
+msgstr "Edge Cache estaba desactivado. Se ha activado y purgado automáticamente."
+
+msgid "Enable Edge Cache"
+msgstr "Activar Edge Cache"
+
+msgid "Enter single URL (e.g., /pagename/)."
+msgstr "Introduzca una URL (ej. /nombre-pagina/)."
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr "Error: El plugin de Edge Cache no está activo."
+
+msgid "Error: Edge Cache dependency is missing."
+msgstr "Error: Falta la dependencia de Edge Cache."
+
+msgid "Exclude Pages"
+msgstr "Excluir páginas"
+
+msgid "Extend Batcache (by 24 hrs)"
+msgstr "Extender Batcache (24 horas)"
+
+msgid "Extend Batcache storage time by 24 hours."
+msgstr "Extender el tiempo de almacenamiento de Batcache 24 horas."
+
+msgid "Extending Batcache for 24 hours — see "
+msgstr "Extendiendo Batcache por 24 horas — ver "
+
+msgid "Flush Cache for all Pages"
+msgstr "Vaciar caché de todas las páginas"
+
+msgid "Flush Batcache for Individual Pages"
+msgstr "Limpiar Batcache para páginas individuales"
+
+msgid "Flush Batcache for WooCommerce product pages"
+msgstr "Limpiar Batcache para productos WooCommerce"
+
+msgid "Flush Batcache for WooCommerce product pages."
+msgstr "Limpiar Batcache para productos WooCommerce."
+
+msgid "Flush Batcache for individual pages from page preview toolbar."
+msgstr "Limpiar Batcache desde la barra de vista previa."
+
+msgid "Flush Cache on Comment Delete"
+msgstr "Limpiar caché al eliminar comentario"
+
+msgid "Flush Cache on Page Delete"
+msgstr "Limpiar caché al eliminar página"
+
+msgid "Flush Cache on Plugin/Theme Update"
+msgstr "Limpiar caché al actualizar plugin/tema"
+
+msgid "Flush Cache on Post/Page Edit"
+msgstr "Limpiar caché al editar entrada/página"
+
+msgid "Flush Object Cache"
+msgstr "Limpiar caché de objetos"
+
+msgid "Flush cache automatically on plugin & theme update."
+msgstr "Limpiar caché automáticamente al actualizar plugins y temas."
+
+msgid "Flush cache automatically when comments are deleted."
+msgstr "Limpiar caché automáticamente al eliminar comentarios."
+
+msgid "Flush cache automatically when page/post/post_types are updated."
+msgstr "Limpiar caché automáticamente al actualizar páginas o entradas."
+
+msgid "Flush cache automatically when published pages/posts are deleted."
+msgstr "Limpiar caché automáticamente al eliminar páginas publicadas."
+
+msgid "Flushes Batcache for the specific page when it is deleted."
+msgstr "Limpia Batcache de la página específica al eliminarla."
+
+msgid "Global Controls"
+msgstr "Controles globales"
+
+msgid "Hide Pressable Branding"
+msgstr "Ocultar marca Pressable"
+
+msgid "Hide or Show Plugin Branding"
+msgstr "Ocultar o mostrar la marca del plugin"
+
+msgid "Hide or show plugin branding"
+msgstr "Ocultar o mostrar la marca del plugin"
+
+msgid "LAST FLUSHED"
+msgstr "ÚLTIMA LIMPIEZA"
+
+msgid "Last flushed at:"
+msgstr "Última limpieza:"
+
+msgid "Manage Edge Cache settings below."
+msgstr "Gestione la configuración del Edge Cache a continuación."
+
+msgid "Modifying Batcache Times."
+msgstr "Modificar tiempos de Batcache."
+
+msgid "Object Cache Flushed Successfully."
+msgstr "Caché de objetos limpiado correctamente."
+
+msgid "Page URL:"
+msgstr "URL de la página:"
+
+msgid "Purge Edge Cache"
+msgstr "Purgar Edge Cache"
+
+msgid "Purging cache will temporarily slow down your site for all visitors while the cache rebuilds."
+msgstr "Purgar el caché ralentizará temporalmente su sitio mientras se reconstruye."
+
+msgid "Settings to manage the object cache."
+msgstr "Configuración para gestionar el caché de objetos."
+
+msgid "Show Pressable Branding"
+msgstr "Mostrar marca Pressable"
+
+msgid "Show or Hide Plugin Branding"
+msgstr "Mostrar u ocultar la marca del plugin"
+
+msgid "Something went wrong trying to communicate with the Edge Cache system. Try again."
+msgstr "Algo salió mal al comunicarse con Edge Cache. Inténtelo de nuevo."
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "Estos ajustes permiten gestionar la configuración del Edge Cache."
+
+msgid "These settings enable you to manage the object cache."
+msgstr "Estos ajustes permiten gestionar el caché de objetos."
+
+msgid "This setting allows you to show or hide the plugin branding."
+msgstr "Este ajuste permite mostrar u ocultar la marca del plugin."
+
+msgid "To exclude a single page use"
+msgstr "Para excluir una página use"
+
+msgid "for multiple pages separate with comma, e.g."
+msgstr "para varias páginas separe con coma, p.ej."
+
+msgid "Manage Edge Cache Settings"
+msgstr "Gestionar la configuración del Edge Cache"
+
+msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+msgstr "El verificador de estado de caché se activa automáticamente cuando el estado muestra roto — vuelve a verificar cada 15 segundos durante hasta 3 minutos y se detiene en el momento en que la caché está activa, por lo que la recuperación aparece en 15 segundos después de que Batcache se reconstruya. Si el estado de caché permanece roto más de 4 minutos, es probable que la caché esté rota por interferencia de cookies."

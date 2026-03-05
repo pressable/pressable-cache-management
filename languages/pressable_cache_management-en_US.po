@@ -1,0 +1,122 @@
+# English (United States) translation for Pressable Cache Management
+# Copyright (C) 2025 Pressable
+msgid ""
+msgstr ""
+"Project-Id-Version: Pressable Cache Management 5.2.2\n"
+"POT-Creation-Date: 2025-10-15 00:00+0000\n"
+"PO-Revision-Date: 2025-10-15 00:00+0000\n"
+"Last-Translator: Pressable CS Team\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: pressable_cache_management\n"
+
+msgid "Object Cache"
+msgstr "Object Cache"
+
+msgid "Edge Cache"
+msgstr "Edge Cache"
+
+msgid "Settings to manage the object cache."
+msgstr "Settings to manage the object cache."
+
+msgid "These settings enable you to manage the object cache."
+msgstr "These settings enable you to manage the object cache."
+
+msgid "Flush Cache for all Pages"
+msgstr "Flush Cache for all Pages"
+
+msgid "Object Cache Flushed Successfully."
+msgstr "Object Cache Flushed Successfully."
+
+msgid "Automated Rules"
+msgstr "Automated Rules"
+
+msgid "Flush Cache on Plugin/Theme Update"
+msgstr "Flush Cache on Plugin/Theme Update"
+
+msgid "Flush cache automatically on plugin & theme update."
+msgstr "Flush cache automatically on plugin & theme update."
+
+msgid "Flush Cache on Post/Page Edit"
+msgstr "Flush Cache on Post/Page Edit"
+
+msgid "Flush cache automatically when published pages are edited."
+msgstr "Flush cache automatically when published pages are edited."
+
+msgid "Flush Cache on Comment Delete"
+msgstr "Flush Cache on Comment Delete"
+
+msgid "Flush cache automatically when comments are deleted."
+msgstr "Flush cache automatically when comments are deleted."
+
+msgid "Batcache & Page Rules"
+msgstr "Batcache & Page Rules"
+
+msgid "Extend Batcache (by 24 hrs)"
+msgstr "Extend Batcache (by 24 hrs)"
+
+msgid "Flush Batcache to Individual Pages"
+msgstr "Flush Batcache to Individual Pages"
+
+msgid "Flush cache automatically when published pages/posts are deleted."
+msgstr "Flush cache automatically when published pages/posts are deleted."
+
+msgid "Flush Batcache for WooCommerce product pages"
+msgstr "Flush Batcache for WooCommerce product pages"
+
+msgid "Exclude Pages"
+msgstr "Exclude Pages"
+
+msgid "Cache Exclusions"
+msgstr "Cache Exclusions"
+
+msgid "Save Settings"
+msgstr "Save Settings"
+
+msgid "Batcache Active"
+msgstr "Batcache Active"
+
+msgid "Batcache Broken"
+msgstr "Batcache Broken"
+
+msgid "Enable Edge Cache"
+msgstr "Enable Edge Cache"
+
+msgid "Disable Edge Cache"
+msgstr "Disable Edge Cache"
+
+msgid "Purge Edge Cache"
+msgstr "Purge Edge Cache"
+
+msgid "Edge Cache Enabled!"
+msgstr "Edge Cache Enabled!"
+
+msgid "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+msgstr "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+
+msgid "Learn more about Edge Cache."
+msgstr "Learn more about Edge Cache."
+
+msgid "Edge Cache Deactivated."
+msgstr "Edge Cache Deactivated."
+
+msgid "Edge Cache purged successfully."
+msgstr "Edge Cache purged successfully."
+
+msgid "Edge Cache purge failed. Please try again."
+msgstr "Edge Cache purge failed. Please try again."
+
+msgid "Show Pressable Branding"
+msgstr "Show Pressable Branding"
+
+msgid "Hide Pressable Branding"
+msgstr "Hide Pressable Branding"
+
+msgid "This plugin is not supported on this platform."
+msgstr "This plugin is not supported on this platform."
+
+msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+msgstr "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."

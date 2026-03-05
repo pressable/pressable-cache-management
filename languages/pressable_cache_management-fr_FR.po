@@ -1,0 +1,205 @@
+# Pressable Cache Management
+msgid ""
+msgstr ""
+"Project-Id-Version: pressable-cache-management\n"
+"PO-Revision-Date: 2026-03-05 00:00+0000\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "&#10003;&nbsp; Save Settings"
+msgstr "&#10003;&nbsp; Enregistrer les paramètres"
+
+msgid "Automated Rules"
+msgstr "Règles automatisées"
+
+msgid "Batcache & Page Rules"
+msgstr "Batcache et règles de page"
+
+msgid "Batcache Active"
+msgstr "Batcache actif"
+
+msgid "Batcache Broken"
+msgstr "Batcache défaillant"
+
+msgid "Cache Control Management"
+msgstr "Gestion du contrôle du cache"
+
+msgid "Cache Exclusions"
+msgstr "Exclusions du cache"
+
+msgid "Cache Management by"
+msgstr "Gestion du cache par"
+
+msgid "Cache settings updated."
+msgstr "Paramètres du cache mis à jour."
+
+msgid "Cloudflare Detected"
+msgstr "Cloudflare détecté"
+
+msgid "Disable Edge Cache"
+msgstr "Désactiver le cache de périphérie"
+
+msgid "Edge Cache Deactivated."
+msgstr "Cache de périphérie désactivé."
+
+msgid "Edge Cache Enabled!"
+msgstr "Cache de périphérie activé !"
+
+msgid "Edge Cache is disabled on the server. Enable Edge Cache."
+msgstr "Le cache de périphérie est désactivé sur le serveur. Activez-le."
+
+msgid "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+msgstr "Le cache de périphérie améliore les performances, notamment le Temps jusqu'au Premier Octet (TTFB), en servant le cache depuis le serveur le plus proche de vos visiteurs."
+
+msgid "Edge Cache purge failed. Please try again."
+msgstr "Échec de la purge du cache de périphérie. Veuillez réessayer."
+
+msgid "Edge Cache purged successfully."
+msgstr "Cache de périphérie purgé avec succès."
+
+msgid "Edge Cache was disabled and could not be auto-enabled. Purge aborted."
+msgstr "Le cache de périphérie était désactivé et n'a pas pu être activé automatiquement. Purge annulée."
+
+msgid "Edge Cache was disabled on the server. It has been automatically enabled and purged successfully."
+msgstr "Le cache de périphérie était désactivé. Il a été activé et purgé automatiquement."
+
+msgid "Enable Edge Cache"
+msgstr "Activer le cache de périphérie"
+
+msgid "Enter single URL (e.g., /pagename/)."
+msgstr "Entrez une URL (ex. /nom-de-page/)."
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr "Erreur : le plugin de cache de périphérie n'est pas actif."
+
+msgid "Error: Edge Cache dependency is missing."
+msgstr "Erreur : la dépendance du cache de périphérie est manquante."
+
+msgid "Exclude Pages"
+msgstr "Exclure les pages"
+
+msgid "Extend Batcache (by 24 hrs)"
+msgstr "Étendre Batcache (de 24 heures)"
+
+msgid "Extend Batcache storage time by 24 hours."
+msgstr "Étendre la durée de stockage de Batcache de 24 heures."
+
+msgid "Extending Batcache for 24 hours — see "
+msgstr "Extension de Batcache pour 24 heures — voir "
+
+msgid "Flush Cache for all Pages"
+msgstr "Vider le cache pour toutes les pages"
+
+msgid "Flush Batcache for Individual Pages"
+msgstr "Vider Batcache pour les pages individuelles"
+
+msgid "Flush Batcache for WooCommerce product pages"
+msgstr "Vider Batcache pour les pages produits WooCommerce"
+
+msgid "Flush Batcache for WooCommerce product pages."
+msgstr "Vider Batcache pour les pages produits WooCommerce."
+
+msgid "Flush Batcache for individual pages from page preview toolbar."
+msgstr "Vider Batcache depuis la barre d'aperçu."
+
+msgid "Flush Cache on Comment Delete"
+msgstr "Vider le cache lors de la suppression d'un commentaire"
+
+msgid "Flush Cache on Page Delete"
+msgstr "Vider le cache lors de la suppression d'une page"
+
+msgid "Flush Cache on Plugin/Theme Update"
+msgstr "Vider le cache lors de la mise à jour d'un plugin/thème"
+
+msgid "Flush Cache on Post/Page Edit"
+msgstr "Vider le cache lors d'une modification"
+
+msgid "Flush Object Cache"
+msgstr "Vider le cache d'objets"
+
+msgid "Flush cache automatically on plugin & theme update."
+msgstr "Vider automatiquement le cache lors des mises à jour."
+
+msgid "Flush cache automatically when comments are deleted."
+msgstr "Vider automatiquement le cache lors de la suppression de commentaires."
+
+msgid "Flush cache automatically when page/post/post_types are updated."
+msgstr "Vider automatiquement le cache lors de la mise à jour des pages."
+
+msgid "Flush cache automatically when published pages/posts are deleted."
+msgstr "Vider automatiquement le cache lors de la suppression."
+
+msgid "Flushes Batcache for the specific page when it is deleted."
+msgstr "Vide Batcache de la page spécifique lors de sa suppression."
+
+msgid "Global Controls"
+msgstr "Contrôles globaux"
+
+msgid "Hide Pressable Branding"
+msgstr "Masquer la marque Pressable"
+
+msgid "Hide or Show Plugin Branding"
+msgstr "Masquer ou afficher la marque du plugin"
+
+msgid "Hide or show plugin branding"
+msgstr "Masquer ou afficher la marque du plugin"
+
+msgid "LAST FLUSHED"
+msgstr "DERNIER VIDAGE"
+
+msgid "Last flushed at:"
+msgstr "Dernier vidage :"
+
+msgid "Manage Edge Cache settings below."
+msgstr "Gérez les paramètres du cache de périphérie ci-dessous."
+
+msgid "Modifying Batcache Times."
+msgstr "Modification des durées Batcache."
+
+msgid "Object Cache Flushed Successfully."
+msgstr "Cache d'objets vidé avec succès."
+
+msgid "Page URL:"
+msgstr "URL de la page :"
+
+msgid "Purge Edge Cache"
+msgstr "Purger le cache de périphérie"
+
+msgid "Purging cache will temporarily slow down your site for all visitors while the cache rebuilds."
+msgstr "La purge du cache ralentira temporairement votre site pendant la reconstruction."
+
+msgid "Settings to manage the object cache."
+msgstr "Paramètres pour gérer le cache d'objets."
+
+msgid "Show Pressable Branding"
+msgstr "Afficher la marque Pressable"
+
+msgid "Show or Hide Plugin Branding"
+msgstr "Afficher ou masquer la marque du plugin"
+
+msgid "Something went wrong trying to communicate with the Edge Cache system. Try again."
+msgstr "Une erreur s'est produite avec le cache de périphérie. Réessayez."
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "Ces paramètres permettent de gérer les réglages du cache de périphérie."
+
+msgid "These settings enable you to manage the object cache."
+msgstr "Ces paramètres permettent de gérer le cache d'objets."
+
+msgid "This setting allows you to show or hide the plugin branding."
+msgstr "Ce paramètre permet d'afficher ou de masquer la marque du plugin."
+
+msgid "To exclude a single page use"
+msgstr "Pour exclure une page, utilisez"
+
+msgid "for multiple pages separate with comma, e.g."
+msgstr "pour plusieurs pages, séparez par une virgule, ex."
+
+msgid "Manage Edge Cache Settings"
+msgstr "Gérer les paramètres du cache de périphérie"
+
+msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+msgstr "Le vérificateur d'état du cache se déclenche automatiquement dès que l'état indique cassé — il revérifie toutes les 15 secondes pendant 3 minutes maximum et s'arrête dès que le cache est actif, de sorte que la récupération apparaît dans les 15 secondes suivant la reconstruction de Batcache. Si l'état du cache reste cassé pendant plus de 4 minutes, il est probable que le cache soit cassé en raison d'une interférence de cookies."

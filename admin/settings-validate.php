@@ -50,16 +50,32 @@ function pressable_cache_management_callback_validate_options($input) {
     // Flush Batcache for WooCommerce individual page
     $input["flush_batcache_for_woo_product_individual_page_checkbox"] = isset($input["flush_batcache_for_woo_product_individual_page_checkbox"]) ? filter_var($input["flush_batcache_for_woo_product_individual_page_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT) : 0;
 
-    return $input;
-}
+    // Exclude pages from Batcache — sanitize comma-separated URL paths
+    if ( isset( $input['exempt_from_batcache'] ) ) {
+        $raw_paths = explode( ',', $input['exempt_from_batcache'] );
+        $clean_paths = array_map( function( $path ) {
+            // Each entry is a URL path like /pagename/ — sanitize and allow only safe path chars
+            $path = sanitize_text_field( wp_unslash( trim( $path ) ) );
+            $path = preg_replace( '/[^a-zA-Z0-9\-_\/\.\~\%]/', '', $path );
+            return $path;
+        }, $raw_paths );
+        $input['exempt_from_batcache'] = implode( ',', array_filter( $clean_paths ) );
+    }
 
-// Exclude pages from Batcache
-if (isset($input["exempt_from_batcache"])) {
-    $input["exempt_from_batcache"] = sanitize_text_field($input["exempt_from_batcache"]);
+    return $input;
 }
 
 // Callback: validate Edge Cache options
 function egde_cache_settings_tab_callback_validate_options($input) {
+    if ( ! is_array( $input ) ) {
+        return array();
+    }
+    // Sanitize each value — edge cache options are radio/checkbox strings
+    $allowed = array( 'enabled', 'disabled', 'enable', 'disable', '1', '0', '' );
+    foreach ( $input as $key => $value ) {
+        $key = sanitize_key( $key );
+        $input[ $key ] = in_array( $value, $allowed, true ) ? $value : sanitize_text_field( $value );
+    }
     return $input;
 }
 

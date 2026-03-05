@@ -1,0 +1,205 @@
+# Pressable Cache Management
+msgid ""
+msgstr ""
+"Project-Id-Version: pressable-cache-management\n"
+"PO-Revision-Date: 2026-03-05 00:00+0000\n"
+"Language: hi_IN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "&#10003;&nbsp; Save Settings"
+msgstr "&#10003;&nbsp; सेटिंग्स सहेजें"
+
+msgid "Automated Rules"
+msgstr "स्वचालित नियम"
+
+msgid "Batcache & Page Rules"
+msgstr "Batcache और पेज नियम"
+
+msgid "Batcache Active"
+msgstr "Batcache सक्रिय"
+
+msgid "Batcache Broken"
+msgstr "Batcache खराब"
+
+msgid "Cache Control Management"
+msgstr "कैश नियंत्रण प्रबंधन"
+
+msgid "Cache Exclusions"
+msgstr "कैश बहिष्करण"
+
+msgid "Cache Management by"
+msgstr "कैश प्रबंधन द्वारा"
+
+msgid "Cache settings updated."
+msgstr "कैश सेटिंग्स अपडेट हो गई हैं।"
+
+msgid "Cloudflare Detected"
+msgstr "Cloudflare पहचाना गया"
+
+msgid "Disable Edge Cache"
+msgstr "Edge Cache अक्षम करें"
+
+msgid "Edge Cache Deactivated."
+msgstr "Edge Cache निष्क्रिय कर दिया गया।"
+
+msgid "Edge Cache Enabled!"
+msgstr "Edge Cache सक्षम किया गया!"
+
+msgid "Edge Cache is disabled on the server. Enable Edge Cache."
+msgstr "सर्वर पर Edge Cache अक्षम है। Edge Cache सक्षम करें।"
+
+msgid "Edge Cache provides performance improvements, particularly for Time to First Byte (TTFB), by serving page cache from the nearest server to your website visitors."
+msgstr "Edge Cache प्रदर्शन में सुधार करता है, विशेष रूप से TTFB के लिए, निकटतम सर्वर से पेज कैश प्रदान करके।"
+
+msgid "Edge Cache purge failed. Please try again."
+msgstr "Edge Cache पर्ज विफल। कृपया पुनः प्रयास करें।"
+
+msgid "Edge Cache purged successfully."
+msgstr "Edge Cache सफलतापूर्वक पर्ज किया गया।"
+
+msgid "Edge Cache was disabled and could not be auto-enabled. Purge aborted."
+msgstr "Edge Cache अक्षम था और स्वतः सक्षम नहीं हो सका। पर्ज रद्द किया गया।"
+
+msgid "Edge Cache was disabled on the server. It has been automatically enabled and purged successfully."
+msgstr "Edge Cache सर्वर पर अक्षम था। इसे स्वतः सक्षम और पर्ज कर दिया गया।"
+
+msgid "Enable Edge Cache"
+msgstr "Edge Cache सक्षम करें"
+
+msgid "Enter single URL (e.g., /pagename/)."
+msgstr "एक URL दर्ज करें (जैसे /पेज-नाम/)।"
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr "त्रुटि: Edge Cache प्लगइन सक्रिय नहीं है।"
+
+msgid "Error: Edge Cache dependency is missing."
+msgstr "त्रुटि: Edge Cache निर्भरता गायब है।"
+
+msgid "Exclude Pages"
+msgstr "पेज बाहर करें"
+
+msgid "Extend Batcache (by 24 hrs)"
+msgstr "Batcache बढ़ाएं (24 घंटे)"
+
+msgid "Extend Batcache storage time by 24 hours."
+msgstr "Batcache स्टोरेज समय 24 घंटे बढ़ाएं।"
+
+msgid "Extending Batcache for 24 hours — see "
+msgstr "Batcache को 24 घंटे के लिए बढ़ाया गया — देखें "
+
+msgid "Flush Cache for all Pages"
+msgstr "सभी पृष्ठों का कैश साफ़ करें"
+
+msgid "Flush Batcache for Individual Pages"
+msgstr "अलग-अलग पेजों के लिए Batcache साफ़ करें"
+
+msgid "Flush Batcache for WooCommerce product pages"
+msgstr "WooCommerce उत्पाद पेजों के लिए Batcache साफ़ करें"
+
+msgid "Flush Batcache for WooCommerce product pages."
+msgstr "WooCommerce उत्पाद पेजों के लिए Batcache साफ़ करें।"
+
+msgid "Flush Batcache for individual pages from page preview toolbar."
+msgstr "पेज प्रीव्यू टूलबार से अलग-अलग पेजों के लिए Batcache साफ़ करें।"
+
+msgid "Flush Cache on Comment Delete"
+msgstr "टिप्पणी हटाने पर कैश साफ़ करें"
+
+msgid "Flush Cache on Page Delete"
+msgstr "पेज हटाने पर कैश साफ़ करें"
+
+msgid "Flush Cache on Plugin/Theme Update"
+msgstr "प्लगइन/थीम अपडेट पर कैश साफ़ करें"
+
+msgid "Flush Cache on Post/Page Edit"
+msgstr "पोस्ट/पेज संपादित करने पर कैश साफ़ करें"
+
+msgid "Flush Object Cache"
+msgstr "ऑब्जेक्ट कैश साफ़ करें"
+
+msgid "Flush cache automatically on plugin & theme update."
+msgstr "प्लगइन और थीम अपडेट पर कैश स्वचालित रूप से साफ़ करें।"
+
+msgid "Flush cache automatically when comments are deleted."
+msgstr "टिप्पणी हटाने पर कैश स्वचालित रूप से साफ़ करें।"
+
+msgid "Flush cache automatically when page/post/post_types are updated."
+msgstr "पेज या पोस्ट अपडेट होने पर कैश स्वचालित रूप से साफ़ करें।"
+
+msgid "Flush cache automatically when published pages/posts are deleted."
+msgstr "प्रकाशित पेज या पोस्ट हटाने पर कैश स्वचालित रूप से साफ़ करें।"
+
+msgid "Flushes Batcache for the specific page when it is deleted."
+msgstr "हटाए जाने पर उस पेज का Batcache साफ़ करें।"
+
+msgid "Global Controls"
+msgstr "वैश्विक नियंत्रण"
+
+msgid "Hide Pressable Branding"
+msgstr "Pressable ब्रांडिंग छुपाएं"
+
+msgid "Hide or Show Plugin Branding"
+msgstr "प्लगइन ब्रांडिंग छुपाएं या दिखाएं"
+
+msgid "Hide or show plugin branding"
+msgstr "प्लगइन ब्रांडिंग छुपाएं या दिखाएं"
+
+msgid "LAST FLUSHED"
+msgstr "अंतिम बार साफ़ किया"
+
+msgid "Last flushed at:"
+msgstr "अंतिम बार साफ़ किया:"
+
+msgid "Manage Edge Cache settings below."
+msgstr "नीचे Edge Cache सेटिंग्स प्रबंधित करें।"
+
+msgid "Modifying Batcache Times."
+msgstr "Batcache समय संशोधित करें।"
+
+msgid "Object Cache Flushed Successfully."
+msgstr "ऑब्जेक्ट कैश सफलतापूर्वक साफ़ किया गया।"
+
+msgid "Page URL:"
+msgstr "पेज URL:"
+
+msgid "Purge Edge Cache"
+msgstr "Edge Cache पर्ज करें"
+
+msgid "Purging cache will temporarily slow down your site for all visitors while the cache rebuilds."
+msgstr "कैश पर्ज के दौरान सभी आगंतुकों के लिए आपकी साइट अस्थायी रूप से धीमी हो जाएगी।"
+
+msgid "Settings to manage the object cache."
+msgstr "ऑब्जेक्ट कैश प्रबंधित करने की सेटिंग्स।"
+
+msgid "Show Pressable Branding"
+msgstr "Pressable ब्रांडिंग दिखाएं"
+
+msgid "Show or Hide Plugin Branding"
+msgstr "प्लगइन ब्रांडिंग दिखाएं या छुपाएं"
+
+msgid "Something went wrong trying to communicate with the Edge Cache system. Try again."
+msgstr "Edge Cache सिस्टम से संवाद करने में कुछ गलत हुआ। पुनः प्रयास करें।"
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "ये सेटिंग्स Edge Cache कॉन्फ़िगरेशन प्रबंधित करने के लिए हैं।"
+
+msgid "These settings enable you to manage the object cache."
+msgstr "ये सेटिंग्स ऑब्जेक्ट कैश प्रबंधित करने के लिए हैं।"
+
+msgid "This setting allows you to show or hide the plugin branding."
+msgstr "यह सेटिंग प्लगइन ब्रांडिंग दिखाने या छुपाने की अनुमति देती है।"
+
+msgid "To exclude a single page use"
+msgstr "एक पेज बाहर करने के लिए उपयोग करें"
+
+msgid "for multiple pages separate with comma, e.g."
+msgstr "कई पेजों के लिए कॉमा से अलग करें, जैसे"
+
+msgid "Manage Edge Cache Settings"
+msgstr "Edge Cache सेटिंग्स प्रबंधित करें"
+
+msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+msgstr "कैश स्थिति जाँचकर्ता स्वचालित रूप से तब सक्रिय होता है जब स्थिति टूटी हुई दिखाई देती है — यह 3 मिनट तक हर 15 सेकंड में पुनः जाँच करता है और जैसे ही कैश सक्रिय होता है रुक जाता है, इसलिए Batcache के पुनर्निर्माण के 15 सेकंड के भीतर रिकवरी दिखाई देती है। यदि कैश की स्थिति 4 मिनट से अधिक समय तक टूटी रहती है तो संभव है कि कैश कुकी हस्तक्षेप के कारण टूटी हुई हो।"

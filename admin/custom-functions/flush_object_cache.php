@@ -1,48 +1,69 @@
-<?php // Pressable Cache Management - Flush object cache 
+<?php
+/**
+ * Pressable Cache Management - Flush Object Cache + Page Cache
+ */
 
-
-
-// disable direct file access
 if ( ! defined( 'ABSPATH' ) ) {
-    
     exit;
-    
 }
 
+if ( isset( $_POST['flush_object_cache_nonce'] ) ) {
 
-// flush object cache button
-if ( isset( $_POST['flush_object_cache_nonce']  ) ) {
+    function pressable_cache_button() {
+        if ( ! wp_verify_nonce(
+            sanitize_text_field( wp_unslash( $_POST['flush_object_cache_nonce'] ) ),
+            'flush_object_cache_nonce'
+        ) || ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
 
-// Flush cache button
-function pressable_cache_button() {
-    
-    
-    $options = get_option( 'pressable_cache_management_options');
-
-    if(wp_verify_nonce($_POST['flush_object_cache_nonce'], 'flush_object_cache_nonce')) {
-    
+        // Flush WP Object Cache (Redis / Memcached)
         wp_cache_flush();
-     
 
+        // Flush Batcache page cache if available
+        if ( function_exists( 'batcache_clear_cache' ) ) {
+            batcache_clear_cache();
+        }
+
+        // WP Super Cache
+        if ( function_exists( 'wp_cache_clear_cache' ) ) {
+            wp_cache_clear_cache();
+        }
+
+        // W3 Total Cache
+        if ( function_exists( 'w3tc_flush_all' ) ) {
+            w3tc_flush_all();
+        }
+
+        // WP Rocket
+        if ( function_exists( 'rocket_clean_domain' ) ) {
+            rocket_clean_domain();
+        }
+
+        // Custom hook for other integrations
+        do_action( 'pcm_flush_all_cache' );
+
+        // Clear the cached Batcache status so the badge refreshes on next page load
+        do_action( 'pcm_after_object_cache_flush' );
+        delete_transient( 'pcm_batcache_status' );
     }
-}
-add_action( 'wp_before_admin_bar_render', 'pressable_cache_button', 999 );
+    add_action( 'wp_before_admin_bar_render', 'pressable_cache_button', 999 );
 
-
-//Show success message when flush cache obk=ject cache is successful
-function flush_cache_notice__success() {?>
-
-    <div class="notice notice-success is-dismissible">
-        <p><?php _e( 'Object Cache Flushed Successfully.', 'pressable-cache-management' ); ?></p>
-    </div>
-    <?php
-}
-add_action( 'admin_notices', 'flush_cache_notice__success' );
-
- //Save time stamp to database if cache is flushed.
- $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
-            
- update_option( 'flush-obj-cache-time-stamp', $object_cache_flush_time);
-
-
+    // Branded success notice - only show ONE (remove WP default)
+    function flush_cache_notice__success() {
+        $wrap = 'display:flex;align-items:center;justify-content:space-between;gap:12px;'
+              . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
+              . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
+              . 'margin:10px 20px 10px 0;font-family:sans-serif;';
+        $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;';
+        echo '<div style="' . $wrap . '">';
+        echo '<p style="margin:0;font-size:13px;color:#040024;">'
+           . esc_html__( 'Object Cache Flushed Successfully.', 'pressable_cache_management' )
+           . '</p>';
+        echo '<button type="button" class="notice-dismiss" style="' . $btn . '">&#x2297;</button>';
+        echo '</div>';
     }
+    add_action( 'admin_notices', 'flush_cache_notice__success' );
+
+    update_option( 'flush-obj-cache-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
+}

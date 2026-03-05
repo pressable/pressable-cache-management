@@ -1,241 +1,89 @@
-//Run this js when branding is enabled
-var PCM_TOOLBAR_FLUSH_CACHE = {
-	ajax_url: false,
-	init: function(){
-		var self = this;
+/**
+ * Pressable Cache Management — Toolbar JS
+ *
+ * Handles the combined "Flush Cache for This Page" admin bar button.
+ *
+ * Bug fixes vs previous version:
+ *  1. data-edge on <li> is unsupported by WP add_menu() meta — now uses pcmToolbarData.flushEdge
+ *     passed via wp_localize_script() which works on both admin and frontend.
+ *  2. Event delegation now targets document.body and checks closest('li').attr('id') correctly,
+ *     rather than querying a non-existent '#wp-admin-bar-*-default' wrapper selector.
+ *  3. pcm_nonce was only available on frontend (wp_footer). Now comes from pcmToolbarData.nonce
+ *     which is always present via wp_localize_script.
+ *  4. AJAX handlers now return wp_send_json_success() so jQuery parses valid JSON.
+ */
 
-		if(typeof ajaxurl != "undefined" || typeof pcm_ajaxurl != "undefined"){
-			self.ajax_url = (typeof ajaxurl != "undefined") ? ajaxurl : pcm_ajaxurl;
-		}else{
-			alert("AjaxURL has NOT been defined");
-		}
+jQuery(document).ready(function($) {
 
-		jQuery("body").append('<div id="revert-loader-toolbar"></div>');
+    // Ensure the loader overlay exists once
+    if ( !$('#revert-loader-toolbar').length ) {
+        $('body').append('<div id="revert-loader-toolbar"></div>');
+    }
 
-		jQuery("#wp-admin-bar-pcm-toolbar-parent-default li").click(function(e){
-		var id = (typeof e.target.id != "undefined" && e.target.id) ? e.target.id : jQuery(e.target).parent("li").attr("id");
-		var action = "";
-		
-		if(id == "wp-admin-bar-pcm-toolbar-parent"){
-			if(jQuery("div[id^='pcm-modal-toolbarsettings-']").length === 0){
-				self.open_settings();
-			}
-		}else{
-			if(id == "wp-admin-bar-pcm-toolbar-parent-delete-cache"){
-				action = "pcm_delete_cache";
-			}else if(id == "wp-admin-bar-pcm-toolbar-parent-clear-cache-of-this-page"){
-				action = "pcm_delete_current_page_cache";
-			}else if(id == "wp-admin-bar-pcm-toolbar-parent-purge-edge-cache-of-this-page"){
-				action = "pcm_purge_current_page_edge_cache";
-			}
+    // Resolve AJAX URL: prefer localized value, fall back to WP global
+    var ajaxUrl = ( typeof pcmToolbarData !== 'undefined' && pcmToolbarData.ajaxurl )
+        ? pcmToolbarData.ajaxurl
+        : ( typeof ajaxurl !== 'undefined' ? ajaxurl : '' );
 
-			PCM_TOOLBAR_FLUSH_CACHE.send({"action": action, "path" : window.location.pathname});
-		}
-		});
-	},
-	open_settings: function(){
-		var self = this;
+    // Nonce: from wp_localize_script (works on both admin + frontend)
+    var nonce = ( typeof pcmToolbarData !== 'undefined' ) ? pcmToolbarData.nonce : '';
 
-		jQuery("#revert-loader-toolbar").show();
-		jQuery.ajax({
-			type: 'GET',
-			url: self.ajax_url,
-			data : {"action": "pcm_delete_current_page_cache", "path" : window.location.pathname},
-			dataType : "json",
-			cache: false, 
-			success: function(data){
-				if(data.success){
-					var data_json = {"action": "pcm_toolbar_flush_cache_save_settings", "path" : window.location.pathname, " " : {}};
+    // Whether edge cache flush should also fire (passed from PHP via wp_localize_script)
+    var flushEdge = ( typeof pcmToolbarData !== 'undefined' && pcmToolbarData.flushEdge === '1' );
 
-					pcm_New_Dialog.dialog("pcm-modal-toolbarsettings", {
-						close: function(){
-							pcm_New_Dialog.clone.remove();
-						},
-						finish: function(){
-							jQuery("#" + pcm_New_Dialog.id).find("input[type='checkbox']:checked").each(function(i, e){
-								data_json[jQuery(e).attr("name")] = 1;
-							});
+    // ── IDs for both branding variants ───────────────────────────────────────
+    var combinedIds = [
+        'wp-admin-bar-pcm-toolbar-parent-flush-cache-of-this-page',
+        'wp-admin-bar-pcm-toolbar-parent-remove-branding-flush-cache-of-this-page',
+    ];
 
-							PCM_TOOLBAR_FLUSH_CACHE.send(data_json);
+    // ── Fire a single AJAX GET, returns a jQuery deferred ────────────────────
+    function sendRequest( action ) {
+        return $.ajax({
+            type    : 'GET',
+            url     : ajaxUrl,
+            data    : { action: action, path: window.location.pathname, nonce: nonce },
+            dataType: 'json',
+            cache   : false,
+        });
+    }
 
-							pcm_New_Dialog.clone.remove();
-					}}, function(dialog){
-						jQuery("#" + pcm_New_Dialog.id).find("input[type='checkbox']").each(function(i, e){
-							if(typeof data[jQuery(e).attr("name")] != "undefined"){
-								jQuery(e).attr('checked', true);
-							}
-						});
+    // ── Sequential flush: Batcache first, then Edge Cache if active ───────────
+    function flushCurrentPage() {
+        $('#revert-loader-toolbar').show();
 
-						pcm_New_Dialog.show_button("close");
-						pcm_New_Dialog.show_button("finish");
+        sendRequest('pcm_delete_current_page_cache')
+            .always(function() {
+                if ( flushEdge ) {
+                    sendRequest('pcm_purge_current_page_edge_cache')
+                        .always(done);
+                } else {
+                    done();
+                }
+            });
+    }
 
-						setTimeout(function(){
-							jQuery("#revert-loader-toolbar").hide();
-						}, 500);
-					});
-				}else{
-					alert("Toolbar Settings Error!")
-				}
-			}
-		});
-	},
-	send: function(data_json){
-		var self = this;
+    function done() {
+        if ( typeof pcmCacheStatics !== 'undefined' ) {
+            pcmCacheStatics.update();
+        } else {
+            $('#revert-loader-toolbar').hide();
+        }
+    }
 
-		if(typeof pcm_nonce != "undefined" && pcm_nonce){
-			data_json.nonce = pcm_nonce;
-		}
+    // ── Event delegation on body — catches clicks anywhere inside the <li> ───
+    // We delegate from body because the admin bar is injected late and the
+    // submenu UL wrapper varies by WP version. Matching by the <li> id directly
+    // is the most reliable approach and avoids the broken '-default' suffix.
+    $('body').on('click', function(e) {
+        // Walk up from the clicked element to find the nearest <li>
+        var $li = $(e.target).closest('li');
+        var id  = $li.attr('id') || '';
 
-		jQuery("#revert-loader-toolbar").show();
-		jQuery.ajax({
-			type: 'GET',
-			url: self.ajax_url,
-			data : data_json,
-			dataType : "json",
-			cache: false, 
-			success: function(data){
-				if(data[1] == "error"){
-					if(typeof data[2] != "undefined" && data[2] == "alert"){
-						alert(data[0]);
-					}else{
-						pcm_New_Dialog.dialog("pcm-modal-permission", {close: "default"});
-						pcm_New_Dialog.show_button("close");
-					}
-				}
+        if ( combinedIds.indexOf(id) !== -1 ) {
+            e.preventDefault();
+            flushCurrentPage();
+        }
+    });
 
-				if(typeof pcmCacheStatics != "undefined"){
-					pcmCacheStatics.update();
-				}else{
-					jQuery("#revert-loader-toolbar").hide();
-				}
-			}
-		});
-	}
-};
-
-window.addEventListener('load', function(){
-	jQuery(document).ready(function(){
-		PCM_TOOLBAR_FLUSH_CACHE.init();
-	});
-});
-
-//Run this js when branding is disabled
-var PCM_TOOLBAR_REMOVE_BRANDING = {
-	ajax_url: false,
-	init: function(){
-		var self = this;
-
-		if(typeof ajaxurl != "undefined" || typeof pcm_ajaxurl != "undefined"){
-			self.ajax_url = (typeof ajaxurl != "undefined") ? ajaxurl : pcm_ajaxurl;
-		}else{
-			alert("AjaxURL has NOT been defined");
-		}
-
-		jQuery("body").append('<div id="revert-loader-toolbar"></div>');
-
-		jQuery("#wp-admin-bar-pcm-toolbar-parent-remove-branding-default li").click(function(e){
-		var id = (typeof e.target.id != "undefined" && e.target.id) ? e.target.id : jQuery(e.target).parent("li").attr("id");
-		var action = "";
-		
-		if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding"){
-			if(jQuery("div[id^='pcm-modal-toolbarsettings-']").length === 0){
-				self.open_settings();
-			}
-		}else{
-			if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-delete-cache"){
-				action = "pcm_delete_cache";
-			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-clear-cache-of-this-page"){
-				action = "pcm_delete_current_page_cache";
-			}else if(id == "wp-admin-bar-pcm-toolbar-parent-remove-branding-purge-edge-cache-of-this-page"){
-				action = "pcm_purge_current_page_edge_cache";
-			}
-
-			PCM_TOOLBAR_REMOVE_BRANDING.send({"action": action, "path" : window.location.pathname});
-		}
-		});
-	},
-	open_settings: function(){
-		var self = this;
-
-		jQuery("#revert-loader-toolbar").show();
-		jQuery.ajax({
-			type: 'GET',
-			url: self.ajax_url,
-			data : {"action": "pcm_delete_current_page_cache", "path" : window.location.pathname},
-			dataType : "json",
-			cache: false, 
-			success: function(data){
-				if(data.success){
-					var data_json = {"action": "pcm_toolbar_remove_branding_save_settings", "path" : window.location.pathname, "roles" : {}};
-
-					pcm_New_Dialog.dialog("pcm-modal-toolbarsettings", {
-						close: function(){
-							pcm_New_Dialog.clone.remove();
-						},
-						finish: function(){
-							jQuery("#" + pcm_New_Dialog.id).find("input[type='checkbox']:checked").each(function(i, e){
-								data_json.roles[jQuery(e).attr("name")] = 1;
-							});
-
-							PCM_TOOLBAR_REMOVE_BRANDING.send(data_json);
-
-							pcm_New_Dialog.clone.remove();
-					}}, function(dialog){
-						jQuery("#" + pcm_New_Dialog.id).find("input[type='checkbox']").each(function(i, e){
-							if(typeof data.roles[jQuery(e).attr("name")] != "undefined"){
-								jQuery(e).attr('checked', true);
-							}
-						});
-
-						pcm_New_Dialog.show_button("close");
-						pcm_New_Dialog.show_button("finish");
-
-						setTimeout(function(){
-							jQuery("#revert-loader-toolbar").hide();
-						}, 500);
-					});
-				}else{
-					alert("Toolbar Settings Error!")
-				}
-			}
-		});
-	},
-	send: function(data_json){
-		var self = this;
-
-		if(typeof pcm_nonce != "undefined" && pcm_nonce){
-			data_json.nonce = pcm_nonce;
-		}
-
-		jQuery("#revert-loader-toolbar").show();
-		jQuery.ajax({
-			type: 'GET',
-			url: self.ajax_url,
-			data : data_json,
-			dataType : "json",
-			cache: false, 
-			success: function(data){
-				if(data[1] == "error"){
-					if(typeof data[2] != "undefined" && data[2] == "alert"){
-						alert(data[0]);
-					}else{
-						pcm_New_Dialog.dialog("pcm-modal-permission", {close: "default"});
-						pcm_New_Dialog.show_button("close");
-					}
-				}
-
-				if(typeof pcmCacheStatics != "undefined"){
-					pcmCacheStatics.update();
-				}else{
-					jQuery("#revert-loader-toolbar").hide();
-				}
-			}
-		});
-	}
-};
-
-window.addEventListener('load', function(){
-	jQuery(document).ready(function(){
-		PCM_TOOLBAR_REMOVE_BRANDING.init();
-	});
 });
