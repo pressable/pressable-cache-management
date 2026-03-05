@@ -55,6 +55,57 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 5.3.0 (Mar 05, 2026) =
+
+**UI & Design**
+* Redesigned settings page with card-based layout, toggle switches, and Inter font typography
+* Added "Cache Management by" header above Pressable logo in branded header
+* Made footer ♥ icon clickable in both branding states, linking to branding settings page
+* Timestamps (Last flushed at:) are now always visible showing — when never flushed
+* Timestamps display on a single straight line using flexbox layout (no line breaks)
+* Bold text inside timestamps (e.g. — cache flushed due to Page edit: My Post) now renders correctly as bold rather than showing raw <b> tags
+* Darkened timestamp and label text for improved readability
+* Added interactive chip UI for cache exclusion URL input
+* Added branded admin bar modals replacing browser alert() popups for Edge Cache enable/disable and flush actions
+
+**Batcache Status Badge**
+* Fixed Batcache status check to read the correct x-nananana header instead of scanning the response body for the word "batcache"
+* Fixed probe request to send no session cookies and mimic a real browser request, preventing Batcache from skipping the response
+* Removed Cache-Control: no-cache from the probe request which was causing the Pressable edge CDN to bypass cache entirely
+* Added 90-second transient cache on the status result to avoid a live HTTP request on every admin page load
+* Added ↺ refresh button on the badge that re-checks live status via AJAX without requiring a full page reload
+* Added tooltip ? icon next to the badge explaining: when a page gets two visits within 2 minutes it is cached for 5 minutes, and that cookies may interfere with cache status updates
+* Status transient is cleared immediately after any manual cache flush so the badge reflects the new state on next load
+
+**Cache Flush Improvements**
+* Flush Cache on Plugin/Theme Update now captures and displays the plugin or theme name in the timestamp (e.g. — Yoast SEO plugin was updated)
+* Flush Cache on Post/Page Edit now captures and displays the post title and post type in the timestamp
+* Page URL: field now correctly shows the human-readable URL when flushing from the page/post column link (previously showed the md5 hash Batcache uses internally)
+* Page URL: field now correctly saves when flushing from the page preview toolbar
+* Renamed Object Cache page button Flush Cache → Flush All Cache
+
+**GitHub Auto-Updates**
+* Integrated YahnisElsts/plugin-update-checker v5.6 library (bundled directly, no Composer required)
+* Plugin now checks github.com/pressable/pressable-cache-management for new releases automatically
+* WordPress sites show the standard update notice when a new GitHub Release is published
+* Added readme.txt used to populate the "View Details" popup in WordPress admin when an update is available
+* Added SETUP.md with full instructions for releasing future updates via GitHub tags
+* Removed unused library files: DebugBar/ and OAuthSignature.php to reduce plugin size
+
+**Translations**
+* Added French (fr_FR) translation — 65 strings
+* Added Dutch (nl_NL) translation — 65 strings
+* Added Simplified Chinese (zh_CN) translation — 65 strings
+* Added Hindi (hi_IN) translation — 65 strings
+* Updated Spanish (es_ES) translation to 65 strings
+* Fixed load_plugin_textdomain() to use the correct relative path so all locales load when site language is changed
+* Wrapped all previously untranslated UI strings including card titles, toggle labels, descriptions, exclude pages hint text, and branding page strings
+* All tooltip and badge strings included in all 5 languages
+
+**Uninstall Cleanup**
+* Rewrote uninstall.php to delete all option keys the plugin has ever written, organised by category: main settings, all timestamps, Edge Cache state, Batcache flags, exclusion settings, WooCommerce notices, legacy CDN options from older versions
+* Added $wpdb->query() to sweep out PUC transients (_transient_puc_*pressable-cache-management*) on uninstall
+
 = Version 5.2.2 (Oct 15, 2025) =
 * Fix bug for admin bar option not updating quicky after Edge cache is enabled/disabled 
 
