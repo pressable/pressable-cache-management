@@ -55,7 +55,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
-= Version 5.3.5 (Mar 06, 2026) =
+= Version 5.4.5 (Mar 06, 2026) =
 * Update Edge Cache page UI
 * * Update button color
 
