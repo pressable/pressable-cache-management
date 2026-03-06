@@ -1,6 +1,6 @@
 === Pressable Cache Management Change log ===
 
-= Version 5.3.3 (Mar 05, 2026) =
+= Version 5.3.3 (Mar 06, 2026) =
 * Update Edge Cache page UI
 
 = Version 5.3.2 (Mar 05, 2026) =
