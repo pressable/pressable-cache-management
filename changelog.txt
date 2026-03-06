@@ -2,6 +2,7 @@
 
 = Version 5.3.3 (Mar 06, 2026) =
 * Update Edge Cache page UI
+* Update button color
 
 = Version 5.3.2 (Mar 05, 2026) =
 * Update the grid to also fill the full width of the centred container
