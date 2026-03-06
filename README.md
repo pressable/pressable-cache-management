@@ -68,7 +68,7 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 = Version 5.3.0 (Mar 05, 2026) =
 
-**UI & Design**
+# UI & Design
 * Redesigned settings page with card-based layout, toggle switches, and Inter font typography
 * Added "Cache Management by" header above Pressable logo in branded header
 * Made footer ♥ icon clickable in both branding states, linking to branding settings page
