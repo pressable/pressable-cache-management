@@ -214,12 +214,10 @@ function pressable_cache_management_display_settings_page() {
             <?php if ( $show_branding ) : ?>
             <p style="font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;margin:0 0 6px;font-family:'Inter',sans-serif;"><?php echo esc_html__( 'Cache Management by', 'pressable_cache_management' ); ?></p>
             <img class="pressablecmlogo"
-                 src="https://pressable.com/wp-content/themes/pressable-com/assets/design-system/pressable-logos-v8/2x/pressable-logo-v8.svg"
+                 src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'assets/img/pressable-logo-primary.svg' ); ?>"
                  alt="Pressable"
-                 style="width:180px;height:auto;display:block;margin-bottom:6px;"
-                 onerror="this.src='<?php echo esc_url( plugin_dir_url( dirname(__FILE__) ) . 'assets/img/pressable-logo-primary.svg' ); ?>';">
+                 style="width:180px;height:auto;display:block;margin-bottom:6px;">
             <?php endif; ?>
-            <p style="color:#64748b;font-size:13px;margin:4px 0 0;"><?php esc_html_e( 'Settings to manage the object cache.', 'pressable_cache_management' ); ?></p>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
             <span class="pcm-batcache-status <?php echo esc_attr($bc_class); ?>" id="pcm-bc-badge">
