@@ -203,3 +203,18 @@ msgstr "Gérer les paramètres du cache de périphérie"
 
 msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
 msgstr "Le vérificateur d'état du cache se déclenche automatiquement dès que l'état indique cassé — il revérifie toutes les 15 secondes pendant 3 minutes maximum et s'arrête dès que le cache est actif, de sorte que la récupération apparaît dans les 15 secondes suivant la reconstruction de Batcache. Si l'état du cache reste cassé pendant plus de 4 minutes, il est probable que le cache soit cassé en raison d'une interférence de cookies."
+
+msgid "Enable or disable the edge cache for this site."
+msgstr "Activer ou désactiver le cache Edge pour ce site."
+
+msgid "SINGLE PAGE LAST FLUSHED"
+msgstr "DERNIÈRE PURGE PAGE UNIQUE"
+
+msgid "SINGLE PAGE URL"
+msgstr "URL DE PAGE UNIQUE"
+
+msgid "Failed to retrieve status."
+msgstr "Impossible de récupérer le statut."
+
+msgid "Could not connect to server."
+msgstr "Impossible de se connecter au serveur."

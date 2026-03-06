@@ -203,3 +203,18 @@ msgstr "Edge Cache-instellingen beheren"
 
 msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
 msgstr "De cachestatuscontrole start automatisch wanneer de status gebroken toont — het controleert elke 15 seconden opnieuw gedurende maximaal 3 minuten en stopt zodra de cache actief is, zodat herstel binnen 15 seconden na het herbouwen van Batcache zichtbaar is. Als de cachestatus langer dan 4 minuten gebroken blijft, is de cache waarschijnlijk gebroken door cookie-interferentie."
+
+msgid "Enable or disable the edge cache for this site."
+msgstr "Edge Cache voor deze site in- of uitschakelen."
+
+msgid "SINGLE PAGE LAST FLUSHED"
+msgstr "ENKELE PAGINA LAATSTE LEGING"
+
+msgid "SINGLE PAGE URL"
+msgstr "ENKELE PAGINA URL"
+
+msgid "Failed to retrieve status."
+msgstr "Status kon niet worden opgehaald."
+
+msgid "Could not connect to server."
+msgstr "Kon geen verbinding maken met de server."

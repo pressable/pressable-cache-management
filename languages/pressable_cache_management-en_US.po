@@ -120,3 +120,27 @@ msgstr "This plugin is not supported on this platform."
 
 msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
 msgstr "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
+
+msgid "Manage Edge Cache Settings"
+msgstr "Manage Edge Cache Settings"
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "These settings enable you to manage Edge Cache settings."
+
+msgid "Enable or disable the edge cache for this site."
+msgstr "Enable or disable the edge cache for this site."
+
+msgid "LAST FLUSHED"
+msgstr "LAST FLUSHED"
+
+msgid "SINGLE PAGE LAST FLUSHED"
+msgstr "SINGLE PAGE LAST FLUSHED"
+
+msgid "SINGLE PAGE URL"
+msgstr "SINGLE PAGE URL"
+
+msgid "Failed to retrieve status."
+msgstr "Failed to retrieve status."
+
+msgid "Could not connect to server."
+msgstr "Could not connect to server."

@@ -583,13 +583,150 @@ function pressable_cache_management_display_settings_page() {
 
     <?php elseif ( $tab === 'edge_cache_settings_tab' ) : ?>
 
-    <form action="options.php" method="post">
-        <?php
-        settings_fields('edge_cache_settings_tab_options');
-        do_settings_sections('edge_cache_settings_tab');
-        ?>
-    </form>
+    <style>
+    /* Edge Cache tab styles */
+    .edge-cache-loader {
+        display:flex;align-items:center;height:30px;
+        font-style:italic;color:#94a3b8;font-family:'Inter',sans-serif;font-size:13px;
+    }
+    .edge-cache-loader::before {
+        content:'';border:3px solid #e2e8f0;border-top:3px solid #03fcc2;
+        border-radius:50%;width:14px;height:14px;
+        animation:ec-spin 1s linear infinite;margin-right:10px;flex-shrink:0;
+    }
+    @keyframes ec-spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+    /* AJAX-injected enable/disable buttons */
+    #edge-cache-control-wrapper input[type="submit"] {
+        padding:10px 28px;border:none;border-radius:8px;
+        font-size:14px;font-weight:700;cursor:pointer;
+        font-family:'Inter',sans-serif;transition:background .2s;
+    }
+    #edge_cache_settings_tab_options_enable  { background:#03fcc2 !important;color:#040024 !important; }
+    #edge_cache_settings_tab_options_disable { background:#dd3a03 !important;color:#fff !important; }
+    #edge_cache_settings_tab_options_enable:hover  { background:#00dba9 !important; }
+    #edge_cache_settings_tab_options_disable:hover { background:#c03000 !important; }
+    .ec-disabled-btn { opacity:.5;cursor:not-allowed !important;pointer-events:none; }
+    </style>
 
+    <!-- Page heading -->
+    <div style="margin-bottom:20px;">
+        <h2 style="font-size:22px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+            <?php echo esc_html__( 'Manage Edge Cache Settings', 'pressable_cache_management' ); ?>
+        </h2>
+        <p style="font-size:14px;color:#64748b;margin:0;font-family:'Inter',sans-serif;">
+            <?php echo esc_html__( 'These settings enable you to manage Edge Cache settings.', 'pressable_cache_management' ); ?>
+        </p>
+    </div>
+
+    <!-- Card -->
+    <div style="max-width:680px;">
+    <div class="pcm-card" style="padding:0;">
+
+        <!-- Row 1: Turn On/Off -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 28px;border-bottom:1px solid #f1f5f9;">
+            <div>
+                <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                    <?php echo esc_html__( 'Turn On/Off Edge Cache', 'pressable_cache_management' ); ?>
+                </p>
+                <p style="font-size:13px;color:#64748b;margin:0;font-family:'Inter',sans-serif;">
+                    <?php echo esc_html__( 'Enable or disable the edge cache for this site.', 'pressable_cache_management' ); ?>
+                </p>
+            </div>
+            <div id="edge-cache-control-wrapper" style="flex-shrink:0;min-width:180px;text-align:right;">
+                <div class="edge-cache-loader"></div>
+            </div>
+        </div>
+
+        <!-- Row 2: Purge + description + timestamps -->
+        <div style="padding:24px 28px;">
+
+            <!-- Purge title + button -->
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:12px;">
+                <p style="font-size:15px;font-weight:700;color:#040024;margin:0;font-family:'Inter',sans-serif;">
+                    <?php echo esc_html__( 'Purge Edge Cache', 'pressable_cache_management' ); ?>
+                </p>
+                <form method="post" id="purge_edge_cache_nonce_form_static" style="flex-shrink:0;">
+                    <?php settings_fields('edge_cache_settings_tab_options'); ?>
+                    <input type="hidden" name="purge_edge_cache_nonce" value="<?php echo wp_create_nonce('purge_edge_cache_nonce'); ?>">
+                    <input id="purge-edge-cache-button-input"
+                           name="edge_cache_settings_tab_options[purge_edge_cache_button]"
+                           type="submit"
+                           value="<?php echo esc_attr__( 'Purge Edge Cache', 'pressable_cache_management' ); ?>"
+                           disabled
+                           class="ec-disabled-btn"
+                           style="padding:10px 28px;border:none;border-radius:8px;font-size:14px;font-weight:700;
+                                  color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;
+                                  transition:background .2s,opacity .2s;">
+                </form>
+            </div>
+
+            <!-- Description -->
+            <p style="font-size:13px;color:#64748b;margin:0 0 20px;font-family:'Inter',sans-serif;">
+                <?php echo esc_html__( 'Purging cache will temporarily slow down your site for all visitors while the cache rebuilds.', 'pressable_cache_management' ); ?>
+            </p>
+
+            <!-- Timestamps -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+
+                <div>
+                    <span class="pcm-ts-label"><?php echo esc_html__( 'LAST FLUSHED', 'pressable_cache_management' ); ?></span>
+                    <span class="pcm-ts-value" style="display:block;margin-top:4px;"><?php
+                        $v = get_option('edge-cache-purge-time-stamp');
+                        echo $v ? esc_html($v) : '&mdash;';
+                    ?></span>
+                </div>
+
+                <div>
+                    <span class="pcm-ts-label"><?php echo esc_html__( 'SINGLE PAGE LAST FLUSHED', 'pressable_cache_management' ); ?></span>
+                    <span class="pcm-ts-value" style="display:block;margin-top:4px;"><?php
+                        $v = get_option('single-page-edge-cache-purge-time-stamp');
+                        echo $v ? esc_html($v) : '&mdash;';
+                    ?></span>
+                </div>
+
+                <div>
+                    <span class="pcm-ts-label"><?php echo esc_html__( 'SINGLE PAGE URL', 'pressable_cache_management' ); ?></span>
+                    <span class="pcm-ts-value" style="display:block;margin-top:4px;word-break:break-all;"><?php
+                        $v = get_option('edge-cache-single-page-url-purged');
+                        echo $v ? esc_html($v) : '&mdash;';
+                    ?></span>
+                </div>
+
+            </div>
+        </div>
+
+    </div><!-- /card -->
+    </div><!-- /max-width -->
+
+    <script>
+    jQuery(document).ready(function($){
+        var wrapper  = $('#edge-cache-control-wrapper');
+        var purgeBtn = $('#purge-edge-cache-button-input');
+        if (wrapper.length && !wrapper.data('ec-checked')) {
+            wrapper.data('ec-checked', true);
+            $.ajax({
+                url: ajaxurl, type: 'POST',
+                data: { action: 'pcm_check_edge_cache_status' },
+                success: function(r) {
+                    if (r.success && r.data.html_controls_enable_disable) {
+                        wrapper.html(r.data.html_controls_enable_disable);
+                        if (r.data.enabled) {
+                            purgeBtn.removeClass('ec-disabled-btn')
+                                    .prop('disabled', false)
+                                    .css({ opacity:1, cursor:'pointer', pointerEvents:'auto' });
+                        }
+                    } else {
+                        var msg = (r.data && r.data.message) ? r.data.message : '<?php echo esc_js( __( 'Failed to retrieve status.', 'pressable_cache_management' ) ); ?>';
+                        wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;">'+msg+'</p>');
+                    }
+                },
+                error: function() {
+                    wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;"><?php echo esc_js( __( 'Could not connect to server.', 'pressable_cache_management' ) ); ?></p>');
+                }
+            });
+        }
+    });
+    </script>
     <?php elseif ( $tab === 'remove_pressable_branding_tab' ) : ?>
 
     <form action="options.php" method="post">

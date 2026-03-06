@@ -91,3 +91,27 @@ msgid "These settings enable you to manage cache on your Pressable site."
 msgstr ""
 "Mit diesen Einstellungen können Sie den Cache auf Ihrer Pressable-Site "
 "verwalten."
+
+msgid "Manage Edge Cache Settings"
+msgstr "Edge-Cache-Einstellungen verwalten"
+
+msgid "These settings enable you to manage Edge Cache settings."
+msgstr "Mit diesen Einstellungen können Sie die Edge-Cache-Einstellungen verwalten."
+
+msgid "Enable or disable the edge cache for this site."
+msgstr "Edge-Cache für diese Website aktivieren oder deaktivieren."
+
+msgid "LAST FLUSHED"
+msgstr "ZULETZT GELEERT"
+
+msgid "SINGLE PAGE LAST FLUSHED"
+msgstr "EINZELSEITE ZULETZT GELEERT"
+
+msgid "SINGLE PAGE URL"
+msgstr "EINZELSEITEN-URL"
+
+msgid "Failed to retrieve status."
+msgstr "Status konnte nicht abgerufen werden."
+
+msgid "Could not connect to server."
+msgstr "Verbindung zum Server fehlgeschlagen."
