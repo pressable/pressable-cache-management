@@ -601,10 +601,21 @@ function pressable_cache_management_display_settings_page() {
         font-size:14px;font-weight:700;cursor:pointer;
         font-family:'Inter',sans-serif;transition:background .2s;
     }
-    #edge_cache_settings_tab_options_enable  { background:#03fcc2 !important;color:#040024 !important; }
-    #edge_cache_settings_tab_options_disable { background:#dd3a03 !important;color:#fff !important; }
-    #edge_cache_settings_tab_options_enable:hover  { background:#00dba9 !important; }
-    #edge_cache_settings_tab_options_disable:hover { background:#c03000 !important; }
+    /* Both Enable/Disable buttons use .purgecacahe → orange default, green hover */
+    #edge_cache_settings_tab_options_enable,
+    #edge_cache_settings_tab_options_disable {
+        background:#dd3a03 !important;color:#fff !important;
+    }
+    #edge_cache_settings_tab_options_enable:hover,
+    #edge_cache_settings_tab_options_disable:hover {
+        background:#03fcc2 !important;color:#040024 !important;
+        box-shadow:0 4px 14px rgba(3,252,194,0.45) !important;
+    }
+    /* Purge button hover (not disabled) */
+    #purge-edge-cache-button-input:not([disabled]):hover {
+        background:#03fcc2 !important;color:#040024 !important;
+        box-shadow:0 4px 14px rgba(3,252,194,0.45) !important;
+    }
     .ec-disabled-btn { opacity:.5;cursor:not-allowed !important;pointer-events:none; }
     </style>
 

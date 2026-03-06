@@ -245,9 +245,9 @@ input.purgecacahe[type="submit"] {
 
 .purgecacahe:hover,
 input.purgecacahe[type="submit"]:hover {
-  background: #b82f00 !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 14px rgba(221,58,3,0.35) !important;
+  background: #03fcc2 !important;
+  color: #040024 !important;
+  box-shadow: 0 4px 14px rgba(3,252,194,0.45) !important;
 }
 
 /* ---- Radio button styling ---- */
