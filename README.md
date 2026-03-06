@@ -55,6 +55,9 @@ directory take precedence. For example, `/assets/screenshot-1.png` would win ove
 
 === Pressable Cache Management Change log ===
 
+= Version 5.3.3 (Mar 06, 2026) =
+* Update Edge Cache page UI
+
 = Version 5.3.2 (Mar 05, 2026) =
 * Update the grid to also fill the full width of the centred container
 
