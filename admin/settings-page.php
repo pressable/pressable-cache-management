@@ -619,12 +619,9 @@ function pressable_cache_management_display_settings_page() {
 
     <!-- Page heading -->
     <div style="margin-bottom:20px;">
-        <h2 style="font-size:22px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+        <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
             <?php echo esc_html__( 'Manage Edge Cache Settings', 'pressable_cache_management' ); ?>
         </h2>
-        <p style="font-size:14px;color:#64748b;margin:0;font-family:'Inter',sans-serif;">
-            <?php echo esc_html__( 'These settings enable you to manage Edge Cache settings.', 'pressable_cache_management' ); ?>
-        </p>
     </div>
 
     <!-- Card -->
