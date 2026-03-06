@@ -117,7 +117,8 @@ function pcm_ajax_report_batcache_header() {
         $status = 'broken';
     }
 
-    $ttl = ( $status === 'active' ) ? 90 : 20;
+    // Active: cache 5 min (stable). Broken: cache 2 min to limit probe frequency.
+    $ttl = ( $status === 'active' ) ? 300 : 120;
     set_transient( 'pcm_batcache_status', $status, $ttl );
 
     $labels = array(
@@ -308,8 +309,9 @@ function pressable_cache_management_display_settings_page() {
             });
         }
 
-        // Auto-poll: re-probe every 15s while status is broken (up to 3 min)
-        var pcmPollTimer = null, pcmPollCount = 0, pcmPollMax = 12;
+        // Auto-poll: re-probe every 60s while status is broken (up to 5 min, 5 attempts max)
+        // Reduced from 15s/12 retries to avoid excessive admin-ajax.php load.
+        var pcmPollTimer = null, pcmPollCount = 0, pcmPollMax = 5;
         function pcmStartRecoveryPoll() {
             clearInterval(pcmPollTimer);
             pcmPollCount = 0;
@@ -321,7 +323,7 @@ function pressable_cache_management_display_settings_page() {
                         clearInterval(pcmPollTimer);
                     }
                 });
-            }, 15000);
+            }, 60000);
         }
 
         // Start polling immediately if badge is broken on page load.

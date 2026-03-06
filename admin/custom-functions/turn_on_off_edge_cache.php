@@ -89,6 +89,7 @@ function pcm_pressable_enable_edge_cache() {
             } else {
                 update_option( 'edge-cache-status',  'Success' );
                 update_option( 'edge-cache-enabled', 'enabled' );
+                delete_transient( 'pcm_ec_status_cache' ); // force fresh status on next page load
                 add_action( 'admin_notices', 'pressable_edge_cache_notice_success_enable' );
             }
         } else {
@@ -118,6 +119,7 @@ function pcm_pressable_disable_edge_cache() {
             } else {
                 update_option( 'edge-cache-status',  'Success' );
                 update_option( 'edge-cache-enabled', 'disabled' );
+                delete_transient( 'pcm_ec_status_cache' ); // force fresh status on next page load
                 add_action( 'admin_notices', 'pressable_edge_cache_notice_success_disable' );
             }
         } else {

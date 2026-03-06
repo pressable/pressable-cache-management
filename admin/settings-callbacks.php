@@ -354,56 +354,92 @@ function pressable_cache_management_options_radio_edge_cache_button()
 // AJAX handler function to check Edge Cache status on demand
 function pcm_ajax_check_edge_cache_status()
 {
-    // Nonce is not strictly needed for a GET/read operation, but good practice if it were part of a larger form.
-    // We check user capability only.
     if (!current_user_can('manage_options')) {
         wp_send_json_error(['message' => 'Unauthorized'], 403);
         return;
     }
 
-    if (class_exists('Edge_Cache_Plugin')) {
-        $edge_cache = Edge_Cache_Plugin::get_instance();
-        
-        // This is the authoritative check against the server
-        $server_status = $edge_cache->get_ec_status();
-        
-        $is_enabled = false;
-        $status_text = 'Unknown';
-        $status_flag = 'Error';
+    // --- Transient cache: avoid hitting the Pressable API on every page load ---
+    // Cache TTL: 5 minutes for enabled/disabled, 60 seconds for DDoS/unknown so
+    // we recover quickly without hammering the API.
+    $cache_key = 'pcm_ec_status_cache';
+    $cached    = get_transient( $cache_key );
 
-        // Translate server status to client-side flags and descriptive text
-        if ($server_status === Edge_Cache_Plugin::EC_ENABLED) {
-            $is_enabled = true;
-            $status_text = 'Enabled';
-            $status_flag = 'Success';
-        } elseif ($server_status === Edge_Cache_Plugin::EC_DISABLED) {
-            $is_enabled = false;
-            $status_text = 'Disabled';
-            $status_flag = 'Success';
-        } elseif ($server_status === Edge_Cache_Plugin::EC_DDOS) {
-            $status_text = 'Defensive Mode (DDoS)';
-            $status_flag = 'Warning';
-        }
-
-        // We update the options here as well, so subsequent page loads/direct hits are faster
-        update_option('edge-cache-status', $status_flag);
-        update_option('edge-cache-enabled', $is_enabled ? 'enabled' : 'disabled');
-
+    if ( $cached !== false ) {
+        // Serve from cache — no API call needed
         wp_send_json_success([
-            'enabled' => $is_enabled,
-            'status_text' => $status_text,
-            'status_flag' => $status_flag,
-            // Pass the HTML for the Enable/Disable control
-            'html_controls_enable_disable' => pressable_cache_management_generate_enable_disable_content($is_enabled),
+            'enabled'                    => $cached['is_enabled'],
+            'status_text'                => $cached['status_text'],
+            'status_flag'                => $cached['status_flag'],
+            'from_cache'                 => true,
+            'html_controls_enable_disable' => pressable_cache_management_generate_enable_disable_content( $cached['is_enabled'] ),
         ]);
-    } else {
+        return;
+    }
+
+    if ( ! class_exists('Edge_Cache_Plugin') ) {
         wp_send_json_error([
             'message' => 'Edge Cache dependency is not available.',
             'html_controls_enable_disable' => '<p class="notice notice-error" style="padding: 10px;">' . esc_html__('Error: Edge Cache dependency is missing.', 'pressable_cache_management') . '</p>',
         ]);
+        return;
     }
+
+    $edge_cache    = Edge_Cache_Plugin::get_instance();
+    $server_status = $edge_cache->get_ec_status(); // live API call
+
+    $is_enabled  = false;
+    $status_text = 'Unknown';
+    $status_flag = 'Error';
+    $ttl         = 60; // short TTL for unknown/error states
+
+    if ( $server_status === Edge_Cache_Plugin::EC_ENABLED ) {
+        $is_enabled  = true;
+        $status_text = 'Enabled';
+        $status_flag = 'Success';
+        $ttl         = 300; // 5 minutes — stable state
+    } elseif ( $server_status === Edge_Cache_Plugin::EC_DISABLED ) {
+        $is_enabled  = false;
+        $status_text = 'Disabled';
+        $status_flag = 'Success';
+        $ttl         = 300; // 5 minutes — stable state
+    } elseif ( $server_status === Edge_Cache_Plugin::EC_DDOS ) {
+        $status_text = 'Defensive Mode (DDoS)';
+        $status_flag = 'Warning';
+        $ttl         = 60; // re-check sooner during DDoS mode
+    }
+
+    // Store in transient so subsequent page loads skip the API call
+    set_transient( $cache_key, [
+        'is_enabled'  => $is_enabled,
+        'status_text' => $status_text,
+        'status_flag' => $status_flag,
+    ], $ttl );
+
+    // Keep wp_options in sync for server-side badge rendering
+    update_option('edge-cache-status',  $status_flag);
+    update_option('edge-cache-enabled', $is_enabled ? 'enabled' : 'disabled');
+
+    wp_send_json_success([
+        'enabled'                      => $is_enabled,
+        'status_text'                  => $status_text,
+        'status_flag'                  => $status_flag,
+        'from_cache'                   => false,
+        'html_controls_enable_disable' => pressable_cache_management_generate_enable_disable_content( $is_enabled ),
+    ]);
 }
 add_action('wp_ajax_pcm_check_edge_cache_status', 'pcm_ajax_check_edge_cache_status');
+
+/**
+ * Clear the edge cache status transient whenever the state changes
+ * (enable, disable, purge) so the next request gets a fresh live value.
+ */
+function pcm_clear_ec_status_cache() {
+    delete_transient( 'pcm_ec_status_cache' );
+}
+add_action( 'pcm_after_edge_cache_enable',  'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_edge_cache_disable', 'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_edge_cache_purge',   'pcm_clear_ec_status_cache' );
 
 
 /**
