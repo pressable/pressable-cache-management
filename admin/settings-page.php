@@ -22,15 +22,16 @@ function pcm_branded_settings_saved_notice() {
     if ( ! isset( $_GET['page'] ) || sanitize_key( $_GET['page'] ) !== 'pressable_cache_management' ) return;
     if ( ! isset( $_GET['settings-updated'] ) || sanitize_key( $_GET['settings-updated'] ) !== 'true' ) return;
 
-    $wrap = 'display:flex;align-items:center;justify-content:space-between;gap:12px;'
+    $wrap = 'display:inline-flex;align-items:center;justify-content:space-between;gap:24px;'
           . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
-          . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
-          . 'margin:10px 20px 10px 0;font-family:sans-serif;';
-    $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;';
-    echo '<div style="' . $wrap . '">';
+          . 'padding:12px 16px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
+          . 'margin:10px 0 10px 8px;font-family:sans-serif;min-width:260px;max-width:480px;';
+    $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;flex-shrink:0;';
+    $id   = 'pcm-settings-saved-notice';
+    echo '<div id="' . $id . '" style="' . $wrap . '">';
     echo '<p style="margin:0;font-size:13px;color:#040024;">'
        . esc_html__( 'Cache settings updated.', 'pressable_cache_management' ) . '</p>';
-    echo '<button type="button" class="notice-dismiss" style="' . $btn . '">&#x2297;</button>';
+    echo '<button type="button" onclick="document.getElementById(\'' . $id . '\').remove();" style="' . $btn . '">&#x2297;</button>';
     echo '</div>';
 }
 
@@ -52,8 +53,9 @@ function pcm_extend_batcache_branded_notice() {
     $wrap = 'display:flex;align-items:center;justify-content:space-between;gap:12px;'
           . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
           . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
-          . 'margin:10px 20px 10px 0;font-family:sans-serif;';
+          . 'margin:10px 0;font-family:sans-serif;';
     $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;';
+    echo '<div style="max-width:1120px;margin:0 auto;padding:0 20px;box-sizing:border-box;">';
     echo '<div id="pcm-extend-batcache-notice" style="' . $wrap . '">';
     echo '<p style="margin:0;font-size:13px;color:#040024;">'
        . esc_html__( 'Extending Batcache for 24 hours — see ', 'pressable_cache_management' )
@@ -64,24 +66,26 @@ function pcm_extend_batcache_branded_notice() {
     echo '<button type="button" onclick="document.getElementById(\'pcm-extend-batcache-notice\').remove();" '
        . 'style="' . $btn . '">&#x2297;</button>';
     echo '</div>';
+    echo '</div>';
 }
 
 // ─── Helper: pcm_branded_notice (shared, safe) ───────────────────────────────
 if ( ! function_exists( 'pcm_branded_notice' ) ) {
     function pcm_branded_notice( $message, $border_color = '#03fcc2', $is_html = false ) {
-        $wrap = 'display:flex;align-items:flex-start;justify-content:space-between;gap:12px;'
+        $id   = 'pcm-notice-' . substr( md5( $message . $border_color . microtime() ), 0, 8 );
+        $wrap = 'display:inline-flex;align-items:flex-start;justify-content:space-between;gap:16px;'
               . 'border-left:4px solid ' . esc_attr( $border_color ) . ';background:#fff;'
               . 'border-radius:0 8px 8px 0;padding:14px 18px;'
-              . 'box-shadow:0 2px 8px rgba(4,0,36,.07);margin:10px 20px 10px 0;font-family:sans-serif;';
+              . 'box-shadow:0 2px 8px rgba(4,0,36,.07);margin:10px 0 10px 8px;font-family:sans-serif;min-width:260px;max-width:480px;';
         $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;'
               . 'line-height:1;padding:0;flex-shrink:0;margin-top:2px;';
-        echo '<div style="' . $wrap . '"><div style="flex:1;">';
+        echo '<div id="' . esc_attr( $id ) . '" style="' . $wrap . '"><div style="flex:1;">';
         if ( $is_html ) {
             echo $message;
         } else {
             echo '<p style="margin:0;font-size:13px;color:#040024;">' . esc_html( $message ) . '</p>';
         }
-        echo '</div><button type="button" class="notice-dismiss" style="' . $btn . '">&#x2297;</button></div>';
+        echo '</div><button type="button" onclick="document.getElementById(\'' . esc_js( $id ) . '\').remove();" style="' . $btn . '">&#x2297;</button></div>';
     }
 }
 

@@ -115,3 +115,15 @@ msgstr "Status konnte nicht abgerufen werden."
 
 msgid "Could not connect to server."
 msgstr "Verbindung zum Server fehlgeschlagen."
+
+msgid "Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code."
+msgstr "Verwenden Sie die Schaltfläche \"Aktualisieren\", um den Cache-Status manuell zu überprüfen. Wenn der Cache-Status nach zwei Besuchen auf Ihrer Website länger als 4 Minuten als defekt angezeigt wird, liegt es wahrscheinlich an Cookie-Interferenzen durch Ihr Plugin, Theme oder benutzerdefinierten Code."
+
+msgid "Flush Batcache for WooCommerce Product Pages — Enabled"
+msgstr "Batcache für WooCommerce-Produktseiten leeren — Aktiviert"
+
+msgid "Automatically flush individual pages, including product pages updated via the WooCommerce API."
+msgstr "Einzelne Seiten automatisch leeren, einschließlich Produktseiten, die über die WooCommerce-API aktualisiert wurden."
+
+msgid "You can Flush Cache for Individual page or post from page preview."
+msgstr "Sie können den Cache für einzelne Seiten oder Beiträge über die Seitenvorschau leeren."

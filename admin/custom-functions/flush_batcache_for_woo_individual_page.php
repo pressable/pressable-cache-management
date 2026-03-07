@@ -54,10 +54,11 @@ if ( $enabled ) {
             return;
         }
 
-        $wrap = 'display:flex;align-items:flex-start;justify-content:space-between;gap:12px;'
+        $nid  = 'pcm-woo-notice-' . substr( md5( microtime() ), 0, 8 );
+        $wrap = 'display:flex;align-items:center;justify-content:space-between;gap:12px;'
               . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
               . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
-              . 'margin:10px 20px 10px 0;font-family:\'Inter\',sans-serif;';
+              . 'margin:10px 0;font-family:sans-serif;';
         $icon_wrap = 'display:flex;align-items:center;gap:10px;';
         $icon      = '<span style="display:inline-flex;align-items:center;justify-content:center;'
                    . 'width:32px;height:32px;border-radius:50%;background:#f0fdf9;flex-shrink:0;">'
@@ -68,7 +69,8 @@ if ( $enabled ) {
         $btn = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;'
              . 'line-height:1;padding:0;flex-shrink:0;margin-top:2px;';
 
-        echo '<div class="notice" style="' . $wrap . '">';
+        echo '<div style="max-width:1120px;margin:0 auto;padding:0 20px;box-sizing:border-box;">';
+        echo '<div id="' . esc_attr( $nid ) . '" style="' . $wrap . '">';
         echo '<div style="' . $icon_wrap . '">' . $icon;
         echo '<div>';
         echo '<p style="margin:0 0 2px;font-size:13px;font-weight:600;color:#040024;">'
@@ -78,8 +80,8 @@ if ( $enabled ) {
            . esc_html__( 'Automatically flush individual pages, including product pages updated via the WooCommerce API.', 'pressable_cache_management' )
            . '</p>';
         echo '</div></div>';
-        echo '<button type="button" class="notice-dismiss" style="' . $btn . '"'
-           . ' onclick="this.closest(\'.notice\').remove();">&#x2297;</button>';
+        echo '<button type="button" onclick="document.getElementById(\'' . esc_js( $nid ) . '\').remove();" style="' . $btn . '">&#x2297;</button>';
+        echo '</div>';
         echo '</div>';
     }
 

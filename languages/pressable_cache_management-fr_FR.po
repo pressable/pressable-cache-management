@@ -201,8 +201,6 @@ msgstr "pour plusieurs pages, séparez par une virgule, ex."
 msgid "Manage Edge Cache Settings"
 msgstr "Gérer les paramètres du cache de périphérie"
 
-msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
-msgstr "Le vérificateur d'état du cache se déclenche automatiquement dès que l'état indique cassé — il revérifie toutes les 15 secondes pendant 3 minutes maximum et s'arrête dès que le cache est actif, de sorte que la récupération apparaît dans les 15 secondes suivant la reconstruction de Batcache. Si l'état du cache reste cassé pendant plus de 4 minutes, il est probable que le cache soit cassé en raison d'une interférence de cookies."
 
 msgid "Enable or disable the edge cache for this site."
 msgstr "Activer ou désactiver le cache Edge pour ce site."
@@ -218,3 +216,15 @@ msgstr "Impossible de récupérer le statut."
 
 msgid "Could not connect to server."
 msgstr "Impossible de se connecter au serveur."
+
+msgid "Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code."
+msgstr "Utilisez le bouton d'actualisation pour vérifier manuellement l'état de votre cache. Si l'état du cache reste cassé pendant plus de 4 minutes après deux visites enregistrées sur votre site, il est probable que la mise en cache échoue en raison d'interférences de cookies provenant de votre plugin, thème ou code personnalisé."
+
+msgid "Flush Batcache for WooCommerce Product Pages — Enabled"
+msgstr "Vider le Batcache pour les pages produits WooCommerce — Activé"
+
+msgid "Automatically flush individual pages, including product pages updated via the WooCommerce API."
+msgstr "Vider automatiquement les pages individuelles, y compris les pages produits mises à jour via l'API WooCommerce."
+
+msgid "You can Flush Cache for Individual page or post from page preview."
+msgstr "Vous pouvez vider le cache d'une page ou d'un article individuel depuis l'aperçu de la page."

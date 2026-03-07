@@ -201,8 +201,6 @@ msgstr "多个页面请用逗号分隔，例如"
 msgid "Manage Edge Cache Settings"
 msgstr "管理边缘缓存设置"
 
-msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
-msgstr "缓存状态检查器在状态显示为损坏时自动启动——每15秒重新检查一次，最多持续3分钟，一旦缓存活跃即停止，因此在Batcache重建后15秒内即可显示恢复状态。如果缓存状态持续损坏超过4分钟，则可能是由于Cookie干扰导致缓存损坏。"
 
 msgid "Enable or disable the edge cache for this site."
 msgstr "为本站启用或停用 Edge 缓存。"
@@ -218,3 +216,15 @@ msgstr "无法获取状态。"
 
 msgid "Could not connect to server."
 msgstr "无法连接到服务器。"
+
+msgid "Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code."
+msgstr "使用刷新按钮手动检查缓存状态。如果在您的网站记录两次访问后，缓存状态仍然损坏超过4分钟，则很可能是您的插件、主题或自定义代码的Cookie干扰导致缓存失败。"
+
+msgid "Flush Batcache for WooCommerce Product Pages — Enabled"
+msgstr "清除WooCommerce产品页面的Batcache — 已启用"
+
+msgid "Automatically flush individual pages, including product pages updated via the WooCommerce API."
+msgstr "自动清除各个页面，包括通过WooCommerce API更新的产品页面。"
+
+msgid "You can Flush Cache for Individual page or post from page preview."
+msgstr "您可以从页面预览中清除单个页面或文章的缓存。"

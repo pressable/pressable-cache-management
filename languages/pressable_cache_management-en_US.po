@@ -118,8 +118,6 @@ msgstr "Hide Pressable Branding"
 msgid "This plugin is not supported on this platform."
 msgstr "This plugin is not supported on this platform."
 
-msgid "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
-msgstr "Cache status checker automatically fires up whenever the status shows broken — it re-checks every 15 seconds for up to 3 minutes and stops the moment cache is active, so recovery shows up within 15 seconds of Batcache rebuilding. Once the cache status stays broken over 4 minutes it's likely that cache is broken due to cookie interference."
 
 msgid "Manage Edge Cache Settings"
 msgstr "Manage Edge Cache Settings"
@@ -144,3 +142,15 @@ msgstr "Failed to retrieve status."
 
 msgid "Could not connect to server."
 msgstr "Could not connect to server."
+
+msgid "Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code."
+msgstr "Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code."
+
+msgid "Flush Batcache for WooCommerce Product Pages — Enabled"
+msgstr "Flush Batcache for WooCommerce Product Pages — Enabled"
+
+msgid "Automatically flush individual pages, including product pages updated via the WooCommerce API."
+msgstr "Automatically flush individual pages, including product pages updated via the WooCommerce API."
+
+msgid "You can Flush Cache for Individual page or post from page preview."
+msgstr "You can Flush Cache for Individual page or post from page preview."

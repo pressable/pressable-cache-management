@@ -12,13 +12,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 // ─── Shared branded notice helper (defined once here) ──────────────────────
 if ( ! function_exists( 'pcm_branded_notice' ) ) {
     function pcm_branded_notice( $message, $border_color = '#03fcc2', $is_html = false ) {
-        $wrap = 'display:flex;align-items:flex-start;justify-content:space-between;gap:12px;'
+        $id   = 'pcm-notice-' . substr( md5( $message . $border_color . microtime() ), 0, 8 );
+        $wrap = 'display:inline-flex;align-items:flex-start;justify-content:space-between;gap:16px;'
               . 'border-left:4px solid ' . esc_attr( $border_color ) . ';background:#fff;'
               . 'border-radius:0 8px 8px 0;padding:14px 18px;'
-              . 'box-shadow:0 2px 8px rgba(4,0,36,.07);margin:10px 20px 10px 0;font-family:sans-serif;';
+              . 'box-shadow:0 2px 8px rgba(4,0,36,.07);margin:10px 20px 10px 0;font-family:sans-serif;'
+              . 'min-width:260px;max-width:520px;';
         $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;'
               . 'line-height:1;padding:0;flex-shrink:0;margin-top:2px;';
-        echo '<div style="' . $wrap . '">';
+        echo '<div id="' . esc_attr( $id ) . '" style="' . $wrap . '">';
         echo '<div style="flex:1;">';
         if ( $is_html ) {
             echo $message; // caller already escaped
@@ -26,7 +28,7 @@ if ( ! function_exists( 'pcm_branded_notice' ) ) {
             echo '<p style="margin:0;font-size:13px;color:#040024;">' . esc_html( $message ) . '</p>';
         }
         echo '</div>';
-        echo '<button type="button" class="notice-dismiss" style="' . $btn . '">&#x2297;</button>';
+        echo '<button type="button" onclick="document.getElementById(\'' . esc_js( $id ) . '\').remove();" style="' . $btn . '">&#x2297;</button>';
         echo '</div>';
     }
 }
@@ -46,7 +48,19 @@ if ( ! function_exists( 'pressable_edge_cache_notice_success_enable' ) ) {
                . 'rel="noopener noreferrer" style="font-size:13px;color:#dd3a03;font-weight:600;text-decoration:none;">'
                . esc_html__( 'Learn more about Edge Cache.', 'pressable_cache_management' ) . '</a>';
 
-        pcm_branded_notice( $html, '#03fcc2', true );
+        $nid  = 'pcm-ec-enabled-' . substr( md5( microtime() ), 0, 8 );
+        $wrap = 'display:flex;align-items:flex-start;justify-content:space-between;gap:16px;'
+              . 'border-left:4px solid #03fcc2;background:#fff;'
+              . 'border-radius:0 8px 8px 0;padding:14px 18px;'
+              . 'box-shadow:0 2px 8px rgba(4,0,36,.07);margin:10px 0;font-family:sans-serif;';
+        $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;'
+              . 'line-height:1;padding:0;flex-shrink:0;margin-top:2px;';
+        echo '<div style="max-width:920px;margin:0 20px;">';
+        echo '<div id="' . esc_attr( $nid ) . '" style="' . $wrap . '">';
+        echo '<div style="flex:1;">' . $html . '</div>';
+        echo '<button type="button" onclick="document.getElementById(\'' . esc_js( $nid ) . '\').remove();" style="' . $btn . '">&#x2297;</button>';
+        echo '</div>';
+        echo '</div>';
     }
 }
 
