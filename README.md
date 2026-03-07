@@ -61,6 +61,7 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Fix botton bug
 * Update checkbox button color to red when disabled
 * Bug fix
+* Bypass Edge Cache header when Batcache checker checks for cache status
 * Fix grid and margins
 
 #### **Version 5.5.5 (Mar 06, 2026)**
