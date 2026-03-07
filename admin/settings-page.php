@@ -190,8 +190,8 @@ function pressable_cache_management_display_settings_page() {
     wp_enqueue_style( 'pcm-google-fonts',
         'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', array(), null );
     ?>
-    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;margin-right:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
-    <div style="max-width:1120px;margin:0 auto;">
+    <div class="wrap" style="background:#f0f2f5;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;box-sizing:border-box;overflow-x:hidden;">
+    <div style="max-width:1120px;margin:0 auto;width:100%;box-sizing:border-box;">
     <h1 style="display:none;"><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
     <!-- ── Tabs ── -->
@@ -348,7 +348,8 @@ function pressable_cache_management_display_settings_page() {
     </div>
 
     <!-- ── 2-column grid ── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <style>.pcm-main-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}@media(max-width:900px){.pcm-main-grid{grid-template-columns:1fr;}}</style>
+    <div class="pcm-main-grid">
 
         <!-- LEFT -->
         <div style="display:flex;flex-direction:column;gap:20px;">
@@ -630,7 +631,7 @@ function pressable_cache_management_display_settings_page() {
     </div>
 
     <!-- Card -->
-    <div style="max-width:680px;">
+    <div style="max-width:680px;width:100%;box-sizing:border-box;">
     <div class="pcm-card" style="padding:0;">
 
         <!-- Row 1: Turn On/Off -->
