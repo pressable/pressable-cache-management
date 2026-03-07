@@ -460,13 +460,13 @@ function pressable_cache_management_display_settings_page() {
                 </div>
 
                 <?php
-                // Flush cache on page/post delete (for individual page Batcache)
-                $del_checked = isset($options['flush_object_cache_for_single_page']) ? checked($options['flush_object_cache_for_single_page'],1,false) : '';
+                // Flush cache on page/post delete
+                $del_checked = isset($options['flush_cache_on_page_post_delete_checkbox']) ? checked($options['flush_cache_on_page_post_delete_checkbox'],1,false) : '';
                 ?>
                 <div class="pcm-toggle-row">
                     <label class="switch" style="flex-shrink:0;margin-top:2px;">
                         <input type="checkbox" form="pcm-main-settings-form"
-                               name="pressable_cache_management_options[flush_cache_on_page_post_delete_individual]"
+                               name="pressable_cache_management_options[flush_cache_on_page_post_delete_checkbox]"
                                value="1" <?php echo $del_checked; ?>>
                         <span class="slider round"></span>
                     </label>
