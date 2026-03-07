@@ -268,12 +268,14 @@ function pressable_cache_management_display_settings_page() {
 
         // Core: browser fetches homepage, reads header, reports to PHP.
         // cache:'reload' bypasses browser cache for a fresh CDN response.
+        // Pragma: no-cache forces Pressable's Atomic Edge Cache to BYPASS (x-ac: BYPASS).
         function pcmProbeAndReport(onDone) {
             fetch(pcmSiteUrl, {
                 method: 'GET',
                 cache: 'reload',
                 credentials: 'omit',
                 redirect: 'follow',
+                headers: { 'Pragma': 'no-cache' },
             })
             .then(function(resp) {
                 var xNananana    = resp.headers.get('x-nananana') || '';
