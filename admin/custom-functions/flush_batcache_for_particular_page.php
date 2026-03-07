@@ -34,7 +34,8 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
                       . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
                       . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'
                       . 'margin:10px 0;font-family:sans-serif;';
-                $btn  = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;';
+                $btn     = 'background:none;border:none;cursor:pointer;color:#94a3b8;font-size:18px;line-height:1;padding:0;';
+                $pcm_nid = 'pcm-sp-notice-' . substr( md5( microtime() ), 0, 8 );
                 echo '<div style="max-width:1120px;margin:0 auto;padding:0 20px;box-sizing:border-box;">';
                 echo '<div id="' . $pcm_nid . '" style="' . $wrap . '">';
                 echo '<p style="margin:0;font-size:13px;color:#040024;">'
