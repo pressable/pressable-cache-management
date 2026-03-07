@@ -27,6 +27,15 @@ This plugin does not replace Batcache or the Pressable Control Panel but helps y
 
 ---
 
+
+## **Product Direction**
+
+To evolve this plugin beyond basic controls into a full caching suite, we now maintain a roadmap that covers cacheability guidance, cache-busting detection, Memcached and OPcache diagnostics, and a custom-redirects assistant.
+
+See: `docs/CACHING_SUITE_ROADMAP.md`
+
+---
+
 ## **Installation**
 
 1. Upload the plugin files to the `/wp-content/plugins/pressable-cache-management` directory, or install the plugin through the WordPress Plugins screen directly.
