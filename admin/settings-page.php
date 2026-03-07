@@ -381,11 +381,6 @@ function pressable_cache_management_display_settings_page() {
                         'desc'  => __( 'Flush cache automatically when page/post/post_types are updated.', 'pressable_cache_management' ),
                         'ts'    => get_option('flush-cache-page-edit-time-stamp'),
                     ),
-                    'flush_cache_on_page_post_delete_checkbox' => array(
-                        'title' => __( 'Flush Cache on Page Delete', 'pressable_cache_management' ) . ' &#x1F5D1;',
-                        'desc'  => __( 'Flush cache automatically when published pages/posts are deleted.', 'pressable_cache_management' ),
-                        'ts'    => get_option('flush-cache-on-page-post-delete-time-stamp'),
-                    ),
                     'flush_cache_on_comment_delete_checkbox' => array(
                         'title' => __( 'Flush Cache on Comment Delete', 'pressable_cache_management' ) . ' &#x1F4AC;',
                         'desc'  => __( 'Flush cache automatically when comments are deleted.', 'pressable_cache_management' ),
@@ -460,8 +455,9 @@ function pressable_cache_management_display_settings_page() {
                 </div>
 
                 <?php
-                // Flush cache on page/post delete
+                // Flush cache automatically when published pages/posts are deleted
                 $del_checked = isset($options['flush_cache_on_page_post_delete_checkbox']) ? checked($options['flush_cache_on_page_post_delete_checkbox'],1,false) : '';
+                $del_ts      = get_option('flush-cache-on-page-post-delete-time-stamp');
                 ?>
                 <div class="pcm-toggle-row">
                     <label class="switch" style="flex-shrink:0;margin-top:2px;">
@@ -473,6 +469,7 @@ function pressable_cache_management_display_settings_page() {
                     <div>
                         <div class="pcm-toggle-title"><?php echo esc_html__( 'Flush cache automatically when published pages/posts are deleted.', 'pressable_cache_management' ); ?></div>
                         <div class="pcm-toggle-desc"><?php echo esc_html__( 'Flushes Batcache for the specific page when it is deleted.', 'pressable_cache_management' ); ?></div>
+                        <span class="pcm-ts-inline"><strong><?php echo __('Last flushed at:', 'pressable_cache_management'); ?></strong> <?php echo $del_ts ? wp_kses_post( str_replace( array("\n", "\r"), ' ', $del_ts ) ) : '&#8212;'; ?></span>
                     </div>
                 </div>
 
