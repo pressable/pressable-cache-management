@@ -56,7 +56,7 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ### **Pressable Cache Management Changelog**
 
-#### **Version 5.5.6 (Mar 07, 2026)**
+#### **Version 5.5.7 (Mar 07, 2026)**
 
 * Fix botton bug
 * Update checkbox button color to red when disabled
