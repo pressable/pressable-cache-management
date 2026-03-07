@@ -1,6 +1,6 @@
 === Pressable Cache Management Change log ===
 
-= Version 5.5.6 (Mar 07, 2026) =
+= Version 5.5.7 (Mar 07, 2026) =
 * Fix botton bug
 * Update checkbox button color to red when disabled
 
