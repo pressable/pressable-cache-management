@@ -52,14 +52,26 @@ function pressable_cache_management_callback_validate_options($input) {
 
     // Exclude pages from Batcache — sanitize comma-separated URL paths
     if ( isset( $input['exempt_from_batcache'] ) ) {
-        $raw_paths = explode( ',', $input['exempt_from_batcache'] );
-        $clean_paths = array_map( function( $path ) {
-            // Each entry is a URL path like /pagename/ — sanitize and allow only safe path chars
+        $raw_paths   = explode( ',', $input['exempt_from_batcache'] );
+        $clean_paths = array_filter( array_map( function( $path ) {
             $path = sanitize_text_field( wp_unslash( trim( $path ) ) );
-            $path = preg_replace( '/[^a-zA-Z0-9\-_\/\.\~\%]/', '', $path );
-            return $path;
-        }, $raw_paths );
-        $input['exempt_from_batcache'] = implode( ',', array_filter( $clean_paths ) );
+            // Strip full URLs — extract just the path portion
+            $parsed = wp_parse_url( $path );
+            if ( isset( $parsed['path'] ) && '' !== $parsed['path'] ) {
+                $path = $parsed['path'];
+            }
+            // Allow only safe path characters: alphanumeric, hyphen, underscore, dot, slash
+            $path = preg_replace( '/[^a-zA-Z0-9\-_\/\.]/', '', $path );
+            // Collapse multiple slashes
+            $path = preg_replace( '/\/+/', '/', $path );
+            // Ensure leading slash
+            if ( substr( $path, 0, 1 ) !== '/' ) $path = '/' . $path;
+            // Ensure trailing slash
+            if ( substr( $path, -1 ) !== '/' ) $path = $path . '/';
+            // Must be more than just a single slash
+            return strlen( $path ) > 1 ? $path : '';
+        }, $raw_paths ) );
+        $input['exempt_from_batcache'] = implode( ', ', $clean_paths );
     }
 
     return $input;

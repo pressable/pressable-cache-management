@@ -596,40 +596,63 @@ function pressable_cache_management_display_settings_page() {
         var hidden = document.getElementById('pcm-exempt-hidden');
         if (!wrap || !input || !hidden) return;
 
-        function getVals(){ return hidden.value ? hidden.value.split(',').map(s=>s.trim()).filter(Boolean) : []; }
+        function getVals(){ return hidden.value ? hidden.value.split(',').map(function(s){ return s.trim(); }).filter(Boolean) : []; }
         function syncHidden(v){ hidden.value = v.join(', '); }
 
-        function addChip(val){
-            val = val.trim(); if (!val) return;
+        // Format raw input into a clean /slug/ path
+        function formatPath(val) {
+            val = val.trim();
+            // Strip full URLs — extract just the pathname
+            try { var u = new URL(val); val = u.pathname; } catch(e) {}
+            // Remove invalid characters — only allow alphanumeric, hyphen, underscore, dot, slash
+            val = val.replace(/[^a-zA-Z0-9\-_\/\.]/g, '');
+            // Collapse multiple slashes
+            val = val.replace(/\/+/g, '/');
+            // Ensure leading slash
+            if (val.charAt(0) !== '/') val = '/' + val;
+            // Ensure trailing slash
+            if (val.charAt(val.length - 1) !== '/') val = val + '/';
+            // Must be more than just a single slash
+            return val.length > 1 ? val : '';
+        }
+
+        function addChip(val) {
+            val = formatPath(val);
+            if (!val) return;
             var vals = getVals();
-            if (vals.indexOf(val) !== -1) return;
+            if (vals.indexOf(val) !== -1) return; // no duplicates
             vals.push(val); syncHidden(vals); renderChip(val);
         }
-        function removeChip(val){ syncHidden(getVals().filter(v=>v!==val)); }
+        function removeChip(val){ syncHidden(getVals().filter(function(v){ return v !== val; })); }
 
         function renderChip(val){
             var c = document.createElement('span');
             c.className = 'pcm-chip'; c.dataset.value = val;
             c.innerHTML = val + ' <button type="button" class="pcm-chip-remove" title="Remove">&#xD7;</button>';
-            c.querySelector('.pcm-chip-remove').addEventListener('click',function(){ removeChip(val); c.remove(); });
+            c.querySelector('.pcm-chip-remove').addEventListener('click', function(){ removeChip(val); c.remove(); });
             wrap.appendChild(c);
         }
 
         wrap.querySelectorAll('.pcm-chip-remove').forEach(function(btn){
-            btn.addEventListener('click',function(){ var c=btn.closest('.pcm-chip'); removeChip(c.dataset.value); c.remove(); });
+            btn.addEventListener('click', function(){ var c = btn.closest('.pcm-chip'); removeChip(c.dataset.value); c.remove(); });
         });
 
-        input.addEventListener('keydown',function(e){
-            if (e.key==='Enter'||e.key===','){
-                e.preventDefault(); var r=input.value.replace(/,/g,'').trim(); if(r){addChip(r);input.value='';}
+        input.addEventListener('keydown', function(e){
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                var r = input.value.replace(/,/g, '').trim();
+                if (r) { addChip(r); input.value = ''; }
             }
         });
-        input.addEventListener('blur',function(){ var r=input.value.replace(/,/g,'').trim(); if(r){addChip(r);input.value='';} });
-        input.addEventListener('paste',function(e){
+        input.addEventListener('blur', function(){
+            var r = input.value.replace(/,/g, '').trim();
+            if (r) { addChip(r); input.value = ''; }
+        });
+        input.addEventListener('paste', function(e){
             e.preventDefault();
-            var p=(e.clipboardData||window.clipboardData).getData('text');
-            p.split(',').forEach(function(v){ var t=v.trim(); if(t) addChip(t); });
-            input.value='';
+            var p = (e.clipboardData || window.clipboardData).getData('text');
+            p.split(',').forEach(function(v){ var t = v.trim(); if (t) addChip(t); });
+            input.value = '';
         });
     })();
     </script>
