@@ -1,10 +1,11 @@
 === Pressable Cache Management Change log ===
 
-= Version 5.8.9 (Mar 08, 2026) =
+= Version 5.9.9 (Mar 08, 2026) =
 * Updated language string to support admin menu
 * Add features to track max age
 * Updated transcient for status checker
 * Updated settings
+* Updated validation method for exclude cache
 
 = Version 5.8.7 (Mar 07, 2026) =
 * Fix botton bug
