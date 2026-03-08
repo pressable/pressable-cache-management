@@ -98,6 +98,17 @@ require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_o
 require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_single_page_toolbar.php';
 
+// ─── 2026 Cacheability Advisor scaffolding ───────────────────────────────────
+require_once plugin_dir_path( __FILE__ ) . 'includes/cacheability-advisor/storage.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/cache-busters/detector-framework.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/object-cache-intelligence/intelligence.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/php-opcache-awareness/opcache-awareness.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/redirect-assistant/assistant.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/smart-purge-strategy/strategy.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/security-privacy/security-privacy.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/observability-reporting/reporting.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/guided-remediation-playbooks/playbooks.php';
+
 // ─── Settings link on plugin list page ──────────────────────────────────────
 function pcm_settings_link( $links ) {
     $settings_link = '<a href="admin.php?page=pressable_cache_management">'
