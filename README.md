@@ -56,11 +56,13 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ### **Pressable Cache Management Changelog**
 
-#### **Version 5.7.7 (Mar 07, 2026)**
+#### **Version 5.8.7 (Mar 07, 2026)**
 
 * Fix botton bug
 * Update checkbox button color to red when disabled
 * Bug fix
+* Bypass Edge Cache header when Batcache checker checks for cache status
+* Fix grid and margins
 
 #### **Version 5.5.5 (Mar 06, 2026)**
 
