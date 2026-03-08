@@ -386,10 +386,13 @@ class PCM_Object_Cache_Intelligence_Service {
             'provider'         => $provider->get_provider_key(),
             'status'           => isset( $metrics['status'] ) ? $metrics['status'] : 'offline',
             'health'           => $derived['health'],
+            'hits'             => isset( $metrics['hits'] ) ? $metrics['hits'] : null,
+            'misses'           => isset( $metrics['misses'] ) ? $metrics['misses'] : null,
             'hit_ratio'        => isset( $metrics['hit_ratio'] ) ? $metrics['hit_ratio'] : null,
             'evictions'        => isset( $metrics['evictions'] ) ? $metrics['evictions'] : null,
             'bytes_used'       => isset( $metrics['bytes_used'] ) ? $metrics['bytes_used'] : null,
             'bytes_limit'      => isset( $metrics['bytes_limit'] ) ? $metrics['bytes_limit'] : null,
+            'memory_pressure'  => pcm_calculate_memory_pressure( $metrics ),
             'recommendations'  => $derived['recommendations'],
             'meta'             => isset( $metrics['meta'] ) ? $metrics['meta'] : array(),
         );
@@ -430,3 +433,242 @@ function pcm_calculate_memory_pressure( $metrics ) {
 
     return round( ( $used / $limit ) * 100, 2 );
 }
+
+/**
+ * Snapshot storage for object cache intelligence (A3.1).
+ */
+class PCM_Object_Cache_Snapshot_Storage {
+    /** @var string */
+    protected $key = 'pcm_object_cache_snapshots_v1';
+
+    /** @var int */
+    protected $max_rows = 2000;
+
+    /**
+     * @return array
+     */
+    public function all() {
+        $rows = get_option( $this->key, array() );
+
+        return is_array( $rows ) ? $rows : array();
+    }
+
+    /**
+     * @param array $snapshot Snapshot.
+     *
+     * @return void
+     */
+    public function append( $snapshot ) {
+        $rows   = $this->all();
+        $rows[] = $snapshot;
+        update_option( $this->key, array_slice( $rows, -1 * $this->max_rows ), false );
+    }
+
+    /**
+     * @param string $range 24h|7d|30d
+     *
+     * @return array
+     */
+    public function query( $range = '7d' ) {
+        $days_map = array(
+            '24h' => 1,
+            '7d'  => 7,
+            '30d' => 30,
+        );
+
+        $days      = isset( $days_map[ $range ] ) ? $days_map[ $range ] : 7;
+        $cutoff_ts = time() - ( DAY_IN_SECONDS * $days );
+
+        return array_values(
+            array_filter(
+                $this->all(),
+                static function ( $row ) use ( $cutoff_ts ) {
+                    $taken_at = isset( $row['taken_at'] ) ? strtotime( $row['taken_at'] ) : 0;
+
+                    return $taken_at >= $cutoff_ts;
+                }
+            )
+        );
+    }
+
+    /**
+     * @param int $retention_days Days.
+     *
+     * @return void
+     */
+    public function cleanup( $retention_days = 90 ) {
+        $retention = max( 7, min( 365, absint( $retention_days ) ) );
+        $cutoff_ts = time() - ( DAY_IN_SECONDS * $retention );
+
+        $rows = array_values(
+            array_filter(
+                $this->all(),
+                static function ( $row ) use ( $cutoff_ts ) {
+                    $taken_at = isset( $row['taken_at'] ) ? strtotime( $row['taken_at'] ) : 0;
+
+                    return $taken_at >= $cutoff_ts;
+                }
+            )
+        );
+
+        update_option( $this->key, $rows, false );
+    }
+}
+
+/**
+ * Persist one snapshot and return it.
+ *
+ * @return array
+ */
+function pcm_object_cache_collect_and_store_snapshot() {
+    if ( ! pcm_object_cache_intelligence_is_enabled() ) {
+        return array();
+    }
+
+    $service  = new PCM_Object_Cache_Intelligence_Service();
+    $snapshot = $service->collect_snapshot();
+
+    if ( empty( $snapshot ) ) {
+        return array();
+    }
+
+    $storage = new PCM_Object_Cache_Snapshot_Storage();
+    $storage->append( $snapshot );
+    $storage->cleanup( (int) get_option( 'pcm_object_cache_retention_days', 90 ) );
+
+    update_option( 'pcm_latest_object_cache_hit_ratio', isset( $snapshot['hit_ratio'] ) ? (float) $snapshot['hit_ratio'] : 0, false );
+    update_option( 'pcm_latest_object_cache_evictions', isset( $snapshot['evictions'] ) ? (float) $snapshot['evictions'] : 0, false );
+
+    return $snapshot;
+}
+
+/**
+ * Fetch latest stored snapshot, collecting one if missing.
+ *
+ * @return array
+ */
+function pcm_object_cache_get_latest_snapshot() {
+    $storage = new PCM_Object_Cache_Snapshot_Storage();
+    $rows    = $storage->all();
+
+    if ( empty( $rows ) ) {
+        return pcm_object_cache_collect_and_store_snapshot();
+    }
+
+    $latest = end( $rows );
+
+    return is_array( $latest ) ? $latest : array();
+}
+
+/**
+ * Build summary trends for object cache diagnostics UI.
+ *
+ * @param string $range Range.
+ *
+ * @return array
+ */
+function pcm_object_cache_get_trends( $range = '7d' ) {
+    $storage   = new PCM_Object_Cache_Snapshot_Storage();
+    $snapshots = $storage->query( $range );
+
+    $points = array();
+
+    foreach ( $snapshots as $snapshot ) {
+        $points[] = array(
+            'taken_at'        => isset( $snapshot['taken_at'] ) ? $snapshot['taken_at'] : '',
+            'hit_ratio'       => isset( $snapshot['hit_ratio'] ) ? (float) $snapshot['hit_ratio'] : null,
+            'evictions'       => isset( $snapshot['evictions'] ) ? (float) $snapshot['evictions'] : null,
+            'memory_pressure' => isset( $snapshot['memory_pressure'] ) ? (float) $snapshot['memory_pressure'] : 0,
+        );
+    }
+
+    return $points;
+}
+
+/**
+ * AJAX: latest object cache diagnostics snapshot.
+ *
+ * @return void
+ */
+function pcm_ajax_object_cache_snapshot() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( function_exists( 'pcm_current_user_can' ) ) {
+            $can = pcm_current_user_can( 'pcm_view_diagnostics' );
+        } else {
+            $can = current_user_can( 'manage_options' );
+        }
+
+        if ( ! $can ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $force_collect = isset( $_REQUEST['refresh'] ) && '1' === (string) wp_unslash( $_REQUEST['refresh'] );
+    $snapshot      = $force_collect ? pcm_object_cache_collect_and_store_snapshot() : pcm_object_cache_get_latest_snapshot();
+
+    wp_send_json_success( array( 'snapshot' => $snapshot ) );
+}
+add_action( 'wp_ajax_pcm_object_cache_snapshot', 'pcm_ajax_object_cache_snapshot' );
+
+/**
+ * AJAX: object cache trends.
+ *
+ * @return void
+ */
+function pcm_ajax_object_cache_trends() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( function_exists( 'pcm_current_user_can' ) ) {
+            $can = pcm_current_user_can( 'pcm_view_diagnostics' );
+        } else {
+            $can = current_user_can( 'manage_options' );
+        }
+
+        if ( ! $can ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $range = isset( $_REQUEST['range'] ) ? sanitize_key( wp_unslash( $_REQUEST['range'] ) ) : '7d';
+
+    wp_send_json_success(
+        array(
+            'range'  => $range,
+            'points' => pcm_object_cache_get_trends( $range ),
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_object_cache_trends', 'pcm_ajax_object_cache_trends' );
+
+/**
+ * Ensure recurring object-cache snapshot collection is scheduled.
+ *
+ * @return void
+ */
+function pcm_object_cache_maybe_schedule_snapshot_collection() {
+    if ( ! pcm_object_cache_intelligence_is_enabled() ) {
+        return;
+    }
+
+    if ( ! wp_next_scheduled( 'pcm_object_cache_collect_snapshot' ) ) {
+        wp_schedule_event( time() + 180, 'hourly', 'pcm_object_cache_collect_snapshot' );
+    }
+}
+add_action( 'init', 'pcm_object_cache_maybe_schedule_snapshot_collection' );
+
+/**
+ * Cron hook callback for snapshot collection.
+ *
+ * @return void
+ */
+function pcm_object_cache_collect_snapshot() {
+    pcm_object_cache_collect_and_store_snapshot();
+}
+add_action( 'pcm_object_cache_collect_snapshot', 'pcm_object_cache_collect_snapshot' );

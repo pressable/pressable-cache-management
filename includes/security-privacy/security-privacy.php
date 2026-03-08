@@ -87,10 +87,12 @@ function pcm_current_user_can( $capability ) {
  */
 function pcm_get_privacy_settings() {
     $defaults = array(
-        'retention_days'      => 90,
-        'redaction_level'     => 'standard',
-        'export_restrictions' => 'admin_only',
-        'sensitive_keys'      => array( 'email', 'token', 'auth', 'authorization', 'password', 'pass', 'nonce', 'key', 'secret' ),
+        'retention_days'       => 90,
+        'redaction_level'      => 'standard',
+        'export_restrictions'  => 'admin_only',
+        'advanced_scan_opt_in' => false,
+        'audit_log_enabled'    => true,
+        'sensitive_keys'       => array( 'email', 'token', 'auth', 'authorization', 'password', 'pass', 'nonce', 'key', 'secret' ),
     );
 
     $stored = get_option( 'pcm_privacy_settings_v1', array() );
@@ -104,7 +106,12 @@ function pcm_get_privacy_settings() {
         ? $settings['redaction_level']
         : 'standard';
 
-    $settings['sensitive_keys'] = array_values( array_filter( array_map( 'sanitize_key', (array) $settings['sensitive_keys'] ) ) );
+    $settings['export_restrictions'] = in_array( $settings['export_restrictions'], array( 'admin_only', 'diagnostics_viewers' ), true )
+        ? $settings['export_restrictions']
+        : 'admin_only';
+    $settings['advanced_scan_opt_in'] = ! empty( $settings['advanced_scan_opt_in'] );
+    $settings['audit_log_enabled']    = ! empty( $settings['audit_log_enabled'] );
+    $settings['sensitive_keys']       = array_values( array_filter( array_map( 'sanitize_key', (array) $settings['sensitive_keys'] ) ) );
 
     return $settings;
 }
@@ -212,7 +219,7 @@ class PCM_Audit_Log_Service {
         $rows = $this->all();
         $last = end( $rows );
 
-        $sequence = isset( $last['sequence_id'] ) ? absint( $last['sequence_id'] ) + 1 : 1;
+        $sequence  = isset( $last['sequence_id'] ) ? absint( $last['sequence_id'] ) + 1 : 1;
         $prev_hash = isset( $last['entry_hash'] ) ? (string) $last['entry_hash'] : '';
 
         $entry = array(
@@ -240,6 +247,36 @@ class PCM_Audit_Log_Service {
         $rows = get_option( $this->key, array() );
 
         return is_array( $rows ) ? $rows : array();
+    }
+
+    /**
+     * @return bool
+     */
+    public function verify_chain() {
+        $rows      = $this->all();
+        $prev_hash = '';
+
+        foreach ( $rows as $row ) {
+            if ( ! is_array( $row ) ) {
+                return false;
+            }
+
+            $entry_hash = isset( $row['entry_hash'] ) ? (string) $row['entry_hash'] : '';
+            $computed   = $row;
+            unset( $computed['entry_hash'] );
+
+            if ( isset( $row['prev_hash'] ) && (string) $row['prev_hash'] !== $prev_hash ) {
+                return false;
+            }
+
+            if ( '' === $entry_hash || ! hash_equals( $entry_hash, hash( 'sha256', wp_json_encode( $computed ) ) ) ) {
+                return false;
+            }
+
+            $prev_hash = $entry_hash;
+        }
+
+        return true;
     }
 }
 
@@ -364,3 +401,117 @@ function pcm_security_privacy_cleanup() {
     $manager->cleanup();
 }
 add_action( 'pcm_security_privacy_cleanup', 'pcm_security_privacy_cleanup' );
+
+/**
+ * Centralized permission + nonce guard for AJAX surfaces.
+ *
+ * @param string $nonce_action Nonce action.
+ * @param string $capability   Required capability.
+ *
+ * @return void
+ */
+function pcm_ajax_enforce_permissions( $nonce_action, $capability ) {
+    check_ajax_referer( $nonce_action, 'nonce' );
+
+    if ( ! pcm_current_user_can( $capability ) ) {
+        wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+    }
+}
+
+/**
+ * Save privacy settings.
+ *
+ * @param array $raw Incoming settings.
+ *
+ * @return array
+ */
+function pcm_save_privacy_settings( $raw ) {
+    $raw = is_array( $raw ) ? $raw : array();
+
+    $settings = array(
+        'retention_days'       => isset( $raw['retention_days'] ) ? absint( $raw['retention_days'] ) : 90,
+        'redaction_level'      => isset( $raw['redaction_level'] ) ? sanitize_key( $raw['redaction_level'] ) : 'standard',
+        'export_restrictions'  => isset( $raw['export_restrictions'] ) ? sanitize_key( $raw['export_restrictions'] ) : 'admin_only',
+        'advanced_scan_opt_in' => ! empty( $raw['advanced_scan_opt_in'] ),
+        'audit_log_enabled'    => ! empty( $raw['audit_log_enabled'] ),
+        'sensitive_keys'       => isset( $raw['sensitive_keys'] ) ? array_filter( array_map( 'sanitize_key', (array) $raw['sensitive_keys'] ) ) : array(),
+    );
+
+    update_option( 'pcm_privacy_settings_v1', $settings, false );
+
+    return pcm_get_privacy_settings();
+}
+
+/**
+ * Write audit event if enabled.
+ *
+ * @param string $action Action key.
+ * @param string $target Target.
+ * @param array  $context Context.
+ *
+ * @return array|null
+ */
+function pcm_audit_log( $action, $target = '', $context = array() ) {
+    $settings = pcm_get_privacy_settings();
+    if ( empty( $settings['audit_log_enabled'] ) ) {
+        return null;
+    }
+
+    $service = new PCM_Audit_Log_Service();
+
+    return $service->log( $action, $target, $context );
+}
+
+/**
+ * AJAX: Get privacy settings.
+ *
+ * @return void
+ */
+function pcm_ajax_privacy_settings_get() {
+    pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_privacy_settings' );
+
+    wp_send_json_success( array( 'settings' => pcm_get_privacy_settings() ) );
+}
+add_action( 'wp_ajax_pcm_privacy_settings_get', 'pcm_ajax_privacy_settings_get' );
+
+/**
+ * AJAX: Save privacy settings.
+ *
+ * @return void
+ */
+function pcm_ajax_privacy_settings_save() {
+    pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_privacy_settings' );
+
+    $payload = isset( $_REQUEST['settings'] ) ? json_decode( wp_unslash( $_REQUEST['settings'] ), true ) : array();
+    if ( ! is_array( $payload ) ) {
+        wp_send_json_error( array( 'message' => 'Invalid settings payload.' ), 400 );
+    }
+
+    $settings = pcm_save_privacy_settings( $payload );
+
+    pcm_audit_log( 'privacy_settings_updated', 'privacy_settings', array( 'keys' => array_keys( $payload ) ) );
+
+    wp_send_json_success( array( 'settings' => $settings ) );
+}
+add_action( 'wp_ajax_pcm_privacy_settings_save', 'pcm_ajax_privacy_settings_save' );
+
+/**
+ * AJAX: View audit logs.
+ *
+ * @return void
+ */
+function pcm_ajax_audit_log_list() {
+    pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_privacy_settings' );
+
+    $limit   = isset( $_REQUEST['limit'] ) ? max( 1, min( 200, absint( $_REQUEST['limit'] ) ) ) : 50;
+    $service = new PCM_Audit_Log_Service();
+    $rows    = array_slice( array_reverse( $service->all() ), 0, $limit );
+
+    wp_send_json_success(
+        array(
+            'rows'            => $rows,
+            'chain_integrity' => $service->verify_chain(),
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_audit_log_list', 'pcm_ajax_audit_log_list' );

@@ -567,7 +567,290 @@ class PCM_Cache_Buster_Detector_Engine {
         }
 
         $snapshot = $this->snapshot_provider->get_latest_snapshot();
+        $events   = $this->registry->run_all( $snapshot );
 
-        return $this->registry->run_all( $snapshot );
+        $storage = new PCM_Cache_Buster_Event_Storage();
+        $run_id  = isset( $snapshot['run']['id'] ) ? absint( $snapshot['run']['id'] ) : 0;
+        $storage->persist_events( $events, $run_id );
+
+        return $events;
     }
 }
+
+/**
+ * Persistent storage for detected cache-buster events (A2.1).
+ */
+class PCM_Cache_Buster_Event_Storage {
+    /** @var string */
+    protected $key = 'pcm_cache_buster_events_v1';
+
+    /** @var int */
+    protected $max_rows = 4000;
+
+    /**
+     * Persist detector events with timestamp and run context.
+     *
+     * @param array $events Events.
+     * @param int   $run_id Run ID.
+     *
+     * @return array
+     */
+    public function persist_events( $events, $run_id = 0 ) {
+        $rows = $this->all();
+        $now  = current_time( 'mysql', true );
+
+        foreach ( (array) $events as $event ) {
+            if ( ! is_array( $event ) ) {
+                continue;
+            }
+
+            $rows[] = array(
+                'event_id'         => 'cbe_' . wp_generate_uuid4(),
+                'run_id'           => absint( $run_id ),
+                'category'         => isset( $event['category'] ) ? sanitize_key( $event['category'] ) : 'unknown',
+                'signature'        => isset( $event['signature'] ) ? sanitize_text_field( $event['signature'] ) : 'unknown',
+                'confidence'       => isset( $event['confidence'] ) ? sanitize_key( $event['confidence'] ) : 'low',
+                'count'            => isset( $event['count'] ) ? absint( $event['count'] ) : 0,
+                'likely_source'    => isset( $event['likely_source'] ) ? sanitize_text_field( $event['likely_source'] ) : 'unknown',
+                'affected_urls'    => isset( $event['affected_urls'] ) ? (array) $event['affected_urls'] : array(),
+                'evidence_samples' => isset( $event['evidence_samples'] ) ? (array) $event['evidence_samples'] : array(),
+                'detected_at'      => $now,
+            );
+        }
+
+        $rows = array_slice( $rows, -1 * $this->max_rows );
+        update_option( $this->key, $rows, false );
+
+        return $rows;
+    }
+
+    /**
+     * @return array
+     */
+    public function all() {
+        $rows = get_option( $this->key, array() );
+
+        return is_array( $rows ) ? $rows : array();
+    }
+
+    /**
+     * @param string $range 24h|7d|30d
+     *
+     * @return array
+     */
+    public function query_by_range( $range = '7d' ) {
+        $rows = $this->all();
+
+        $days_by_range = array(
+            '24h' => 1,
+            '7d'  => 7,
+            '30d' => 30,
+        );
+
+        $days      = isset( $days_by_range[ $range ] ) ? $days_by_range[ $range ] : 7;
+        $cutoff_ts = time() - ( DAY_IN_SECONDS * $days );
+
+        return array_values(
+            array_filter(
+                $rows,
+                static function ( $row ) use ( $cutoff_ts ) {
+                    $ts = isset( $row['detected_at'] ) ? strtotime( $row['detected_at'] ) : 0;
+
+                    return $ts >= $cutoff_ts;
+                }
+            )
+        );
+    }
+}
+
+/**
+ * Query service for leaderboard + trends (A2.2).
+ */
+class PCM_Cache_Buster_Insights_Service {
+    /** @var PCM_Cache_Buster_Event_Storage */
+    protected $storage;
+
+    /**
+     * @param PCM_Cache_Buster_Event_Storage|null $storage Storage.
+     */
+    public function __construct( $storage = null ) {
+        $this->storage = $storage ? $storage : new PCM_Cache_Buster_Event_Storage();
+    }
+
+    /**
+     * @param string $range Range.
+     * @param int    $limit Limit.
+     *
+     * @return array
+     */
+    public function top_sources( $range = '7d', $limit = 10 ) {
+        $rows = $this->storage->query_by_range( $range );
+        $agg  = array();
+
+        foreach ( $rows as $row ) {
+            $key = ( isset( $row['category'] ) ? $row['category'] : 'unknown' ) . '|' . ( isset( $row['signature'] ) ? $row['signature'] : 'unknown' );
+            if ( ! isset( $agg[ $key ] ) ) {
+                $agg[ $key ] = array(
+                    'category'      => isset( $row['category'] ) ? $row['category'] : 'unknown',
+                    'signature'     => isset( $row['signature'] ) ? $row['signature'] : 'unknown',
+                    'likely_source' => isset( $row['likely_source'] ) ? $row['likely_source'] : 'unknown',
+                    'confidence'    => isset( $row['confidence'] ) ? $row['confidence'] : 'low',
+                    'event_count'   => 0,
+                    'incidence'     => 0,
+                );
+            }
+
+            $agg[ $key ]['event_count'] += 1;
+            $agg[ $key ]['incidence'] += isset( $row['count'] ) ? absint( $row['count'] ) : 0;
+        }
+
+        $items = array_values( $agg );
+        usort(
+            $items,
+            static function ( $a, $b ) {
+                if ( $a['incidence'] === $b['incidence'] ) {
+                    return $b['event_count'] <=> $a['event_count'];
+                }
+
+                return $b['incidence'] <=> $a['incidence'];
+            }
+        );
+
+        return array_slice( $items, 0, max( 1, min( 100, absint( $limit ) ) ) );
+    }
+
+    /**
+     * @param string $range Range.
+     *
+     * @return array
+     */
+    public function trend_points( $range = '7d' ) {
+        $rows = $this->storage->query_by_range( $range );
+        $agg  = array();
+
+        foreach ( $rows as $row ) {
+            $bucket = isset( $row['detected_at'] ) ? gmdate( 'Y-m-d', strtotime( $row['detected_at'] ) ) : gmdate( 'Y-m-d' );
+            if ( ! isset( $agg[ $bucket ] ) ) {
+                $agg[ $bucket ] = 0;
+            }
+            $agg[ $bucket ] += isset( $row['count'] ) ? absint( $row['count'] ) : 0;
+        }
+
+        ksort( $agg );
+
+        $points = array();
+        foreach ( $agg as $day => $incidence ) {
+            $points[] = array(
+                'bucket_start' => $day . ' 00:00:00',
+                'incidence'    => $incidence,
+            );
+        }
+
+        return $points;
+    }
+
+    /**
+     * @param string $range Range.
+     *
+     * @return int
+     */
+    public function total_incidence( $range = '7d' ) {
+        $rows = $this->storage->query_by_range( $range );
+        $sum  = 0;
+
+        foreach ( $rows as $row ) {
+            $sum += isset( $row['count'] ) ? absint( $row['count'] ) : 0;
+        }
+
+        return $sum;
+    }
+}
+
+/**
+ * Helper for reporting integration (A2.4).
+ *
+ * @param string $range Range key.
+ *
+ * @return int
+ */
+function pcm_cache_busters_get_total_incidence( $range = '7d' ) {
+    if ( ! pcm_cache_busters_is_enabled() ) {
+        return 0;
+    }
+
+    $engine = new PCM_Cache_Buster_Detector_Engine();
+    $engine->detect_latest();
+
+    $insights = new PCM_Cache_Buster_Insights_Service();
+
+    return $insights->total_incidence( $range );
+}
+
+/**
+ * AJAX endpoint: top cache-busting sources leaderboard.
+ *
+ * @return void
+ */
+function pcm_ajax_cache_busters_top_sources() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( function_exists( 'pcm_current_user_can' ) ) {
+            $can = pcm_current_user_can( 'pcm_view_diagnostics' );
+        } else {
+            $can = current_user_can( 'manage_options' );
+        }
+
+        if ( ! $can ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $range   = isset( $_REQUEST['range'] ) ? sanitize_key( wp_unslash( $_REQUEST['range'] ) ) : '7d';
+    $limit   = isset( $_REQUEST['limit'] ) ? absint( wp_unslash( $_REQUEST['limit'] ) ) : 10;
+    $service = new PCM_Cache_Buster_Insights_Service();
+
+    wp_send_json_success(
+        array(
+            'range'       => $range,
+            'leaderboard' => $service->top_sources( $range, $limit ),
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_cache_busters_top_sources', 'pcm_ajax_cache_busters_top_sources' );
+
+/**
+ * AJAX endpoint: cache-buster incidence trends.
+ *
+ * @return void
+ */
+function pcm_ajax_cache_busters_trends() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( function_exists( 'pcm_current_user_can' ) ) {
+            $can = pcm_current_user_can( 'pcm_view_diagnostics' );
+        } else {
+            $can = current_user_can( 'manage_options' );
+        }
+
+        if ( ! $can ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $range   = isset( $_REQUEST['range'] ) ? sanitize_key( wp_unslash( $_REQUEST['range'] ) ) : '7d';
+    $service = new PCM_Cache_Buster_Insights_Service();
+
+    wp_send_json_success(
+        array(
+            'range'  => $range,
+            'points' => $service->trend_points( $range ),
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_cache_busters_trends', 'pcm_ajax_cache_busters_trends' );

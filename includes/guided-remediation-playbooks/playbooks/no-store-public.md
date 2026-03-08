@@ -1,5 +1,5 @@
 /*PCM_PLAYBOOK_META
-{"playbook_id":"pb_no_store_public","version":"1.0.0","severity":"critical","title":"No-Store on Public Pages","rule_ids":["no_store_public","cache_control_no_store"],"audiences":["site_owner","developer","host_support"]}
+{"playbook_id":"pb_no_store_public","version":"1.0.0","severity":"critical","title":"No-Store on Public Pages","rule_ids":["no_store_public","cache_control_no_store","cache_control_not_public"],"audiences":["site_owner","developer","host_support"]}
 PCM_PLAYBOOK_META*/
 # No-Store on Public Pages
 

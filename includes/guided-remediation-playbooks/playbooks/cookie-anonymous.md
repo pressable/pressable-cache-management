@@ -1,5 +1,5 @@
 /*PCM_PLAYBOOK_META
-{"playbook_id":"pb_cookie_anonymous","version":"1.0.0","severity":"critical","title":"Anonymous Set-Cookie Blocks Caching","rule_ids":["cookie_on_anonymous","set_cookie_anonymous"],"audiences":["site_owner","developer","host_support"]}
+{"playbook_id":"pb_cookie_anonymous","version":"1.0.0","severity":"critical","title":"Anonymous Set-Cookie Blocks Caching","rule_ids":["cookie_on_anonymous","set_cookie_anonymous","anonymous_set_cookie"],"audiences":["site_owner","developer","host_support"]}
 PCM_PLAYBOOK_META*/
 # Anonymous Set-Cookie Blocks Caching
 
