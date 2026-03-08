@@ -62,6 +62,7 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Add features to track max age
 * Updated transcient for status checker
 * Updated settings
+* Updated validation method for exclude cache
 
 #### **Version 5.8.7 (Mar 07, 2026)**
 
