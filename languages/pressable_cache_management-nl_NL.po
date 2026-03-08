@@ -228,3 +228,36 @@ msgstr "Automatisch afzonderlijke pagina's leegmaken, inclusief productpagina's 
 
 msgid "You can Flush Cache for Individual page or post from page preview."
 msgstr "U kunt de cache voor een afzonderlijke pagina of bericht leegmaken vanuit de paginavoorvertoning."
+
+msgid "Flush Object & Edge Cache"
+msgstr "Object- en Edgecache leegmaken"
+
+msgid "Cache Settings"
+msgstr "Cache-instellingen"
+
+msgid "Cache Management"
+msgstr "Cachebeheer"
+
+msgid "Cache Control"
+msgstr "Cachebeheer"
+
+msgid "CURRENT CACHE MAX-AGE"
+msgstr "HUIDIGE CACHE MAX-AGE"
+
+msgid "Checking…"
+msgstr "Controleren…"
+
+msgid "Object Cache Flushed successfully."
+msgstr "Objectcache succesvol geleegd."
+
+msgid "Edge Cache Purged successfully."
+msgstr "Edge Cache succesvol geleegd."
+
+msgid "Error: Edge Cache Plugin is not active. Purge aborted."
+msgstr "Fout: Edge Cache Plugin is niet actief. Leegmaken afgebroken."
+
+msgid "Edge Cache purge failed (possibly disabled or rate-limited)."
+msgstr "Edge Cache leegmaken mislukt."
+
+msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
+msgstr "Edge Cache Plugin niet gevonden."

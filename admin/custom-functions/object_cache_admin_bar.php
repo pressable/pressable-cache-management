@@ -206,7 +206,7 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
     // Flush Object Cache
     $wp_admin_bar->add_menu( array(
         'id'     => 'cache-purge',
-        'title'  => 'Flush Object Cache',
+        'title'  => __( 'Flush Object Cache', 'pressable_cache_management' ),
         'parent' => $parent_id,
         'meta'   => array( 'class' => 'pcm-wp-admin-toolbar-child' ),
     ));
@@ -215,13 +215,13 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
     if ( $edge_cache_is_enabled ) {
         $wp_admin_bar->add_menu( array(
             'id'     => 'edge-purge',
-            'title'  => 'Purge Edge Cache',
+            'title'  => __( 'Purge Edge Cache', 'pressable_cache_management' ),
             'parent' => $parent_id,
             'meta'   => array( 'class' => 'pcm-wp-admin-toolbar-child' ),
         ));
         $wp_admin_bar->add_menu( array(
             'id'     => 'combined-cache-purge',
-            'title'  => 'Flush Object & Edge Cache',
+            'title'  => __( 'Flush Object & Edge Cache', 'pressable_cache_management' ),
             'parent' => $parent_id,
             'meta'   => array( 'class' => 'pcm-wp-admin-toolbar-child' ),
         ));
@@ -231,7 +231,7 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
     if ( current_user_can('administrator') ) {
         $wp_admin_bar->add_menu( array(
             'id'     => 'settings',
-            'title'  => 'Cache Settings',
+            'title'  => __( 'Cache Settings', 'pressable_cache_management' ),
             'parent' => $parent_id,
             'href'   => admin_url('admin.php?page=pressable_cache_management'),
             'meta'   => array( 'class' => 'pcm-wp-admin-toolbar-child' ),

@@ -228,3 +228,36 @@ msgstr "Vaciar automáticamente las páginas individuales, incluidas las página
 
 msgid "You can Flush Cache for Individual page or post from page preview."
 msgstr "Puede vaciar la caché de una página o publicación individual desde la vista previa de la página."
+
+msgid "Flush Object & Edge Cache"
+msgstr "Vaciar caché de objetos y Edge"
+
+msgid "Cache Settings"
+msgstr "Configuración de caché"
+
+msgid "Cache Management"
+msgstr "Gestión de caché"
+
+msgid "Cache Control"
+msgstr "Control de caché"
+
+msgid "CURRENT CACHE MAX-AGE"
+msgstr "MAX-AGE DE CACHÉ ACTUAL"
+
+msgid "Checking…"
+msgstr "Comprobando…"
+
+msgid "Object Cache Flushed successfully."
+msgstr "Caché de objetos vaciada correctamente."
+
+msgid "Edge Cache Purged successfully."
+msgstr "Edge Cache purgado correctamente."
+
+msgid "Error: Edge Cache Plugin is not active. Purge aborted."
+msgstr "Error: El plugin Edge Cache no está activo. Purga cancelada."
+
+msgid "Edge Cache purge failed (possibly disabled or rate-limited)."
+msgstr "Error al purgar Edge Cache."
+
+msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
+msgstr "Plugin Edge Cache no encontrado."

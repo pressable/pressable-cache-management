@@ -228,3 +228,36 @@ msgstr "व्यक्तिगत पृष्ठों को स्वचा
 
 msgid "You can Flush Cache for Individual page or post from page preview."
 msgstr "आप पृष्ठ पूर्वावलोकन से किसी व्यक्तिगत पृष्ठ या पोस्ट के लिए कैश साफ़ कर सकते हैं।"
+
+msgid "Flush Object & Edge Cache"
+msgstr "ऑब्जेक्ट और Edge कैश साफ़ करें"
+
+msgid "Cache Settings"
+msgstr "कैश सेटिंग्स"
+
+msgid "Cache Management"
+msgstr "कैश प्रबंधन"
+
+msgid "Cache Control"
+msgstr "कैश नियंत्रण"
+
+msgid "CURRENT CACHE MAX-AGE"
+msgstr "वर्तमान कैश MAX-AGE"
+
+msgid "Checking…"
+msgstr "जाँच हो रही है…"
+
+msgid "Object Cache Flushed successfully."
+msgstr "ऑब्जेक्ट कैश सफलतापूर्वक साफ़ किया गया।"
+
+msgid "Edge Cache Purged successfully."
+msgstr "Edge कैश सफलतापूर्वक साफ़ किया गया।"
+
+msgid "Error: Edge Cache Plugin is not active. Purge aborted."
+msgstr "त्रुटि: Edge Cache प्लगइन सक्रिय नहीं है।"
+
+msgid "Edge Cache purge failed (possibly disabled or rate-limited)."
+msgstr "Edge कैश साफ़ करने में विफल।"
+
+msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
+msgstr "Edge Cache प्लगइन नहीं मिला।"

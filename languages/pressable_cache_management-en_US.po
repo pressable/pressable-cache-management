@@ -154,3 +154,39 @@ msgstr "Automatically flush individual pages, including product pages updated vi
 
 msgid "You can Flush Cache for Individual page or post from page preview."
 msgstr "You can Flush Cache for Individual page or post from page preview."
+
+msgid "Flush Object Cache"
+msgstr "Flush Object Cache"
+
+msgid "Flush Object & Edge Cache"
+msgstr "Flush Object & Edge Cache"
+
+msgid "Cache Settings"
+msgstr "Cache Settings"
+
+msgid "Cache Management"
+msgstr "Cache Management"
+
+msgid "Cache Control"
+msgstr "Cache Control"
+
+msgid "CURRENT CACHE MAX-AGE"
+msgstr "CURRENT CACHE MAX-AGE"
+
+msgid "Checking…"
+msgstr "Checking…"
+
+msgid "Object Cache Flushed successfully."
+msgstr "Object Cache Flushed successfully."
+
+msgid "Edge Cache Purged successfully."
+msgstr "Edge Cache Purged successfully."
+
+msgid "Error: Edge Cache Plugin is not active. Purge aborted."
+msgstr "Error: Edge Cache Plugin is not active. Purge aborted."
+
+msgid "Edge Cache purge failed (possibly disabled or rate-limited)."
+msgstr "Edge Cache purge failed (possibly disabled or rate-limited)."
+
+msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
+msgstr "Edge Cache Plugin not found; skipping Edge Cache purge."

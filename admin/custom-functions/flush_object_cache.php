@@ -51,6 +51,7 @@ if ( isset( $_POST['flush_object_cache_nonce'] ) ) {
 
     // Branded success notice - only show ONE (remove WP default)
     function flush_cache_notice__success() {
+        $pcm_nid = 'pcm-obj-notice-' . substr( md5( microtime() ), 0, 8 );
         $wrap = 'display:flex;align-items:center;justify-content:space-between;gap:12px;'
               . 'border-left:4px solid #03fcc2;background:#fff;border-radius:0 8px 8px 0;'
               . 'padding:14px 18px;box-shadow:0 2px 8px rgba(4,0,36,.07);'

@@ -228,3 +228,36 @@ msgstr "自动清除各个页面，包括通过WooCommerce API更新的产品页
 
 msgid "You can Flush Cache for Individual page or post from page preview."
 msgstr "您可以从页面预览中清除单个页面或文章的缓存。"
+
+msgid "Flush Object & Edge Cache"
+msgstr "清除对象和边缘缓存"
+
+msgid "Cache Settings"
+msgstr "缓存设置"
+
+msgid "Cache Management"
+msgstr "缓存管理"
+
+msgid "Cache Control"
+msgstr "缓存控制"
+
+msgid "CURRENT CACHE MAX-AGE"
+msgstr "当前缓存最大年龄"
+
+msgid "Checking…"
+msgstr "检查中…"
+
+msgid "Object Cache Flushed successfully."
+msgstr "对象缓存已成功清除。"
+
+msgid "Edge Cache Purged successfully."
+msgstr "边缘缓存已成功清除。"
+
+msgid "Error: Edge Cache Plugin is not active. Purge aborted."
+msgstr "错误：Edge Cache插件未激活。清除已中止。"
+
+msgid "Edge Cache purge failed (possibly disabled or rate-limited)."
+msgstr "边缘缓存清除失败。"
+
+msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
+msgstr "找不到Edge Cache插件。"
