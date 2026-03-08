@@ -1,5 +1,5 @@
 /*PCM_PLAYBOOK_META
-{"playbook_id":"pb_vary_cookie","version":"1.0.0","severity":"warning","title":"High-Cardinality Vary: Cookie","rule_ids":["vary_cookie","vary_high_cardinality_cookie"],"audiences":["site_owner","developer","host_support"]}
+{"playbook_id":"pb_vary_cookie","version":"1.0.0","severity":"warning","title":"High-Cardinality Vary: Cookie","rule_ids":["vary_cookie","vary_high_cardinality_cookie","volatile_vary"],"audiences":["site_owner","developer","host_support"]}
 PCM_PLAYBOOK_META*/
 # High-Cardinality Vary: Cookie
 

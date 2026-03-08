@@ -147,6 +147,118 @@ class PCM_Playbook_Repository {
     }
 }
 
+
+/**
+ * Capability guard for playbook AJAX handlers.
+ *
+ * @return bool
+ */
+function pcm_playbooks_ajax_can_manage() {
+    if ( function_exists( 'pcm_current_user_can' ) ) {
+        return (bool) pcm_current_user_can( 'pcm_view_diagnostics' );
+    }
+
+    return current_user_can( 'manage_options' );
+}
+
+/**
+ * Persisted progress storage for playbook checklist + verification.
+ */
+class PCM_Playbook_Progress_Store {
+    const OPTION_KEY = 'pcm_playbook_progress_v1';
+
+    /**
+     * @return array
+     */
+    protected function all() {
+        $raw = get_option( self::OPTION_KEY, array() );
+
+        return is_array( $raw ) ? $raw : array();
+    }
+
+    /**
+     * @param array $rows Rows.
+     *
+     * @return void
+     */
+    protected function save_all( $rows ) {
+        update_option( self::OPTION_KEY, is_array( $rows ) ? $rows : array(), false );
+    }
+
+    /**
+     * @param string $playbook_id Playbook identifier.
+     *
+     * @return array
+     */
+    public function get_state( $playbook_id ) {
+        $playbook_id = sanitize_key( $playbook_id );
+        $rows        = $this->all();
+
+        if ( empty( $rows[ $playbook_id ] ) || ! is_array( $rows[ $playbook_id ] ) ) {
+            return array(
+                'checklist'    => array(),
+                'verification' => array(),
+            );
+        }
+
+        return $rows[ $playbook_id ];
+    }
+
+    /**
+     * @param string $playbook_id Playbook identifier.
+     * @param array  $checklist   Checklist values.
+     *
+     * @return array
+     */
+    public function save_checklist( $playbook_id, $checklist ) {
+        $playbook_id = sanitize_key( $playbook_id );
+        $rows        = $this->all();
+        $state       = isset( $rows[ $playbook_id ] ) && is_array( $rows[ $playbook_id ] ) ? $rows[ $playbook_id ] : array();
+        $clean       = array();
+
+        if ( is_array( $checklist ) ) {
+            foreach ( $checklist as $step => $complete ) {
+                $step          = sanitize_key( $step );
+                $clean[ $step ] = (bool) $complete;
+            }
+        }
+
+        $state['checklist']    = $clean;
+        $state['updated_at']   = gmdate( 'c' );
+        $rows[ $playbook_id ]  = $state;
+
+        $this->save_all( $rows );
+
+        return $state;
+    }
+
+    /**
+     * @param string $playbook_id Playbook identifier.
+     * @param array  $verification Verification payload.
+     *
+     * @return array
+     */
+    public function save_verification( $playbook_id, $verification ) {
+        $playbook_id = sanitize_key( $playbook_id );
+        $rows        = $this->all();
+        $state       = isset( $rows[ $playbook_id ] ) && is_array( $rows[ $playbook_id ] ) ? $rows[ $playbook_id ] : array();
+
+        $state['verification'] = array(
+            'status'      => ! empty( $verification['status'] ) ? sanitize_key( $verification['status'] ) : 'unknown',
+            'run_id'      => isset( $verification['run_id'] ) ? absint( $verification['run_id'] ) : 0,
+            'rule_id'     => isset( $verification['rule_id'] ) ? sanitize_key( $verification['rule_id'] ) : '',
+            'checked_at'  => gmdate( 'c' ),
+            'message'     => isset( $verification['message'] ) ? sanitize_text_field( $verification['message'] ) : '',
+        );
+        $state['updated_at']   = gmdate( 'c' );
+        $rows[ $playbook_id ]  = $state;
+
+        $this->save_all( $rows );
+
+        return $state;
+    }
+}
+
 /**
  * Rule-to-playbook lookup service.
  */
@@ -263,6 +375,8 @@ function pcm_render_playbook_panel( $playbook ) {
     $content     = $renderer->render( isset( $playbook['body'] ) ? $playbook['body'] : '' );
 
     $panel_id = 'pcm-playbook-' . $playbook_id;
+    $ajax_url = admin_url( 'admin-ajax.php' );
+    $nonce    = wp_create_nonce( 'pcm_cacheability_scan' );
 
     ob_start();
     ?>
@@ -294,6 +408,8 @@ function pcm_render_playbook_panel( $playbook ) {
     <script>
         (function(){
             var panelId = <?php echo wp_json_encode( $panel_id ); ?>;
+            var ajaxUrl = <?php echo wp_json_encode( $ajax_url ); ?>;
+            var nonce = <?php echo wp_json_encode( $nonce ); ?>;
             var key = 'pcm_playbook_checklist_' + panelId;
             var panel = document.getElementById(panelId);
             if (!panel) return;
@@ -308,6 +424,11 @@ function pcm_render_playbook_panel( $playbook ) {
                     localStorage.setItem(key, JSON.stringify(saved));
                 });
             });
+
+            window.pcmPlaybookAjax = {
+                url: ajaxUrl,
+                nonce: nonce
+            };
         })();
 
         function pcmPlaybookSwitchTab(panelId, tab) {
@@ -315,10 +436,233 @@ function pcm_render_playbook_panel( $playbook ) {
         }
 
         function pcmPlaybookTriggerRescan() {
-            alert('Re-scan trigger placeholder: integrate with cacheability advisor AJAX runner.');
+            var cfg = window.pcmPlaybookAjax || {};
+            if (!cfg.url || !cfg.nonce) {
+                alert('Unable to start scan: missing AJAX configuration.');
+                return;
+            }
+
+            var params = new URLSearchParams();
+            params.append('action', 'pcm_cacheability_scan_start');
+            params.append('nonce', cfg.nonce);
+
+            fetch(cfg.url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                },
+                body: params.toString()
+            })
+            .then(function(response){ return response.json(); })
+            .then(function(payload){
+                if (!payload || !payload.success || !payload.data || !payload.data.run_id) {
+                    throw new Error('Scan start failed.');
+                }
+
+                var runId = payload.data.run_id;
+                var statusParams = new URLSearchParams();
+                statusParams.append('action', 'pcm_cacheability_scan_status');
+                statusParams.append('nonce', cfg.nonce);
+                statusParams.append('run_id', String(runId));
+
+                return fetch(cfg.url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                    },
+                    body: statusParams.toString()
+                });
+            })
+            .then(function(response){ return response.json(); })
+            .then(function(payload){
+                var status = payload && payload.data && payload.data.run && payload.data.run.status ? payload.data.run.status : 'unknown';
+                alert('Cacheability scan triggered. Current status: ' + status + '.');
+            })
+            .catch(function(){
+                alert('Unable to trigger cacheability scan. Check permissions and feature flags.');
+            });
         }
     </script>
     <?php
 
     return (string) ob_get_clean();
 }
+
+
+/**
+ * Build a serialized playbook payload for UI use.
+ *
+ * @param array $playbook Playbook.
+ *
+ * @return array
+ */
+function pcm_playbook_build_payload( $playbook ) {
+    $renderer = new PCM_Playbook_Renderer();
+
+    return array(
+        'meta'      => isset( $playbook['meta'] ) && is_array( $playbook['meta'] ) ? $playbook['meta'] : array(),
+        'body'      => isset( $playbook['body'] ) ? (string) $playbook['body'] : '',
+        'html_body' => $renderer->render( isset( $playbook['body'] ) ? $playbook['body'] : '' ),
+    );
+}
+
+/**
+ * AJAX: Lookup playbook for a finding rule.
+ *
+ * @return void
+ */
+function pcm_ajax_playbook_lookup() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_playbooks_ajax_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $rule_id = isset( $_REQUEST['rule_id'] ) ? sanitize_key( wp_unslash( $_REQUEST['rule_id'] ) ) : '';
+    if ( '' === $rule_id ) {
+        wp_send_json_error( array( 'message' => 'Missing rule_id.' ), 400 );
+    }
+
+    $lookup = new PCM_Playbook_Lookup_Service();
+    $result = $lookup->lookup_for_finding( $rule_id );
+
+    if ( empty( $result['available'] ) || empty( $result['playbook'] ) ) {
+        wp_send_json_success( array( 'available' => false, 'reason' => isset( $result['reason'] ) ? $result['reason'] : 'no_playbook' ) );
+    }
+
+    $playbook = $result['playbook'];
+    $store    = new PCM_Playbook_Progress_Store();
+    $state    = $store->get_state( isset( $playbook['meta']['playbook_id'] ) ? $playbook['meta']['playbook_id'] : '' );
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'playbook_lookup', 'guided_playbooks', array( 'rule_id' => $rule_id ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'available' => true,
+            'playbook'  => pcm_playbook_build_payload( $playbook ),
+            'progress'  => $state,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_playbook_lookup', 'pcm_ajax_playbook_lookup' );
+
+/**
+ * AJAX: Save playbook checklist progress.
+ *
+ * @return void
+ */
+function pcm_ajax_playbook_progress_save() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_view_diagnostics' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_playbooks_ajax_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $playbook_id = isset( $_REQUEST['playbook_id'] ) ? sanitize_key( wp_unslash( $_REQUEST['playbook_id'] ) ) : '';
+    if ( '' === $playbook_id ) {
+        wp_send_json_error( array( 'message' => 'Missing playbook_id.' ), 400 );
+    }
+
+    $checklist_raw = isset( $_REQUEST['checklist'] ) ? wp_unslash( $_REQUEST['checklist'] ) : '';
+    $checklist     = is_string( $checklist_raw ) ? json_decode( $checklist_raw, true ) : array();
+
+    if ( ! is_array( $checklist ) ) {
+        $checklist = array();
+    }
+
+    $store = new PCM_Playbook_Progress_Store();
+    $state = $store->save_checklist( $playbook_id, $checklist );
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'playbook_progress_saved', 'guided_playbooks', array( 'playbook_id' => $playbook_id ) );
+    }
+
+    wp_send_json_success( array( 'playbook_id' => $playbook_id, 'progress' => $state ) );
+}
+add_action( 'wp_ajax_pcm_playbook_progress_save', 'pcm_ajax_playbook_progress_save' );
+
+/**
+ * AJAX: Run post-fix verification for a playbook.
+ *
+ * @return void
+ */
+function pcm_ajax_playbook_verify() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_run_scans' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_playbooks_ajax_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    if ( ! function_exists( 'pcm_cacheability_advisor_is_enabled' ) || ! pcm_cacheability_advisor_is_enabled() ) {
+        wp_send_json_error( array( 'message' => 'Cacheability Advisor is disabled.' ), 400 );
+    }
+
+    $playbook_id = isset( $_REQUEST['playbook_id'] ) ? sanitize_key( wp_unslash( $_REQUEST['playbook_id'] ) ) : '';
+    $rule_id     = isset( $_REQUEST['rule_id'] ) ? sanitize_key( wp_unslash( $_REQUEST['rule_id'] ) ) : '';
+    if ( '' === $playbook_id || '' === $rule_id ) {
+        wp_send_json_error( array( 'message' => 'Missing playbook_id or rule_id.' ), 400 );
+    }
+
+    $service    = new PCM_Cacheability_Advisor_Run_Service();
+    $repository = new PCM_Cacheability_Advisor_Repository();
+    $run_id     = $service->start_and_execute_scan();
+
+    if ( ! $run_id ) {
+        wp_send_json_error( array( 'message' => 'Unable to execute verification scan.' ), 500 );
+    }
+
+    $findings      = $repository->list_findings( $run_id );
+    $rule_still_on = false;
+
+    foreach ( $findings as $finding ) {
+        if ( isset( $finding['rule_id'] ) && sanitize_key( $finding['rule_id'] ) === $rule_id ) {
+            $rule_still_on = true;
+            break;
+        }
+    }
+
+    $status  = $rule_still_on ? 'failing' : 'passed';
+    $message = $rule_still_on
+        ? 'Rule is still present after verification scan.'
+        : 'Rule did not appear in verification scan.';
+
+    $store = new PCM_Playbook_Progress_Store();
+    $state = $store->save_verification(
+        $playbook_id,
+        array(
+            'status'  => $status,
+            'run_id'  => $run_id,
+            'rule_id' => $rule_id,
+            'message' => $message,
+        )
+    );
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'playbook_verification_run', 'guided_playbooks', array( 'playbook_id' => $playbook_id, 'run_id' => (int) $run_id, 'status' => $status ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'playbook_id' => $playbook_id,
+            'run_id'      => (int) $run_id,
+            'status'      => $status,
+            'message'     => $message,
+            'progress'    => $state,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_playbook_verify', 'pcm_ajax_playbook_verify' );

@@ -478,3 +478,347 @@ function pcm_redirect_assistant_sanitize_rule( $rule ) {
         'updated_at'     => current_time( 'mysql', true ),
     );
 }
+
+/**
+ * Capability guard for redirect assistant management.
+ *
+ * @return bool
+ */
+function pcm_redirect_assistant_can_manage() {
+    if ( function_exists( 'pcm_current_user_can' ) ) {
+        return pcm_current_user_can( 'pcm_manage_redirect_rules' );
+    }
+
+    return current_user_can( 'manage_options' );
+}
+
+/**
+ * Validate rules for regex safety and wildcard confirmation requirements.
+ *
+ * @param array $rules Rules.
+ * @param bool  $wildcard_confirmed Wildcard confirmation flag.
+ *
+ * @return array
+ */
+function pcm_redirect_assistant_validate_rules( $rules, $wildcard_confirmed = false ) {
+    $errors   = array();
+    $warnings = array();
+
+    foreach ( (array) $rules as $index => $rule ) {
+        $rule   = pcm_redirect_assistant_sanitize_rule( $rule );
+        $id     = isset( $rule['id'] ) ? $rule['id'] : 'rule_' . $index;
+        $source = isset( $rule['source_pattern'] ) ? (string) $rule['source_pattern'] : '';
+        $target = isset( $rule['target_pattern'] ) ? (string) $rule['target_pattern'] : '';
+        $type   = isset( $rule['match_type'] ) ? (string) $rule['match_type'] : 'exact';
+
+        if ( '' === $target ) {
+            $errors[] = array(
+                'rule_id' => $id,
+                'type'    => 'empty_target',
+                'message' => 'Target URL is required.',
+            );
+        }
+
+        if ( 'regex' === $type ) {
+            $regex_valid = @preg_match( $source, '/redirect-assistant-test/' );
+            if ( false === $regex_valid ) {
+                $errors[] = array(
+                    'rule_id' => $id,
+                    'type'    => 'invalid_regex',
+                    'message' => 'Regex pattern failed validation.',
+                );
+            }
+
+            $looks_wild = false !== strpos( $source, '.*' ) || false !== strpos( $source, '.+' ) || false !== strpos( $source, '(.+)' );
+            if ( $looks_wild ) {
+                $warnings[] = array(
+                    'rule_id' => $id,
+                    'type'    => 'wildcard_regex',
+                    'message' => 'Regex appears broad and may match many URLs.',
+                );
+            }
+        }
+
+        if ( 'prefix' === $type && '/' === trim( $source ) ) {
+            $warnings[] = array(
+                'rule_id' => $id,
+                'type'    => 'root_prefix',
+                'message' => 'Root prefix rule can affect nearly all requests.',
+            );
+        }
+    }
+
+    if ( ! empty( $warnings ) && ! $wildcard_confirmed ) {
+        $errors[] = array(
+            'rule_id' => 'global',
+            'type'    => 'wildcard_confirmation_required',
+            'message' => 'Wildcard/regex-like rules require explicit confirmation.',
+        );
+    }
+
+    return array(
+        'is_valid' => empty( $errors ),
+        'errors'   => $errors,
+        'warnings' => $warnings,
+    );
+}
+
+/**
+ * AJAX: list saved redirect rules.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_list_rules() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $repo = new PCM_Redirect_Assistant_Repository();
+
+    wp_send_json_success( array( 'rules' => $repo->list_rules() ) );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_list_rules', 'pcm_ajax_redirect_assistant_list_rules' );
+
+/**
+ * AJAX: discover rule candidates from URL input and latest advisor URLs.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_discover_candidates() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $input_urls = isset( $_POST['urls'] ) ? (string) wp_unslash( $_POST['urls'] ) : '';
+    $urls = array_values( array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', $input_urls ) ) ) );
+
+    if ( empty( $urls ) ) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'pcm_scan_urls';
+        $rows = $wpdb->get_col( "SELECT url FROM {$table} ORDER BY id DESC LIMIT 50" );
+        $urls = is_array( $rows ) ? $rows : array();
+    }
+
+    $discovery  = new PCM_Redirect_Assistant_Candidate_Discovery();
+    $candidates = $discovery->discover( $urls );
+
+    wp_send_json_success(
+        array(
+            'count'      => count( $candidates ),
+            'candidates' => $candidates,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_discover_candidates', 'pcm_ajax_redirect_assistant_discover_candidates' );
+
+/**
+ * AJAX: save rules payload.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_save_rules() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $raw_rules = isset( $_POST['rules'] ) ? (string) wp_unslash( $_POST['rules'] ) : '[]';
+    $decoded   = json_decode( $raw_rules, true );
+    $rules     = is_array( $decoded ) ? $decoded : array();
+
+    $confirmed = isset( $_POST['confirm_wildcards'] ) && '1' === (string) wp_unslash( $_POST['confirm_wildcards'] );
+    $validation = pcm_redirect_assistant_validate_rules( $rules, $confirmed );
+
+    if ( ! $validation['is_valid'] ) {
+        wp_send_json_error(
+            array(
+                'message'    => 'Rule validation failed.',
+                'validation' => $validation,
+            ),
+            400
+        );
+    }
+
+    $repo   = new PCM_Redirect_Assistant_Repository();
+    $saved  = array();
+
+    foreach ( $rules as $rule ) {
+        $saved[] = $repo->upsert_rule( $rule );
+    }
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'redirect_rules_saved', 'redirect_assistant', array( 'rule_count' => count( $saved ) ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'saved_rule_ids' => $saved,
+            'validation'     => $validation,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_save_rules', 'pcm_ajax_redirect_assistant_save_rules' );
+
+/**
+ * AJAX: simulate URLs against current or provided rules.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_simulate() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $raw_urls = isset( $_POST['urls'] ) ? (string) wp_unslash( $_POST['urls'] ) : '';
+    $urls     = array_values( array_filter( array_map( 'trim', preg_split( '/[\r\n,]+/', $raw_urls ) ) ) );
+
+    $repo     = new PCM_Redirect_Assistant_Repository();
+    $rules    = $repo->list_rules();
+
+    $raw_rules = isset( $_POST['rules'] ) ? (string) wp_unslash( $_POST['rules'] ) : '';
+    if ( '' !== trim( $raw_rules ) ) {
+        $decoded = json_decode( $raw_rules, true );
+        if ( is_array( $decoded ) ) {
+            $rules = array_values( array_map( 'pcm_redirect_assistant_sanitize_rule', $decoded ) );
+        }
+    }
+
+    $sim       = new PCM_Redirect_Assistant_Simulation_Engine();
+    $results   = $sim->simulate_batch( $urls, $rules );
+    $conflicts = $sim->detect_conflicts( $rules );
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'redirect_rules_simulated', 'redirect_assistant', array( 'url_count' => count( $urls ) ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'results'   => $results,
+            'conflicts' => $conflicts,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_simulate', 'pcm_ajax_redirect_assistant_simulate' );
+
+/**
+ * AJAX: export rules with syntax + conflict checks.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_export() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $repo      = new PCM_Redirect_Assistant_Repository();
+    $rules     = $repo->list_rules();
+    $confirmed = isset( $_POST['confirm_wildcards'] ) && '1' === (string) wp_unslash( $_POST['confirm_wildcards'] );
+
+    $validation = pcm_redirect_assistant_validate_rules( $rules, $confirmed );
+    if ( ! $validation['is_valid'] ) {
+        wp_send_json_error(
+            array(
+                'message'    => 'Export blocked by validation guardrails.',
+                'validation' => $validation,
+            ),
+            400
+        );
+    }
+
+    $sim       = new PCM_Redirect_Assistant_Simulation_Engine();
+    $conflicts = $sim->detect_conflicts( $rules );
+
+    $exporter = new PCM_Redirect_Assistant_Exporter();
+    $export   = $exporter->build_export( $rules );
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'redirect_rules_exported', 'redirect_assistant', array( 'rule_count' => count( $rules ) ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'export' => $export,
+            'meta_json' => wp_json_encode( isset( $export['meta'] ) ? $export['meta'] : array() ),
+            'conflicts'  => $conflicts,
+            'validation' => $validation,
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_export', 'pcm_ajax_redirect_assistant_export' );
+
+/**
+ * AJAX: import rules from prior export payload JSON.
+ *
+ * @return void
+ */
+function pcm_ajax_redirect_assistant_import() {
+    if ( function_exists( 'pcm_ajax_enforce_permissions' ) ) {
+        pcm_ajax_enforce_permissions( 'pcm_cacheability_scan', 'pcm_manage_redirect_rules' );
+    } else {
+        check_ajax_referer( 'pcm_cacheability_scan', 'nonce' );
+
+        if ( ! pcm_redirect_assistant_can_manage() ) {
+            wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+        }
+    }
+
+    $raw_payload = isset( $_POST['payload'] ) ? (string) wp_unslash( $_POST['payload'] ) : '';
+    $decoded     = json_decode( $raw_payload, true );
+
+    if ( ! is_array( $decoded ) ) {
+        wp_send_json_error( array( 'message' => 'Payload must be valid JSON export metadata.' ), 400 );
+    }
+
+    $rules = isset( $decoded['rules'] ) && is_array( $decoded['rules'] ) ? $decoded['rules'] : array();
+    if ( empty( $rules ) ) {
+        wp_send_json_error( array( 'message' => 'No rules found in import payload.' ), 400 );
+    }
+
+    $repo = new PCM_Redirect_Assistant_Repository();
+
+    $saved = array();
+    foreach ( $rules as $rule ) {
+        $saved[] = $repo->upsert_rule( $rule );
+    }
+
+    if ( function_exists( 'pcm_audit_log' ) ) {
+        pcm_audit_log( 'redirect_rules_imported', 'redirect_assistant', array( 'rule_count' => count( $saved ) ) );
+    }
+
+    wp_send_json_success(
+        array(
+            'imported_rule_ids' => $saved,
+            'rule_count'        => count( $saved ),
+        )
+    );
+}
+add_action( 'wp_ajax_pcm_redirect_assistant_import', 'pcm_ajax_redirect_assistant_import' );
