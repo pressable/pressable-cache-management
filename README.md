@@ -58,9 +58,11 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 #### **Version 5.8.8 (Mar 07, 2026)**
 
+= Version 5.8.8 (Mar 08, 2026) =
 * Updated language string to support admin menu
 * Add features to track max age
 * Updated transcient for status checker
+* Updated settings
 
 #### **Version 5.8.7 (Mar 07, 2026)**
 
