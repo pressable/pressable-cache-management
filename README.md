@@ -56,7 +56,7 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ### **Pressable Cache Management Changelog**
 
-#### **Version 5.8.9 (Mar 08, 2026)**
+#### **Version 5.9.9 (Mar 08, 2026)**
 
 * Updated language string to support admin menu
 * Add features to track max age
