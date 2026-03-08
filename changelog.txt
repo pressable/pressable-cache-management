@@ -1,5 +1,11 @@
 === Pressable Cache Management Change log ===
 
+= Version 5.8.8 (Mar 08, 2026) =
+* Updated language string to support admin menu
+* Add features to track max age
+* Updated transcient for status checker
+
+
 = Version 5.8.7 (Mar 07, 2026) =
 * Fix botton bug
 * Update checkbox button color to red when disabled
