@@ -230,6 +230,8 @@ function pressable_cache_management_display_settings_page() {
                  src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'assets/img/pressable-logo-primary.svg' ); ?>"
                  alt="Pressable"
                  style="width:180px;height:auto;display:block;margin-bottom:6px;">
+            <?php else : ?>
+            <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;"><?php echo esc_html__( 'Cache Control', 'pressable_cache_management' ); ?></h2>
             <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
