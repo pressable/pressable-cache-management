@@ -261,3 +261,76 @@ msgstr "Échec de la purge du cache Edge."
 
 msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
 msgstr "Plugin Edge Cache introuvable."
+
+msgid "Edge Cache Defensive Mode"
+msgstr "Mode Défensif Edge Cache"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "Ajoute une couche de protection supplémentaire contre les robots spam et les attaques DDoS. Lorsqu'il est activé, les navigateurs des visiteurs doivent relever un petit défi avant d'accéder au site. Les utilisateurs légitimes peuvent voir brièvement une page de défi. Edge Cache doit être activé pour utiliser cette fonctionnalité."
+
+msgid "Checking status\u2026"
+msgstr ""
+
+msgid "Enable Defensive Mode"
+msgstr ""
+
+msgid "Disable Defensive Mode"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "at"
+msgstr ""
+
+msgid "Enabled until"
+msgstr "Actif jusqu'au"
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Disabled \u2014 Edge Cache must be enabled first."
+msgstr ""
+
+msgid "Unable to retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Defensive Mode enabled for %s."
+msgstr ""
+
+msgid "Defensive Mode disabled."
+msgstr "Mode défensif désactivé."
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr ""
+
+msgid "Unknown error enabling Defensive Mode."
+msgstr ""
+
+msgid "Unknown error disabling Defensive Mode."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status from server."
+msgstr ""
+
+msgid "Edge Cache Defensive Mode"
+msgstr "Mode Défensif du Edge Cache"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "Ajoute une couche de protection supplémentaire contre les robots spam et les attaques DDoS. Lorsqu'il est activé, les navigateurs des visiteurs doivent relever un petit défi avant d'accéder au site. Les utilisateurs légitimes peuvent voir une brève page de vérification. Edge Cache doit être activé pour utiliser cette fonctionnalité."
+
+msgid "Disabled"
+msgstr "Désactivé"
+
+msgid "Enabled until:"
+msgstr "Activé jusqu'au :"
+
+msgid "Defensive Mode disabled."
+msgstr "Mode Défensif désactivé."
+
+
+msgid "Defensive Mode enabled for %s."
+msgstr "Mode Défensif activé pour %s."

@@ -261,3 +261,76 @@ msgstr "边缘缓存清除失败。"
 
 msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
 msgstr "找不到Edge Cache插件。"
+
+msgid "Edge Cache Defensive Mode"
+msgstr "Edge Cache 防御模式"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "为垃圾邮件机器人和 DDoS 攻击提供额外的保护层。启用后，访客的浏览器必须完成一个小型验证才能访问网站。合法用户可能会短暂看到一个验证页面。使用此功能需要启用 Edge Cache。"
+
+msgid "Checking status\u2026"
+msgstr ""
+
+msgid "Enable Defensive Mode"
+msgstr ""
+
+msgid "Disable Defensive Mode"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "at"
+msgstr ""
+
+msgid "Enabled until"
+msgstr "有效期至"
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Disabled \u2014 Edge Cache must be enabled first."
+msgstr ""
+
+msgid "Unable to retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Defensive Mode enabled for %s."
+msgstr ""
+
+msgid "Defensive Mode disabled."
+msgstr "防御模式已禁用。"
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr ""
+
+msgid "Unknown error enabling Defensive Mode."
+msgstr ""
+
+msgid "Unknown error disabling Defensive Mode."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status from server."
+msgstr ""
+
+msgid "Edge Cache Defensive Mode"
+msgstr "边缘缓存防御模式"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "为垃圾邮件机器人和DDoS攻击提供额外的防护层。启用后，访问者的浏览器必须在访问网站之前完成一个小型验证挑战。合法用户可能会短暂看到一个验证页面。使用此功能需要启用边缘缓存。"
+
+msgid "Disabled"
+msgstr "已禁用"
+
+msgid "Enabled until:"
+msgstr "启用至："
+
+msgid "Defensive Mode disabled."
+msgstr "防御模式已禁用。"
+
+
+msgid "Defensive Mode enabled for %s."
+msgstr "防御模式已启用 %s。"

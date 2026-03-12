@@ -1,5 +1,8 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.0.0 (Mar 12, 2026) =
+* Added defensive mode feature for Edge Cache
+
 = Version 5.9.9 (Mar 08, 2026) =
 * Updated language string to support admin menu
 * Add features to track max age

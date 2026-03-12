@@ -261,3 +261,76 @@ msgstr "Edge कैश साफ़ करने में विफल।"
 
 msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
 msgstr "Edge Cache प्लगइन नहीं मिला।"
+
+msgid "Edge Cache Defensive Mode"
+msgstr "एज कैश सुरक्षात्मक मोड"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "स्पैम बॉट्स और DDoS हमलों के विरुद्ध सुरक्षा की एक अतिरिक्त परत जोड़ता है। सक्षम होने पर, साइट तक पहुँचने से पहले आगंतुकों के ब्राउज़र को एक छोटी सी चुनौती पूरी करनी होती है। वैध उपयोगकर्ताओं को संक्षिप्त चुनौती पृष्ठ दिख सकता है। इस सुविधा का उपयोग करने के लिए एज कैश सक्षम होना चाहिए।"
+
+msgid "Checking status\u2026"
+msgstr ""
+
+msgid "Enable Defensive Mode"
+msgstr ""
+
+msgid "Disable Defensive Mode"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "at"
+msgstr ""
+
+msgid "Enabled until"
+msgstr "तक सक्रिय"
+
+msgid "Disabled"
+msgstr "अक्षम"
+
+msgid "Disabled \u2014 Edge Cache must be enabled first."
+msgstr ""
+
+msgid "Unable to retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Defensive Mode enabled for %s."
+msgstr ""
+
+msgid "Defensive Mode disabled."
+msgstr "सुरक्षात्मक मोड अक्षम किया गया।"
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr ""
+
+msgid "Unknown error enabling Defensive Mode."
+msgstr ""
+
+msgid "Unknown error disabling Defensive Mode."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status from server."
+msgstr ""
+
+msgid "Edge Cache Defensive Mode"
+msgstr "एज कैश डिफेंसिव मोड"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "स्पैम बॉट्स और DDoS हमलों के विरुद्ध सुरक्षा की एक अतिरिक्त परत जोड़ता है। सक्षम होने पर, आगंतुकों के ब्राउज़र को साइट तक पहुँचने से पहले एक छोटी चुनौती पूरी करनी होगी। वैध उपयोगकर्ताओं को संक्षेप में एक सत्यापन पृष्ठ दिख सकता है। इस सुविधा का उपयोग करने के लिए Edge Cache सक्षम होना चाहिए।"
+
+msgid "Disabled"
+msgstr "अक्षम"
+
+msgid "Enabled until:"
+msgstr "तक सक्षम:"
+
+msgid "Defensive Mode disabled."
+msgstr "डिफेंसिव मोड अक्षम।"
+
+
+msgid "Defensive Mode enabled for %s."
+msgstr "डिफेंसिव मोड %s के लिए सक्षम।"

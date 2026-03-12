@@ -692,6 +692,13 @@ function pressable_cache_management_display_settings_page() {
         background:#03fcc2 !important;color:#040024 !important;
         box-shadow:0 4px 14px rgba(3,252,194,0.45) !important;
     }
+    /* Defensive Mode button hovers (not disabled) */
+    #pcm-dm-enable-btn:not([disabled]):hover,
+    #pcm-dm-disable-btn:not([disabled]):hover {
+        background:#03fcc2 !important;color:#040024 !important;
+        box-shadow:0 4px 14px rgba(3,252,194,0.45) !important;
+        cursor:pointer;
+    }
     .ec-disabled-btn { opacity:.5;cursor:not-allowed !important;pointer-events:none; }
     </style>
 
@@ -779,6 +786,75 @@ function pressable_cache_management_display_settings_page() {
             </div>
         </div>
 
+        <!-- Row 3: Defensive Mode -->
+        <div style="padding:24px 28px;border-top:1px solid #f1f5f9;">
+
+            <!-- Title + status badge -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:10px;">
+                <div>
+                    <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                        <?php echo esc_html__( 'Edge Cache Defensive Mode', 'pressable_cache_management' ); ?>
+                    </p>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                        <?php echo esc_html__( 'Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors\' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature.', 'pressable_cache_management' ); ?>
+                    </p>
+                    <!-- Live status line — populated by JS -->
+                    <div id="pcm-dm-status-line" style="font-size:13px;font-weight:600;color:#94a3b8;margin:6px 0 0;font-family:'Inter',sans-serif;font-style:italic;line-height:1.6;">
+                        <?php echo esc_html__( 'Checking status…', 'pressable_cache_management' ); ?>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls: enable form (contains dropdown) + separate disable form -->
+            <div id="pcm-dm-controls" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;">
+
+                <!-- Enable form — select lives here so its value is always submitted -->
+                <form method="post" id="pcm-dm-enable-form" style="margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <input type="hidden" name="enable_defensive_mode_nonce"
+                           value="<?php echo wp_create_nonce( 'enable_defensive_mode_nonce' ); ?>">
+
+                    <select id="pcm-dm-duration-select"
+                            name="defensive_mode_duration"
+                            disabled
+                            style="padding:9px 14px;border:1px solid #e2e8f0;border-radius:8px;
+                                   font-size:13px;font-family:'Inter',sans-serif;color:#040024;
+                                   background:#f8fafc;cursor:not-allowed;opacity:.5;transition:opacity .2s;">
+                        <?php
+                        $saved_slug = get_option( 'edge-cache-defensive-mode-slug', '30-minutes' );
+                        foreach ( pcm_defensive_mode_durations() as $val => $entry ) :
+                        ?>
+                            <option value="<?php echo esc_attr( $val ); ?>" <?php selected( $val, $saved_slug ); ?>><?php echo esc_html( $entry['label'] ); ?></option>
+                        <?php endforeach; ?>
+                    </select>
+
+                    <input id="pcm-dm-enable-btn"
+                           type="submit"
+                           value="<?php echo esc_attr__( 'Enable Defensive Mode', 'pressable_cache_management' ); ?>"
+                           disabled
+                           class="ec-disabled-btn"
+                           style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;
+                                  color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;
+                                  cursor:not-allowed;transition:background .2s,opacity .2s;">
+                </form>
+
+                <!-- Disable form -->
+                <form method="post" id="pcm-dm-disable-form" style="margin:0;">
+                    <input type="hidden" name="disable_defensive_mode_nonce"
+                           value="<?php echo wp_create_nonce( 'disable_defensive_mode_nonce' ); ?>">
+                    <input id="pcm-dm-disable-btn"
+                           type="submit"
+                           value="<?php echo esc_attr__( 'Disable Defensive Mode', 'pressable_cache_management' ); ?>"
+                           disabled
+                           class="ec-disabled-btn"
+                           style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;
+                                  color:#fff;background:#64748b;font-family:'Inter',sans-serif;
+                                  cursor:not-allowed;transition:background .2s,opacity .2s;">
+                </form>
+
+            </div><!-- /controls -->
+
+        </div><!-- /Row 3 -->
+
     </div><!-- /card -->
     </div><!-- /max-width -->
 
@@ -786,15 +862,101 @@ function pressable_cache_management_display_settings_page() {
     jQuery(document).ready(function($){
         var wrapper  = $('#edge-cache-control-wrapper');
         var purgeBtn = $('#purge-edge-cache-button-input');
+
+        // ── Defensive Mode elements ───────────────────────────────────────────
+        var dmStatusLine = $('#pcm-dm-status-line');
+        var dmSelect     = $('#pcm-dm-duration-select');
+        var dmEnableBtn  = $('#pcm-dm-enable-btn');
+        var dmDisableBtn = $('#pcm-dm-disable-btn');
+
+        /**
+         * Apply defensive mode UI state.
+         * Called once EC status is known so edgeCacheEnabled is accurate.
+         */
+        function pcmApplyDmState( edgeCacheEnabled ) {
+            $.ajax({
+                url: ajaxurl, type: 'POST',
+                data: { action: 'pcm_check_defensive_mode_status' },
+                success: function(r) {
+                    if ( ! r.success ) {
+                        dmStatusLine
+                            .text('<?php echo esc_js( __( 'Unable to retrieve Defensive Mode status.', 'pressable_cache_management' ) ); ?>')
+                            .css('color','#ef4444');
+                        return;
+                    }
+
+                    if ( r.data.defensive_active ) {
+                        var enabledLabel = '<?php echo esc_js( __( 'Enabled', 'pressable_cache_management' ) ); ?>';
+                        var atLabel      = '<?php echo esc_js( __( 'at', 'pressable_cache_management' ) ); ?>';
+                        var untilLabel   = '<?php echo esc_js( __( 'Enabled until', 'pressable_cache_management' ) ); ?>';
+
+                        var shieldIcon = '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#059669" style="vertical-align:middle;margin-right:5px;position:relative;top:-1px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>';
+
+                        // Line 1: 🛡 Enabled — at: 12 Mar 2026, 4:11pm UTC
+                        var statusHtml = shieldIcon + '<strong style="color:#059669;">' + enabledLabel + '</strong>';
+                        if ( r.data.set_at ) {
+                            statusHtml += ' &mdash; ' + atLabel + ': ' + r.data.set_at;
+                        }
+
+                        // Line 2: Enabled until: 12 Mar 2026, 5:11pm UTC (indented under line 1)
+                        if ( r.data.expires_at ) {
+                            statusHtml += '<br><span style="font-size:13px;color:#059669;font-weight:400;padding-left:20px;display:inline-block;">'
+                                + untilLabel + ': ' + r.data.expires_at + '</span>';
+                        }
+
+                        dmStatusLine
+                            .html( statusHtml )
+                            .css({ color:'#059669', fontStyle:'normal' });
+
+                        // Active: lock select + enable btn; only disable btn is live
+                        dmSelect.prop('disabled', true).css({ opacity:.4, cursor:'not-allowed' });
+                        dmEnableBtn.prop('disabled', true).addClass('ec-disabled-btn')
+                            .css({ opacity:.4, cursor:'not-allowed', pointerEvents:'none' });
+                        dmDisableBtn.prop('disabled', false).removeClass('ec-disabled-btn')
+                            .css({ opacity:1, cursor:'pointer', pointerEvents:'auto', background:'#dd3a03' });
+
+                    } else {
+                        if ( edgeCacheEnabled ) {
+                            dmStatusLine
+                                .text('<?php echo esc_js( __( 'Disabled', 'pressable_cache_management' ) ); ?>')
+                                .css({ color:'#64748b', fontStyle:'normal' });
+                            dmSelect.prop('disabled', false).css({ opacity:1, cursor:'pointer' });
+                            dmEnableBtn.prop('disabled', false).removeClass('ec-disabled-btn')
+                                .css({ opacity:1, cursor:'pointer', pointerEvents:'auto' });
+                        } else {
+                            // Edge Cache is off — lock DM controls with plain readable message
+                            dmStatusLine
+                                .text('<?php echo esc_js( __( 'Disabled — Edge Cache must be enabled first.', 'pressable_cache_management' ) ); ?>')
+                                .css({ color:'#94a3b8', fontStyle:'normal' });
+                            dmSelect.prop('disabled', true).css({ opacity:.4, cursor:'not-allowed' });
+                            dmEnableBtn.prop('disabled', true).addClass('ec-disabled-btn')
+                                .css({ opacity:.4, cursor:'not-allowed', pointerEvents:'none' });
+                        }
+                        // Disable btn always greyed when DM is off
+                        dmDisableBtn.prop('disabled', true).addClass('ec-disabled-btn')
+                            .css({ opacity:.4, cursor:'not-allowed', pointerEvents:'none' });
+                    }
+                },
+                error: function() {
+                    dmStatusLine
+                        .text('<?php echo esc_js( __( 'Could not retrieve Defensive Mode status.', 'pressable_cache_management' ) ); ?>')
+                        .css('color','#ef4444');
+                }
+            });
+        }
+
+        // ── Edge Cache status check — DM check runs after this completes ─────
         if (wrapper.length && !wrapper.data('ec-checked')) {
             wrapper.data('ec-checked', true);
             $.ajax({
                 url: ajaxurl, type: 'POST',
                 data: { action: 'pcm_check_edge_cache_status' },
                 success: function(r) {
+                    var ecEnabled = false;
                     if (r.success && r.data.html_controls_enable_disable) {
                         wrapper.html(r.data.html_controls_enable_disable);
                         if (r.data.enabled) {
+                            ecEnabled = true;
                             purgeBtn.removeClass('ec-disabled-btn')
                                     .prop('disabled', false)
                                     .css({ opacity:1, cursor:'pointer', pointerEvents:'auto' });
@@ -803,12 +965,17 @@ function pressable_cache_management_display_settings_page() {
                         var msg = (r.data && r.data.message) ? r.data.message : '<?php echo esc_js( __( 'Failed to retrieve status.', 'pressable_cache_management' ) ); ?>';
                         wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;">'+msg+'</p>');
                     }
+                    // Always run DM check after EC check resolves, passing accurate EC state
+                    pcmApplyDmState( ecEnabled );
                 },
                 error: function() {
                     wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;"><?php echo esc_js( __( 'Could not connect to server.', 'pressable_cache_management' ) ); ?></p>');
+                    // Still run DM check even if EC check fails, treating EC as off
+                    pcmApplyDmState( false );
                 }
             });
         }
+
     });
     </script>
     <?php elseif ( $tab === 'remove_pressable_branding_tab' ) : ?>

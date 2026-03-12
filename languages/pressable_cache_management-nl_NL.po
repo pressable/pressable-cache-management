@@ -261,3 +261,76 @@ msgstr "Edge Cache leegmaken mislukt."
 
 msgid "Edge Cache Plugin not found; skipping Edge Cache purge."
 msgstr "Edge Cache Plugin niet gevonden."
+
+msgid "Edge Cache Defensive Mode"
+msgstr "Edge Cache Defensieve Modus"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "Voegt een extra beschermingslaag toe tegen spambots en DDoS-aanvallen. Wanneer ingeschakeld, moeten browsers van bezoekers een kleine uitdaging voltooien voordat ze toegang krijgen tot de site. Legitieme gebruikers zien mogelijk kort een uitdagingspagina. Edge Cache moet ingeschakeld zijn om deze functie te gebruiken."
+
+msgid "Checking status\u2026"
+msgstr ""
+
+msgid "Enable Defensive Mode"
+msgstr ""
+
+msgid "Disable Defensive Mode"
+msgstr ""
+
+msgid "Enabled"
+msgstr ""
+
+msgid "at"
+msgstr ""
+
+msgid "Enabled until"
+msgstr "Actief tot"
+
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+msgid "Disabled \u2014 Edge Cache must be enabled first."
+msgstr ""
+
+msgid "Unable to retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status."
+msgstr ""
+
+msgid "Defensive Mode enabled for %s."
+msgstr ""
+
+msgid "Defensive Mode disabled."
+msgstr "Defensieve modus uitgeschakeld."
+
+msgid "Error: Edge Cache Plugin is not active."
+msgstr ""
+
+msgid "Unknown error enabling Defensive Mode."
+msgstr ""
+
+msgid "Unknown error disabling Defensive Mode."
+msgstr ""
+
+msgid "Could not retrieve Defensive Mode status from server."
+msgstr ""
+
+msgid "Edge Cache Defensive Mode"
+msgstr "Edge Cache Defensieve Modus"
+
+msgid "Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature."
+msgstr "Voegt een extra beveiligingslaag toe tegen spambots en DDoS-aanvallen. Wanneer ingeschakeld, moeten de browsers van bezoekers een kleine uitdaging voltooien voordat ze toegang krijgen tot de site. Legitieme gebruikers zien mogelijk kort een verificatiepagina. Edge Cache moet ingeschakeld zijn om deze functie te gebruiken."
+
+msgid "Disabled"
+msgstr "Uitgeschakeld"
+
+msgid "Enabled until:"
+msgstr "Ingeschakeld tot:"
+
+msgid "Defensive Mode disabled."
+msgstr "Defensieve Modus uitgeschakeld."
+
+
+msgid "Defensive Mode enabled for %s."
+msgstr "Defensieve Modus ingeschakeld voor %s."

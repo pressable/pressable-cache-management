@@ -437,9 +437,10 @@ add_action('wp_ajax_pcm_check_edge_cache_status', 'pcm_ajax_check_edge_cache_sta
 function pcm_clear_ec_status_cache() {
     delete_transient( 'pcm_ec_status_cache' );
 }
-add_action( 'pcm_after_edge_cache_enable',  'pcm_clear_ec_status_cache' );
-add_action( 'pcm_after_edge_cache_disable', 'pcm_clear_ec_status_cache' );
-add_action( 'pcm_after_edge_cache_purge',   'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_edge_cache_enable',    'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_edge_cache_disable',   'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_edge_cache_purge',     'pcm_clear_ec_status_cache' );
+add_action( 'pcm_after_defensive_mode_change','pcm_clear_ec_status_cache' );
 
 
 /**
