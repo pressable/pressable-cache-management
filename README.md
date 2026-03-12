@@ -2,7 +2,7 @@
 
 **Plugin Name:** Pressable Cache Management
 **Description:** This plugin makes management of cache easy from the WordPress admin.
-**Author:** Pressable Customer Success Team
+**Author:** Pressable Customer Support Team
 
 ---
 
