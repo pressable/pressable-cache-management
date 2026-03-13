@@ -7,7 +7,7 @@ to deliver automatic updates directly from GitHub to WordPress sites running the
 
 The library is **already bundled** at `includes/plugin-update-checker/` — no Composer or manual steps needed.
 Only the files required for GitHub plugin updates are included (32 files). Excluded: DebugBar UI,
-Theme update support, BitBucket/GitLab APIs.
+Theme update support, BitBucket/GitLab APIs. 
 
 ---
 
