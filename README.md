@@ -54,7 +54,8 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
-### **Pressable Cache Management Changelog**
+#### **Version 6.0.0 (Mar 12, 2026)**
+* Added defensive mode feature for Edge Cache
 
 #### **Version 5.9.9 (Mar 08, 2026)**
 
