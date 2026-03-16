@@ -54,6 +54,9 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
+#### **Version 6.1.0 (Mar 12, 2026)**
+* Added feature to enhance Edge Cache
+
 #### **Version 6.0.0 (Mar 12, 2026)**
 * Added defensive mode feature for Edge Cache
 
