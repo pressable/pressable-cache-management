@@ -1,5 +1,8 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.1.0 (Mar 16, 2026) =
+* Added new features to enhance Edge Cache
+
 = Version 6.0.0 (Mar 12, 2026) =
 * Added defensive mode feature for Edge Cache
 
