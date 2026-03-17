@@ -14,7 +14,7 @@ if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 }
 
 // Remove mu-plugins written by this plugin (batcache extensions, exclusions, etc.)
-include_once plugin_dir_path( __FILE__ ) . 'remove_mu_plugins_batcache_on_uninstall.php';
+include_once plugin_dir_path( __FILE__ ) . 'remove-mu-plugins-batcache-on-uninstall.php';
 
 // ── Delete every option this plugin has ever written to the database ──────────
 

@@ -77,27 +77,27 @@ if ( is_admin() ) {
     require_once plugin_dir_path( __FILE__ ) . 'admin/settings-register.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/settings-callbacks.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/settings-validate.php';
-    require_once plugin_dir_path( __FILE__ ) . 'remove_old_mu_plugins.php';
+    require_once plugin_dir_path( __FILE__ ) . 'remove-old-mu-plugins.php';
 
     // Must load turn_on_off BEFORE purge (purge reuses pcm_edge_notice)
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/turn_on_off_edge_cache.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/purge_edge_cache.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_object_cache.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/extend_batcache.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/object_cache_admin_bar.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_batcache_for_woo_individual_page.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/exclude_pages_from_batcache.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_batcache_for_particular_page.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_comment_delete.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/remove_pressable_branding.php';
-    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/defensive_mode_edge_cache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/turn-on-off-edge-cache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/purge-edge-cache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-object-cache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/extend-batcache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/object-cache-admin-bar.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-batcache-for-woo-individual-page.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/exclude-pages-from-batcache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-batcache-for-particular-page.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-cache-on-comment-delete.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/remove-pressable-branding.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/defensive-mode-edge-cache.php';
 }
 
 // ─── Front-end + admin cache flush triggers ──────────────────────────────────
-require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
-require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_page_edit.php';
-require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_page_post_delete.php';
-require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_single_page_toolbar.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-cache-on-theme-plugin-update.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-cache-on-page-edit.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-cache-on-page-post-delete.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush-single-page-toolbar.php';
 
 // ─── Settings link on plugin list page ──────────────────────────────────────
 function pcm_settings_link( $links ) {
