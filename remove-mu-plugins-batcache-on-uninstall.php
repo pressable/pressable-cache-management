@@ -56,7 +56,12 @@ function rrmdir( $dir ) {
 
 
 // Remove batcache manager plugin from mu-plugins directory.
-$mu_plugins = array( 'pcm-batcache-manager.php' );
+// Include both current (hyphen) and legacy (underscore) names so uninstall
+// cleans up correctly regardless of which version was last active.
+$mu_plugins = array(
+	'pcm-batcache-manager.php',
+	'pcm_batcache_manager.php',
+);
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 foreach ( $mu_plugins as $mu_plugin ) {

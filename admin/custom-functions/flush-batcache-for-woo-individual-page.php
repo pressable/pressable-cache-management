@@ -2,7 +2,7 @@
 /**
  * Pressable Cache Management — Flush Batcache for WooCommerce Individual Pages
  *
- * When enabled, copies pcm_batcache_manager.php into mu-plugins so that Batcache
+ * When enabled, copies pcm-batcache-manager.php into mu-plugins so that Batcache
  * is flushed automatically for any individual page/product updated via WooCommerce API.
  * When disabled, removes the mu-plugin file and restores the previous state.
  */
@@ -14,15 +14,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 $options = get_option( 'pressable_cache_management_options' );
 $enabled = ! empty( $options['flush_batcache_for_woo_product_individual_page_checkbox'] );
 
-$mu_plugin_dest = WP_CONTENT_DIR . '/mu-plugins/pcm_batcache_manager.php';
-$mu_plugin_src  = plugin_dir_path( __FILE__ ) . 'pcm_batcache_manager.php';
+$mu_plugin_dest = WP_CONTENT_DIR . '/mu-plugins/pcm-batcache-manager.php';
+$mu_plugin_src  = plugin_dir_path( __FILE__ ) . 'pcm-batcache-manager.php';
 
 if ( $enabled ) {
 
     // ── Feature ON ───────────────────────────────────────────────────────────
 
     // Always sync the source file into mu-plugins so that any updates to
-    // pcm_batcache_manager.php (e.g. targeted flush fixes) take effect immediately.
+    // pcm-batcache-manager.php (e.g. targeted flush fixes) take effect immediately.
     // Previously this only copied on first enable, meaning edits to the source
     // were never deployed to the live mu-plugin copy.
     $needs_update = ! file_exists( $mu_plugin_dest )

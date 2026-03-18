@@ -1,5 +1,15 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.1.1 (Mar 17, 2026) =
+
+**Filename Standardization**
+* Renamed 25 PHP files from underscore to hyphen naming convention for consistency with WordPress coding standards
+* Updated all require_once, include_once, copy(), and plugin_dir_path() references across the codebase to match new filenames
+* Standardized deployed mu-plugin filenames (pcm-extend-batcache.php, pcm-exclude-pages-from-batcache.php, etc.)
+* Removed legacy underscore duplicate files at root level (remove_old_mu_plugins.php, remove_mu_plugins_batcache_on_uninstall.php)
+* Updated mu-plugin index file to reference hyphenated deployed filenames
+* Updated uninstall cleanup to reference hyphenated filenames
+
 = Version 6.1.0 (Mar 16, 2026) =
 * Added new features to enhance Edge Cache
 
