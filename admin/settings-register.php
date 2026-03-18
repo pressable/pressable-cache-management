@@ -32,7 +32,7 @@ function pressable_cache_management_register_settings()
 
     $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
-    if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button']) {
+    if ( is_array( $remove_pressable_branding_tab_options ) && isset( $remove_pressable_branding_tab_options['branding_on_off_radio_button'] ) && 'disable' === $remove_pressable_branding_tab_options['branding_on_off_radio_button'] ) {
         add_settings_section(
             'pressable_cache_management_section_cache',
             esc_html__('Cache Control Management', 'pressable_cache_management'),

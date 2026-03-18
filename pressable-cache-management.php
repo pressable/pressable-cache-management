@@ -7,7 +7,7 @@ Author:       Pressable CS Team
 Version:      6.1.0
 Requires at least: 5.0
 Tested up to: 6.7
-Requires PHP: 7.4
+Requires PHP: 8.1
 Text Domain:  pressable_cache_management
 Domain Path:  /languages
 License:      GPL v2 or later

@@ -15,40 +15,40 @@ function pressable_cache_management_callback_validate_options($input) {
     if (!isset($input["extend_batcache_checkbox"])) {
         $input["extend_batcache_checkbox"] = "";
     }
-    $input["extend_batcache_checkbox"] = filter_var($input["extend_batcache_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["extend_batcache_checkbox"] = ( ! empty( $input["extend_batcache_checkbox"] ) ? 1 : 0 );
 
     // Flush object cache on theme and plugin update checkbox
     if (!isset($input["flush_cache_theme_plugin_checkbox"])) {
         $input["flush_cache_theme_plugin_checkbox"] = "";
     }
-    $input["flush_cache_theme_plugin_checkbox"] = filter_var($input["flush_cache_theme_plugin_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["flush_cache_theme_plugin_checkbox"] = ( ! empty( $input["flush_cache_theme_plugin_checkbox"] ) ? 1 : 0 );
 
     // Flush object cache on page and post update
     if (!isset($input["flush_cache_page_edit_checkbox"])) {
         $input["flush_cache_page_edit_checkbox"] = "";
     }
-    $input["flush_cache_page_edit_checkbox"] = filter_var($input["flush_cache_page_edit_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["flush_cache_page_edit_checkbox"] = ( ! empty( $input["flush_cache_page_edit_checkbox"] ) ? 1 : 0 );
 
     // Flush object cache on page and post delete
     if (!isset($input["flush_cache_on_page_post_delete_checkbox"])) {
         $input["flush_cache_on_page_post_delete_checkbox"] = "";
     }
-    $input["flush_cache_on_page_post_delete_checkbox"] = filter_var($input["flush_cache_on_page_post_delete_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["flush_cache_on_page_post_delete_checkbox"] = ( ! empty( $input["flush_cache_on_page_post_delete_checkbox"] ) ? 1 : 0 );
 
     // Flush object cache on comment delete
     if (!isset($input["flush_cache_on_comment_delete_checkbox"])) {
         $input["flush_cache_on_comment_delete_checkbox"] = "";
     }
-    $input["flush_cache_on_comment_delete_checkbox"] = filter_var($input["flush_cache_on_comment_delete_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["flush_cache_on_comment_delete_checkbox"] = ( ! empty( $input["flush_cache_on_comment_delete_checkbox"] ) ? 1 : 0 );
 
     // Flush Batcache for individual page
     if (!isset($input["flush_object_cache_for_single_page"])) {
         $input["flush_object_cache_for_single_page"] = "";
     }
-    $input["flush_object_cache_for_single_page"] = filter_var($input["flush_object_cache_for_single_page"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT);
+    $input["flush_object_cache_for_single_page"] = ( ! empty( $input["flush_object_cache_for_single_page"] ) ? 1 : 0 );
 
     // Flush Batcache for WooCommerce individual page
-    $input["flush_batcache_for_woo_product_individual_page_checkbox"] = isset($input["flush_batcache_for_woo_product_individual_page_checkbox"]) ? filter_var($input["flush_batcache_for_woo_product_individual_page_checkbox"] == 1 ? 1 : 0, FILTER_SANITIZE_NUMBER_INT) : 0;
+    $input["flush_batcache_for_woo_product_individual_page_checkbox"] = isset($input["flush_batcache_for_woo_product_individual_page_checkbox"]) ? ( ! empty( $input["flush_batcache_for_woo_product_individual_page_checkbox"] ) ? 1 : 0 ) : 0;
 
     // Exclude pages from Batcache — sanitize comma-separated URL paths
     if ( isset( $input['exempt_from_batcache'] ) ) {

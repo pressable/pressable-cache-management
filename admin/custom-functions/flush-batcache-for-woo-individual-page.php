@@ -28,7 +28,7 @@ if ( $enabled ) {
     $needs_update = ! file_exists( $mu_plugin_dest )
         || ( file_exists( $mu_plugin_src ) && md5_file( $mu_plugin_src ) !== md5_file( $mu_plugin_dest ) );
 
-    if ( $needs_update && file_exists( $mu_plugin_src ) && @copy( $mu_plugin_src, $mu_plugin_dest ) ) {
+    if ( $needs_update && file_exists( $mu_plugin_src ) && copy( $mu_plugin_src, $mu_plugin_dest ) ) {
         if ( ! file_exists( $mu_plugin_dest ) ) {
             // Only flush and show notice on fresh enable, not on every update
             wp_cache_flush();
@@ -93,7 +93,7 @@ if ( $enabled ) {
     update_option( 'flush_batcache_for_woo_product_individual_page_activate_notice', 'activating' );
 
     if ( file_exists( $mu_plugin_dest ) ) {
-        @unlink( $mu_plugin_dest );
+        unlink( $mu_plugin_dest );
         wp_cache_flush();
     }
 

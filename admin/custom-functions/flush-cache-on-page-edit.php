@@ -67,11 +67,12 @@ if ( isset( $options['flush_cache_page_edit_checkbox'] ) && ! empty( $options['f
         wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
 
         // Handle sites where the Batcache group is excluded from remote sync
+        $retval = wp_cache_get( "{$url_key}_version", $batcache->group );
         if ( property_exists( $wp_object_cache, 'no_remote_groups' ) ) {
             $k = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
             if ( false !== $k ) {
                 unset( $wp_object_cache->no_remote_groups[ $k ] );
-                wp_cache_set( "{$url_key}_version", $batcache->group );
+                wp_cache_set( "{$url_key}_version", $retval, $batcache->group );
                 $wp_object_cache->no_remote_groups[ $k ] = $batcache->group;
             }
         }

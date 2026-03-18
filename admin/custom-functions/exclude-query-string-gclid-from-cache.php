@@ -63,7 +63,7 @@ if (isset($options['exclude_query_string_gclid_checkbox']) && !empty($options['e
 
         if (!empty($message))
         {
-            printf('<div class="notice %2$s">%1$s</div>', $message, $classes);
+            printf('<div class="notice %2$s">%1$s</div>', wp_kses_post( $message ), esc_attr( $classes ));
         }
     }
 
