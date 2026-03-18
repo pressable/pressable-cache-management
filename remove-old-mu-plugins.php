@@ -42,17 +42,42 @@ if ( version_compare( $current_version, '3.4.4', '>=' ) ) {
  * which is created to store mu-plugins
  */
 
+// ── Legacy root-level mu-plugins (CDN era) ───────────────────────────────────
 $mu_plugins = array( 'cdn_exclude_specific_file.php', 'cdn_exclude_css.php', 'cdn_exclude_jpg_png_webp.php', 'cdn_exclude_js_json.php', 'cdn_extender.php' );
+
+// ── Legacy root-level mu-plugin (underscore era, replaced by pcm-batcache-manager.php) ─
+$mu_plugins[] = 'pcm_batcache_manager.php';
+
+global $wp_filesystem;
+if ( empty( $wp_filesystem ) ) {
+	require_once ABSPATH . '/wp-admin/includes/file.php';
+	WP_Filesystem();
+}
 
 // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
 foreach ( $mu_plugins as $mu_plugin ) {
 	$file = WP_CONTENT_DIR . '/mu-plugins/' . $mu_plugin;
-	if ( file_exists( $file ) ) {
-		global $wp_filesystem;
-		if ( empty( $wp_filesystem ) ) {
-			require_once ABSPATH . '/wp-admin/includes/file.php';
-			WP_Filesystem();
-		}
+	if ( $wp_filesystem->exists( $file ) ) {
 		$wp_filesystem->delete( $file );
+	}
+}
+
+// ── Legacy underscore-named files inside mu-plugins/pressable-cache-management/ ─
+// Prior to v6.1.1 these were deployed with underscores; now deployed with hyphens.
+// Remove the old names so both versions don't load simultaneously on upgraded installs.
+$legacy_sub_mu_plugins = array(
+	'pcm_extend_batcache.php',
+	'pcm_exclude_pages_from_batcache.php',
+	'pcm_exclude_query_string_gclid.php',
+	'pcm_cache_wpp_cookies_pages.php',
+);
+
+$sub_dir = WP_CONTENT_DIR . '/mu-plugins/pressable-cache-management';
+if ( $wp_filesystem->is_dir( $sub_dir ) ) {
+	foreach ( $legacy_sub_mu_plugins as $legacy_file ) {
+		$path = $sub_dir . '/' . $legacy_file;
+		if ( $wp_filesystem->exists( $path ) ) {
+			$wp_filesystem->delete( $path );
+		}
 	}
 }
