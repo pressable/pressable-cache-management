@@ -23,7 +23,7 @@ if ( ! function_exists( 'pcm_branded_notice' ) ) {
         echo '<div id="' . esc_attr( $id ) . '" style="' . $wrap . '">';
         echo '<div style="flex:1;">';
         if ( $is_html ) {
-            echo $message; // caller already escaped
+            echo wp_kses_post( $message );
         } else {
             echo '<p style="margin:0;font-size:13px;color:#040024;">' . esc_html( $message ) . '</p>';
         }
@@ -90,6 +90,10 @@ function pcm_pressable_enable_edge_cache() {
     if ( isset( $_POST['enable_edge_cache_nonce'] ) &&
          wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['enable_edge_cache_nonce'] ) ), 'enable_edge_cache_nonce' ) ) {
 
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
+
         if ( class_exists( 'Edge_Cache_Plugin' ) ) {
             $edge_cache = Edge_Cache_Plugin::get_instance();
             $result = $edge_cache->query_ec_backend( 'on', array( 'wp_action' => 'manual_dashboard_set' ) );
@@ -119,6 +123,10 @@ add_action( 'init', 'pcm_pressable_enable_edge_cache' );
 function pcm_pressable_disable_edge_cache() {
     if ( isset( $_POST['disable_edge_cache_nonce'] ) &&
          wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['disable_edge_cache_nonce'] ) ), 'disable_edge_cache_nonce' ) ) {
+
+        if ( ! current_user_can( 'manage_options' ) ) {
+            return;
+        }
 
         if ( class_exists( 'Edge_Cache_Plugin' ) ) {
             $edge_cache = Edge_Cache_Plugin::get_instance();

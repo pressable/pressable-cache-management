@@ -20,7 +20,7 @@ function pressable_cache_management_callback_section_cache()
 
     $remove_pressable_branding_tab_options = get_option('remove_pressable_branding_tab_options');
 
-    if ($remove_pressable_branding_tab_options && 'disable' == $remove_pressable_branding_tab_options['branding_on_off_radio_button'])
+    if ( is_array( $remove_pressable_branding_tab_options ) && isset( $remove_pressable_branding_tab_options['branding_on_off_radio_button'] ) && 'disable' === $remove_pressable_branding_tab_options['branding_on_off_radio_button'] )
     {
 
     }
@@ -126,7 +126,7 @@ function pressable_cache_management_callback_field_button($args)
     echo '<form method="post" id="flush_object_cache_nonce">
 
          <span id="flush_cache_button">
-        <input id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" type="submit" size="40" value="' . __('Flush Cache', 'pressable_cache_management') . '" class="flushcache"/><input type="hidden" name="flush_object_cache_nonce" value="' . wp_create_nonce('flush_object_cache_nonce') . '" <br/><label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . $label . '</label>
+        <input id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" type="submit" size="40" value="' . esc_attr__('Flush Cache', 'pressable_cache_management') . '" class="flushcache"/><input type="hidden" name="flush_object_cache_nonce" value="' . wp_create_nonce('flush_object_cache_nonce') . '" /><br/><label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>
          </span>
 
     </form>';
@@ -151,11 +151,11 @@ function pressable_cache_management_callback_field_extend_cache_checkbox($args)
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
 
 }
 
@@ -172,11 +172,11 @@ function pressable_cache_management_callback_field_plugin_theme_update_checkbox(
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
 
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
     echo '</br>';
     //Display time stamp when object cache was last flushed when theme plugin
@@ -197,11 +197,11 @@ function pressable_cache_management_callback_field_page_edit_checkbox($args)
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
     echo '</br>';
     //Display time stamp when object cache was last flushed when page or post was updated
@@ -223,11 +223,11 @@ function pressable_cache_management_callback_field_page_post_delete_checkbox($ar
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
     echo '</br>';
     //Display time stamp when object cache was last flushed when page or post was deleted
@@ -249,11 +249,11 @@ function pressable_cache_management_callback_field_comment_delete_checkbox($args
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
     echo '</br>';
     //Display time stamp when object cache was last flushed when comment was deleted
@@ -275,11 +275,11 @@ function pressable_cache_management_callback_field_flush_batcache_particular_pag
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
     echo '</br>';
     //Display time stamp when object cache was last flushed
@@ -305,11 +305,11 @@ function pressable_cache_management_callback_field_flush_batcache_woo_product_pa
 
     echo '<div class="container">';
     echo '<label class="switch">';
-    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" value="1"' . $checked . ' />';
+    echo '<input type="checkbox" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" value="1"' . $checked . ' />';
     echo '<span class="slider round"></span>
 </label>';
     // echo '</br>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
     echo '</br>';
 // 	echo '<small><strong>Last purged Edge at:</strong></small> ' . (get_option('single-page-edge-cache-purge-time-stamp')) . '<small></small>';
 //     echo '</br>';
@@ -324,8 +324,8 @@ function pressable_cache_management_callback_field_exempt_batcache_text($args)
     $id = isset($args['id']) ? $args['id'] : '';
     $label = isset($args['label']) ? $args['label'] : '';
     $value = isset($options[$id]) ? sanitize_text_field($options[$id]) : '';
-    echo '<input autocomplete="off" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . $id . ']" type="text" placeholder=" Exclude single page ex  /pagename/"  size="70" value="' . esc_attr( $value ) . '"><br/>';
-    echo '<label class="rad-text for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
+    echo '<input autocomplete="off" id="pressable_cache_management_options_' . esc_attr( $id ) . '" name="pressable_cache_management_options[' . esc_attr( $id ) . ']" type="text" placeholder=" Exclude single page ex  /pagename/"  size="70" value="' . esc_attr( $value ) . '"><br/>';
+    echo '<label class="rad-text" for="pressable_cache_management_options_' . esc_attr( $id ) . '">' . esc_html( $label ) . '</label>';
 }
 /*
   
@@ -354,6 +354,8 @@ function pressable_cache_management_options_radio_edge_cache_button()
 // AJAX handler function to check Edge Cache status on demand
 function pcm_ajax_check_edge_cache_status()
 {
+    check_ajax_referer( 'pcm_edge_cache_status_nonce' );
+
     if (!current_user_can('manage_options')) {
         wp_send_json_error(['message' => 'Unauthorized'], 403);
         return;
@@ -365,7 +367,10 @@ function pcm_ajax_check_edge_cache_status()
     $cache_key = 'pcm_ec_status_cache';
     $cached    = get_transient( $cache_key );
 
-    if ( $cached !== false ) {
+    if (
+        is_array( $cached ) &&
+        isset( $cached['is_enabled'], $cached['status_text'], $cached['status_flag'] )
+    ) {
         // Serve from cache — no API call needed
         wp_send_json_success([
             'enabled'                    => $cached['is_enabled'],
@@ -375,6 +380,9 @@ function pcm_ajax_check_edge_cache_status()
             'html_controls_enable_disable' => pressable_cache_management_generate_enable_disable_content( $cached['is_enabled'] ),
         ]);
         return;
+    }
+    if ( false !== $cached ) {
+        delete_transient( $cache_key );
     }
 
     if ( ! class_exists('Edge_Cache_Plugin') ) {
@@ -542,7 +550,8 @@ function pressable_cache_management_callback_field_extend_edge_cache_radio_butto
                 url: ajaxurl,
                 type: 'POST',
                 data: {
-                    action: 'pcm_check_edge_cache_status'
+                    action: 'pcm_check_edge_cache_status',
+                    _ajax_nonce: '<?php echo esc_js( wp_create_nonce( "pcm_edge_cache_status_nonce" ) ); ?>'
                 },
                 success: function(response) {
                     if (response.success && response.data.html_controls_enable_disable) {
@@ -596,7 +605,7 @@ function pressable_edge_cache_flush_management_callback_field_button($args)
     echo '<form method="post" id="purge_edge_cache_nonce_form_static"> 
          <span id="purge_edge_cache_button_span_static">
               <input id="purge-edge-cache-button-input" 
-                     name="edge_cache_settings_tab_options[' . $id . ']" 
+                     name="edge_cache_settings_tab_options[' . esc_attr( $id ) . ']" 
                      type="submit" 
                      size="40" 
                      value="' . esc_attr__( 'Purge Edge Cache', 'pressable_cache_management' ) . '" 
@@ -662,9 +671,9 @@ function pressable_cache_management_callback_field_extend_remove_branding_radio_
         $checked = checked($selected_option === $value, true, false);
 
         echo '<label class="rad-label">';
-        echo '<input type="radio" class="rad-input" name="remove_pressable_branding_tab_options[' . $id . ']" type="radio" value="' . esc_attr( $value ) . '"' . $checked . ' name="rad">';
+        echo '<input type="radio" class="rad-input" name="remove_pressable_branding_tab_options[' . esc_attr( $id ) . ']" value="' . esc_attr( $value ) . '"' . $checked . '>';
         echo '<div class="rad-design"></div>';
-        echo '<span class="rad-text">' . esc_html( $label ) . '</span></label>';
+        echo '<span class="rad-text">' . esc_html( $label ) . '</span>';
         echo '</label>';
 
     }

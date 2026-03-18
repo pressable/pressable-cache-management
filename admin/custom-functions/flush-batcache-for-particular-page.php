@@ -14,7 +14,7 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
     add_action( 'init', 'pcm_show_flush_cache_column' );
 
     function pcm_show_flush_cache_column() {
-        if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce') ) {
+        if ( current_user_can('manage_options') || current_user_can('edit_posts') || current_user_can('manage_woocommerce') ) {
             $column = new FlushObjectCachePageColumn();
             $column->add();
         }
@@ -24,7 +24,7 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
         $state = get_option( 'flush-object-cache-for-single-page-notice', 'activating' );
 
         if ( 'activating' === $state &&
-            ( current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce') )
+            ( current_user_can('manage_options') || current_user_can('edit_posts') || current_user_can('manage_woocommerce') )
         ) {
             add_action( 'admin_notices', function() {
                 $screen = get_current_screen();
@@ -68,7 +68,7 @@ if ( ! class_exists( 'FlushObjectCachePageColumn' ) ) {
         }
 
         public function add_flush_object_cache_link( $actions, $post ) {
-            if ( current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce') ) {
+            if ( current_user_can('manage_options') || current_user_can('edit_posts') || current_user_can('manage_woocommerce') ) {
                 $actions['flush_object_cache_url'] =
                     '<a data-id="' . esc_attr( $post->ID ) . '"'
                     . ' data-nonce="' . wp_create_nonce( 'flush-object-cache_' . $post->ID ) . '"'
@@ -80,28 +80,28 @@ if ( ! class_exists( 'FlushObjectCachePageColumn' ) ) {
         }
 
         public function flush_object_cache_column() {
-            if ( ! ( current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce') ) ) {
-                die( json_encode( array( 'success' => false, 'message' => 'Unauthorized' ) ) );
+            if ( ! ( current_user_can('manage_options') || current_user_can('edit_posts') || current_user_can('manage_woocommerce') ) ) {
+                wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
             }
 
-            if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'flush-object-cache_' . intval( $_GET['id'] ) ) ) {
-                die( json_encode( array( 'success' => false, 'message' => 'Nonce verification failed' ) ) );
+            if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'flush-object-cache_' . intval( $_POST['id'] ) ) ) {
+                wp_send_json_error( array( 'message' => 'Nonce verification failed' ), 403 );
             }
 
-            $url_key    = get_permalink( intval( $_GET['id'] ) );
-            $page_title = get_the_title( intval( $_GET['id'] ) );
+            $url_key    = get_permalink( intval( $_POST['id'] ) );
+            $page_title = get_the_title( intval( $_POST['id'] ) );
             update_option( 'page-title', $page_title );
 
             global $batcache, $wp_object_cache;
 
             if ( ! isset( $batcache ) || ! is_object( $batcache ) || ! method_exists( $wp_object_cache, 'incr' ) ) {
-                die( json_encode( array( 'success' => false ) ) );
+                wp_send_json_error( array( 'message' => 'Batcache not available' ) );
             }
 
             $batcache->configure_groups();
             $url = apply_filters( 'batcache_manager_link', $url_key );
             if ( empty( $url ) ) {
-                die( json_encode( array( 'success' => false ) ) );
+                wp_send_json_error( array( 'message' => 'Empty URL' ) );
             }
 
             do_action( 'batcache_manager_before_flush', $url );
@@ -111,11 +111,12 @@ if ( ! class_exists( 'FlushObjectCachePageColumn' ) ) {
             wp_cache_add( "{$url_key}_version", 0, $batcache->group );
             wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
 
+            $retval = wp_cache_get( "{$url_key}_version", $batcache->group );
             if ( property_exists( $wp_object_cache, 'no_remote_groups' ) ) {
                 $k = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
                 if ( false !== $k ) {
                     unset( $wp_object_cache->no_remote_groups[ $k ] );
-                    wp_cache_set( "{$url_key}_version", $batcache->group );
+                    wp_cache_set( "{$url_key}_version", $retval, $batcache->group );
                     $wp_object_cache->no_remote_groups[ $k ] = $batcache->group;
                 }
             }
@@ -125,14 +126,15 @@ if ( ! class_exists( 'FlushObjectCachePageColumn' ) ) {
             // Also store the flushed URL so it shows on the settings page
             update_option( 'single-page-url-flushed', $url );
 
-            die( json_encode( array( 'success' => true ) ) );
+            wp_send_json_success( array( 'message' => 'Cache flushed' ) );
         }
 
         public function load_js() {
+            $js_file = plugin_dir_path( dirname( __FILE__ ) ) . 'public/js/column.js';
             wp_enqueue_script(
                 'flush-object-cache-column',
                 plugin_dir_url( dirname( __FILE__ ) ) . 'public/js/column.js',
-                array(), time(), true
+                array(), file_exists( $js_file ) ? filemtime( $js_file ) : '1.0', true
             );
         }
     }

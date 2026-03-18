@@ -37,10 +37,10 @@ jQuery(document).ready(function($) {
         'wp-admin-bar-pcm-toolbar-parent-remove-branding-flush-cache-of-this-page',
     ];
 
-    // ── Fire a single AJAX GET, returns a jQuery deferred ────────────────────
+    // ── Fire a single AJAX POST, returns a jQuery deferred ───────────────────
     function sendRequest( action ) {
         return $.ajax({
-            type    : 'GET',
+            type    : 'POST',
             url     : ajaxUrl,
             data    : { action: action, path: window.location.pathname, nonce: nonce },
             dataType: 'json',

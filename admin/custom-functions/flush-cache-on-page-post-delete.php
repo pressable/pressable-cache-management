@@ -25,8 +25,8 @@ if (isset($options['flush_cache_on_page_post_delete_checkbox']) && !empty($optio
         wp_cache_flush();
    }
 
-       // Save time stamp to database if cache is flushed when a post or page was daleted.
-        $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
+       // Save time stamp to database if cache is flushed when a post or page was deleted.
+        $object_cache_flush_time = gmdate( 'j M Y, g:ia' ) . ' UTC';
         update_option('flush-cache-on-page-post-delete-time-stamp', $object_cache_flush_time);
 
         //Set transient for admin notice for 9 seconds

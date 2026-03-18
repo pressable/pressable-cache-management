@@ -67,7 +67,7 @@ function flush_object_cache_column_button_action() {
             $('#flush-object-cache-url-' + post_id).css('cursor', 'wait');
 
             $.ajax({
-                type:     'GET',
+                type:     'POST',
                 url:      ajaxurl,
                 data:     { action: 'pcm_flush_object_cache_column', id: post_id, nonce: nonce },
                 dataType: 'json',

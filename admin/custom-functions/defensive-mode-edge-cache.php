@@ -92,8 +92,8 @@ function pcm_pressable_enable_defensive_mode() {
         ),
     ) );
 
-    if ( false === $result['success'] ) {
-        $err = ! empty( $result['error'] ) ? $result['error'] : esc_html__( 'Unknown error enabling Defensive Mode.', 'pressable_cache_management' );
+    if ( ! is_array( $result ) || empty( $result['success'] ) ) {
+        $err = ( is_array( $result ) && ! empty( $result['error'] ) ) ? $result['error'] : esc_html__( 'Unknown error enabling Defensive Mode.', 'pressable_cache_management' );
         add_action( 'admin_notices', function() use ( $err ) {
             if ( function_exists( 'pcm_branded_notice' ) ) {
                 pcm_branded_notice( $err, '#dd3a03' );
@@ -149,8 +149,8 @@ function pcm_pressable_disable_defensive_mode() {
         ),
     ) );
 
-    if ( false === $result['success'] ) {
-        $err = ! empty( $result['error'] ) ? $result['error'] : esc_html__( 'Unknown error disabling Defensive Mode.', 'pressable_cache_management' );
+    if ( ! is_array( $result ) || empty( $result['success'] ) ) {
+        $err = ( is_array( $result ) && ! empty( $result['error'] ) ) ? $result['error'] : esc_html__( 'Unknown error disabling Defensive Mode.', 'pressable_cache_management' );
         add_action( 'admin_notices', function() use ( $err ) {
             if ( function_exists( 'pcm_branded_notice' ) ) {
                 pcm_branded_notice( $err, '#dd3a03' );
@@ -177,6 +177,8 @@ add_action( 'init', 'pcm_pressable_disable_defensive_mode' );
 // Uses get_ec_ddos_until() which calls query_ec_backend( 'ddos_until' ) as a
 // GET (no body args) and returns the ddos_until Unix timestamp, or 0 if off.
 function pcm_ajax_check_defensive_mode_status() {
+    check_ajax_referer( 'pcm_defensive_mode_status_nonce' );
+
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( [ 'message' => 'Unauthorized' ], 403 );
         return;

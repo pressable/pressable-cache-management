@@ -61,7 +61,7 @@ if (isset($options['cache_wpp_cookies_pages']) && !empty($options['cache_wpp_coo
 
         if (!empty($message))
         {
-            printf('<div class="notice %2$s">%1$s</div>', $message, $classes);
+            printf('<div class="notice %2$s">%1$s</div>', wp_kses_post( $message ), esc_attr( $classes ));
         }
     }
 

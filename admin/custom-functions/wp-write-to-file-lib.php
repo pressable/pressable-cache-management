@@ -1,5 +1,9 @@
 <?php
 
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 function pressable_cache_extend()
 {
 
@@ -17,16 +21,16 @@ function is_writeable_wp_config($path)
     // PHP's is_writable does not work with Win32 NTFS
     if ($path[strlen($path) - 1] == '/')
     { // recursively return a temporary file path
-        return is_writeable_wp_config($path . uniqid(mt_rand()) . '.tmp');
+        return is_writeable_wp_config($path . wp_unique_filename( $path, 'wpsc_test.tmp' ));
     }
     elseif (is_dir($path))
     {
-        return is_writeable_wp_config($path . '/' . uniqid(mt_rand()) . '.tmp');
+        return is_writeable_wp_config($path . '/' . wp_unique_filename( $path, 'wpsc_test.tmp' ));
     }
 
     // check tmp file for read/write capabilities
     $rm = file_exists($path);
-    $f = @fopen($path, 'a');
+    $f = fopen($path, 'a');
     if ($f === false) return false;
     fclose($f);
     if (!$rm)
@@ -55,7 +59,7 @@ function is_writeable_wp_config($path)
 // }
 function wp_config_file_replace_line($old, $new, $my_file)
 {
-    if (@is_file($my_file) == false)
+    if (is_file($my_file) == false)
     {
         if (function_exists('set_transient'))
         {

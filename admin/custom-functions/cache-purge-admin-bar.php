@@ -37,6 +37,7 @@ function cache_purge_action_js() { ?>
 	 jQuery("li#wp-admin-bar-cache-purge .ab-item").on( "click", function() {
 		var data = {
 					  'action': 'pressable_cache_purge',
+					  '_ajax_nonce': '<?php echo esc_js( wp_create_nonce( 'pressable_cache_purge_nonce' ) ); ?>',
 					};
 
 		jQuery.post(ajaxurl, data, function(response) {
@@ -63,13 +64,17 @@ add_action( 'wp_ajax_pressable_cache_purge', 'pressable_cache_purge_callback' );
 
 
 function pressable_cache_purge_callback() {
+	check_ajax_referer( 'pressable_cache_purge_nonce' );
+
+	if ( ! current_user_can( 'manage_options' ) ) {
+		wp_send_json_error( array( 'message' => 'Unauthorized' ), 403 );
+	}
+
 	wp_cache_flush();
 
 	//Save time stamp to database if cache is flushed.
-	$object_cache_flush_time = date( ' jS F Y  g:ia' ) . "\nUTC";
+	$object_cache_flush_time = gmdate( 'j M Y, g:ia' ) . ' UTC';
 
 	update_option( 'flush-obj-cache-time-stamp', $object_cache_flush_time );
-	$response = 'Object Cache Purged';
-	echo $response;
-	wp_die();
+	wp_send_json_success( array( 'message' => 'Object Cache Purged' ) );
 }
