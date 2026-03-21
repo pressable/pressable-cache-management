@@ -54,6 +54,55 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
+#### **Version 6.2.0 (Mar 18, 2026)**
+
+**Security — Critical**
+* Fixed CSRF vulnerability on all AJAX cache-flush handlers — nonces are now generated and verified with check_ajax_referer() on every request
+* Added current_user_can('manage_options') authorization to legacy pressable_cache_purge_callback() which previously allowed any logged-in user to flush object cache
+* Added capability check to Edge Cache enable/disable handlers — previously any authenticated user with a valid nonce could toggle Edge Cache
+* Fixed targeted Batcache invalidation bug — wp_cache_set() was passing the cache group as the value argument instead of the group argument, causing single-page flushes to silently fail on distributed cache deployments
+
+**Security — High**
+* Hardened admin notice helpers with wp_kses_post() for message content and esc_attr() for CSS class values to prevent stored XSS
+* Replaced raw HTML echo in pcm_branded_notice() with wp_kses_post() filtering
+* Escaped all dynamic HTML attributes (name, id, for, value) in settings callback markup
+* Fixed malformed HTML: broken hidden input tag, duplicate name attributes on radio buttons, missing closing quotes on for/class attributes
+* Replaced role-name authorization checks (current_user_can('administrator'), current_user_can('editor')) with proper capability checks (manage_options, edit_posts, manage_woocommerce) across all handlers
+
+**PHP 8.1 Compatibility**
+* Removed deprecated FILTER_SANITIZE_NUMBER_INT — replaced with simple boolean normalization for all 7 checkbox validations
+* Replaced all date() calls with gmdate() and removed date_default_timezone_set()/date_default_timezone_get() timezone mutation pattern
+* Standardized timestamp format to 'j M Y, g:ia UTC' across all flush actions
+* Added is_array() and isset() guards before array access on option values to prevent PHP 8.1 warnings
+* Updated plugin header from Requires PHP: 7.4 to Requires PHP: 8.1
+
+**Security — Medium**
+* Added nonce verification to Edge Cache status and Defensive Mode status AJAX endpoints
+* Converted all state-changing AJAX requests from GET to POST (toolbar flush, column flush)
+* Replaced die(json_encode()) with wp_send_json_success()/wp_send_json_error() for consistent response handling
+* Added ABSPATH direct-access guards to flush-cache-on-comment-delete.php, remove-pressable-branding.php, wp-write-to-file-lib.php, and pcm-batcache-manager.php
+* Removed @ error suppression operators from file operations in flush-batcache-for-woo-individual-page.php and wp-write-to-file-lib.php
+
+**Performance**
+* Replaced time() asset versioning with filemtime() for all CSS/JS enqueues — assets now cache properly in browsers
+* Removed third-party Google Fonts dependency — settings page now uses system font stack
+* Removed blocking sleep(2) call from Edge Cache purge flow
+
+**Maintenance**
+* Fixed remove-old-mu-plugins.php migration to run once (keyed on pcm_migration_version option) instead of on every admin page load
+* Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
+* Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
+
+#### **Version 6.1.1 (Mar 17, 2026)**
+
+**Filename Standardization**
+* Renamed 25 PHP files from underscore to hyphen naming convention for consistency with WordPress coding standards
+* Updated all require_once, include_once, copy(), and plugin_dir_path() references across the codebase to match new filenames
+* Standardized deployed mu-plugin filenames (pcm-extend-batcache.php, pcm-exclude-pages-from-batcache.php, etc.)
+* Removed legacy underscore duplicate files at root level (remove_old_mu_plugins.php, remove_mu_plugins_batcache_on_uninstall.php)
+* Updated mu-plugin index file to reference hyphenated deployed filenames
+* Updated uninstall cleanup to reference hyphenated filenames
+
 #### **Version 6.1.0 (Mar 12, 2026)**
 * Added feature to enhance Edge Cache
 
