@@ -7,16 +7,11 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-if ( isset( $_POST['flush_object_cache_nonce'] ) ) {
+if ( isset( $_POST['flush_object_cache_nonce'] )
+    && wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['flush_object_cache_nonce'] ) ), 'flush_object_cache_nonce' )
+    && current_user_can( 'manage_options' ) ) {
 
     function pressable_cache_button() {
-        if ( ! wp_verify_nonce(
-            sanitize_text_field( wp_unslash( $_POST['flush_object_cache_nonce'] ) ),
-            'flush_object_cache_nonce'
-        ) || ! current_user_can( 'manage_options' ) ) {
-            return;
-        }
-
         // Flush WP Object Cache (Redis / Memcached)
         wp_cache_flush();
 

@@ -48,6 +48,7 @@ if ( isset( $_POST['purge_edge_cache_nonce'] ) ) {
                     $enabled = $edge_cache->$enable_method();
                     if ( $enabled ) {
                         $auto_enabled = true;
+                        sleep( 2 );
                     } else {
                         add_action( 'admin_notices', function() {
                             if ( function_exists( 'pcm_branded_notice' ) ) {

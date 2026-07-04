@@ -1,9 +1,5 @@
 <?php // Pressable Cache Management  - Flush cache when comment is deleted
 
-if ( ! defined( 'ABSPATH' ) ) {
-    exit;
-}
-
 $options = get_option('pressable_cache_management_options');
 
 
@@ -25,7 +21,7 @@ function pcm_trash_comment_action( $comment_id, $comment ){
 	 wp_cache_flush();
 	
 		//Save time stamp to database if cache is flushed when comment is deleted.
-        $object_cache_flush_time = gmdate( 'j M Y, g:ia' ) . ' UTC';
+        $object_cache_flush_time = date(' jS F Y  g:ia') . "\nUTC";
         update_option('flush-cache-on-comment-delete-time-stamp', $object_cache_flush_time);
    }
 	

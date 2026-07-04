@@ -41,15 +41,12 @@ function pcm_abar_modal_html() {
 
 // ─── JS: Flush Object Cache ────────────────────────────────────────────────
 add_action( 'admin_footer', 'pcm_abar_object_js' );
-function pcm_abar_object_js() {
-    if ( ! pcm_abar_can_view() ) return;
-    $nonce = wp_create_nonce( 'pcm_abar_nonce' );
-    ?>
+function pcm_abar_object_js() { ?>
     <script>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-cache-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.post(ajaxurl, { action: 'flush_pressable_cache', _ajax_nonce: '<?php echo esc_js( $nonce ); ?>' }, function(r){
+            $.post(ajaxurl, { action: 'flush_pressable_cache' }, function(r){
                 window.pcmShowModal(r.trim());
             });
         });
@@ -59,15 +56,12 @@ function pcm_abar_object_js() {
 
 // ─── JS: Purge Edge Cache ──────────────────────────────────────────────────
 add_action( 'admin_footer', 'pcm_abar_edge_js' );
-function pcm_abar_edge_js() {
-    if ( ! pcm_abar_can_view() ) return;
-    $nonce = wp_create_nonce( 'pcm_abar_nonce' );
-    ?>
+function pcm_abar_edge_js() { ?>
     <script>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-edge-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'pressable_edge_cache_purge', _ajax_nonce: '<?php echo esc_js( $nonce ); ?>' },
+            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'pressable_edge_cache_purge' },
                 success: function(r){ window.pcmShowModal(r.trim()); },
                 error:   function(){ window.pcmShowModal('An error occurred during the Edge Cache purge request.'); }
             });
@@ -78,15 +72,12 @@ function pcm_abar_edge_js() {
 
 // ─── JS: Flush Object + Edge Cache ────────────────────────────────────────
 add_action( 'admin_footer', 'pcm_abar_combined_js' );
-function pcm_abar_combined_js() {
-    if ( ! pcm_abar_can_view() ) return;
-    $nonce = wp_create_nonce( 'pcm_abar_nonce' );
-    ?>
+function pcm_abar_combined_js() { ?>
     <script>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-combined-cache-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'flush_combined_cache', _ajax_nonce: '<?php echo esc_js( $nonce ); ?>' },
+            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'flush_combined_cache' },
                 success: function(r){ window.pcmShowModal(r.trim()); },
                 error:   function(){ window.pcmShowModal('An error occurred during the combined cache flush.'); }
             });
@@ -97,10 +88,9 @@ function pcm_abar_combined_js() {
 
 // ─── Enqueue toolbar CSS ───────────────────────────────────────────────────
 function pcm_abar_load_css() {
-    $css_file = plugin_dir_path( dirname( __FILE__ ) ) . 'public/css/toolbar.css';
     wp_enqueue_style( 'pressable-cache-management-toolbar',
         plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/toolbar.css',
-        array(), file_exists( $css_file ) ? filemtime( $css_file ) : '1.0', 'all' );
+        array(), time(), 'all' );
 }
 add_action( 'init', 'pcm_abar_load_css' );
 
@@ -110,10 +100,9 @@ add_action( 'wp_ajax_pressable_edge_cache_purge', 'pcm_abar_purge_edge_callback'
 add_action( 'wp_ajax_flush_combined_cache',     'pcm_abar_flush_combined_callback' );
 
 function pcm_abar_flush_object_callback() {
-    check_ajax_referer( 'pcm_abar_nonce' );
-
-    if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_woocommerce' ) ) {
-        wp_send_json_error( array( 'message' => 'You do not have permission to flush the Object Cache.' ), 403 );
+    if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
+        echo 'You do not have permission to flush the Object Cache.';
+        wp_die();
     }
     wp_cache_flush();
     if ( function_exists('batcache_clear_cache') ) batcache_clear_cache();
@@ -123,10 +112,9 @@ function pcm_abar_flush_object_callback() {
 }
 
 function pcm_abar_purge_edge_callback() {
-    check_ajax_referer( 'pcm_abar_nonce' );
-
-    if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_woocommerce' ) ) {
-        wp_send_json_error( array( 'message' => 'You do not have permission to purge the Edge Cache.' ), 403 );
+    if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
+        echo 'You do not have permission to purge the Edge Cache.';
+        wp_die();
     }
     if ( ! class_exists('Edge_Cache_Plugin') ) {
         echo esc_html__( 'Error: Edge Cache Plugin is not active. Purge aborted.', 'pressable_cache_management' );
@@ -148,10 +136,9 @@ function pcm_abar_purge_edge_callback() {
 }
 
 function pcm_abar_flush_combined_callback() {
-    check_ajax_referer( 'pcm_abar_nonce' );
-
-    if ( ! current_user_can( 'manage_options' ) && ! current_user_can( 'manage_woocommerce' ) ) {
-        wp_send_json_error( array( 'message' => 'You do not have permission to flush the combined cache.' ), 403 );
+    if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
+        echo 'You do not have permission to flush the combined cache.';
+        wp_die();
     }
     $messages = array();
 
@@ -186,7 +173,7 @@ function pcm_abar_flush_combined_callback() {
 // ─── Permission check ─────────────────────────────────────────────────────
 if ( ! function_exists('pcm_abar_can_view') ) {
     function pcm_abar_can_view() {
-        return current_user_can('manage_options') || current_user_can('manage_woocommerce');
+        return current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce');
     }
 }
 
@@ -196,7 +183,7 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
     if ( is_network_admin() || ! pcm_abar_can_view() ) return;
 
     $branding_opts     = get_option('remove_pressable_branding_tab_options');
-    $branding_disabled = is_array( $branding_opts ) && isset( $branding_opts['branding_on_off_radio_button'] ) && 'disable' === $branding_opts['branding_on_off_radio_button'];
+    $branding_disabled = $branding_opts && 'disable' == $branding_opts['branding_on_off_radio_button'];
 
     $parent_id    = $branding_disabled ? 'pcm-wp-admin-toolbar-parent-remove-branding' : 'pcm-wp-admin-toolbar-parent';
     $parent_title = $branding_disabled ? 'Cache Control' : 'Cache Management';
@@ -241,7 +228,7 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
     }
 
     // Cache Settings (admin only)
-    if ( current_user_can('manage_options') ) {
+    if ( current_user_can('administrator') ) {
         $wp_admin_bar->add_menu( array(
             'id'     => 'settings',
             'title'  => __( 'Cache Settings', 'pressable_cache_management' ),

@@ -610,3 +610,18 @@ div.notice.pcm-branded.pcm-warning {
   margin-top: 2px;
   font-family: 'Inter', sans-serif;
 }
+
+/* ── Batcache badge: extra states ─────────────────────────────── */
+.pcm-batcache-status.cloudflare {
+    background: #fff7ed;
+    color: #9a3412;
+    border: 1px solid #fed7aa;
+}
+.pcm-batcache-status.cloudflare .pcm-dot { background: #f97316; }
+.pcm-batcache-status.checking .pcm-dot {
+    animation: pcm-pulse 1s ease-in-out infinite;
+}
+@keyframes pcm-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .35; transform: scale(.75); }
+}

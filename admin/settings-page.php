@@ -81,7 +81,7 @@ if ( ! function_exists( 'pcm_branded_notice' ) ) {
               . 'line-height:1;padding:0;flex-shrink:0;margin-top:2px;';
         echo '<div id="' . esc_attr( $id ) . '" style="' . $wrap . '"><div style="flex:1;">';
         if ( $is_html ) {
-            echo wp_kses_post( $message );
+            echo $message;
         } else {
             echo '<p style="margin:0;font-size:13px;color:#040024;">' . esc_html( $message ) . '</p>';
         }
@@ -184,17 +184,14 @@ function pressable_cache_management_display_settings_page() {
     $tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : null;
 
     $branding_opts  = get_option('remove_pressable_branding_tab_options');
-    $show_branding  = ! (
-        is_array( $branding_opts ) &&
-        isset( $branding_opts['branding_on_off_radio_button'] ) &&
-        'disable' === $branding_opts['branding_on_off_radio_button']
-    );
+    $show_branding  = ! ( $branding_opts && 'disable' == $branding_opts['branding_on_off_radio_button'] );
 
     wp_enqueue_style( 'pressable_cache_management',
         plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/style.css', array(), '3.0.0', 'screen' );
-    // Google Fonts removed — using system font stack for privacy and performance.
+    wp_enqueue_style( 'pcm-google-fonts',
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', array(), null );
     ?>
-    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;margin-right:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;margin-right:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
     <div style="max-width:1120px;margin:0 auto;">
     <h1 style="display:none;"><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
@@ -221,20 +218,20 @@ function pressable_cache_management_display_settings_page() {
                 : ( $bc_status === 'cloudflare'
                     ? __( 'Cloudflare Detected', 'pressable_cache_management' )
                     : __( 'Batcache Broken', 'pressable_cache_management' ) ) );
-        $bc_class  = $bc_status === 'active' ? 'active' : 'broken';
+        $bc_class  = $bc_status === 'active' ? 'active' : ( $bc_status === 'cloudflare' ? 'cloudflare' : 'broken' );
     ?>
 
     <!-- Header: logo + status badge -->
     <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
         <div>
             <?php if ( $show_branding ) : ?>
-            <p style="font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;"><?php echo esc_html__( 'Cache Management by', 'pressable_cache_management' ); ?></p>
+            <p style="font-size:11px;font-weight:600;color:#94a3b8;letter-spacing:1.2px;text-transform:uppercase;margin:0 0 6px;font-family:'Inter',sans-serif;"><?php echo esc_html__( 'Cache Management by', 'pressable_cache_management' ); ?></p>
             <img class="pressablecmlogo"
                  src="<?php echo esc_url( plugin_dir_url( __FILE__ ) . 'assets/img/pressable-logo-primary.svg' ); ?>"
                  alt="Pressable"
                  style="width:180px;height:auto;display:block;margin-bottom:6px;">
             <?php else : ?>
-            <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;"><?php echo esc_html__( 'Cache Control', 'pressable_cache_management' ); ?></h2>
+            <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;"><?php echo esc_html__( 'Cache Control', 'pressable_cache_management' ); ?></h2>
             <?php endif; ?>
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -246,8 +243,8 @@ function pressable_cache_management_display_settings_page() {
                         onclick="pcmRefreshBatcacheStatus()">&#x21BB;</button>
             </span>
             <span class="pcm-bc-tooltip-wrap" style="position:relative;display:inline-flex;align-items:center;">
-                <span style="width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;line-height:1;flex-shrink:0;" aria-label="Batcache info">&#x3F;</span>
-                <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:270px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;font-weight:400;">
+                <span style="width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;font-family:'Inter',sans-serif;line-height:1;flex-shrink:0;" aria-label="Batcache info">&#x3F;</span>
+                <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:270px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:'Inter',sans-serif;font-weight:400;">
                     <?php echo esc_html__( 'Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code.', 'pressable_cache_management' ); ?>
                     <span style="position:absolute;right:8px;top:-5px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid #1e293b;"></span>
                 </span>
@@ -275,56 +272,104 @@ function pressable_cache_management_display_settings_page() {
             ['active','broken','cloudflare'].forEach(function(cls) {
                 badge.classList.remove(cls);
             });
-            badge.classList.add(res.data.status === 'active' ? 'active' : 'broken');
+            badge.classList.add(
+                res.data.status === 'active' ? 'active'
+                : res.data.status === 'cloudflare' ? 'cloudflare'
+                : 'broken');
             return res.data.status;
         }
 
-        // Core: browser fetches homepage, reads header, reports to PHP.
-        // cache:'reload' bypasses browser cache for a fresh CDN response.
-        // Pragma: no-cache forces Pressable's Atomic Edge Cache to BYPASS (x-ac: BYPASS).
-        function pcmProbeAndReport(onDone) {
-            fetch(pcmSiteUrl, {
+        // Core: multi-probe engine.
+        // WHY MULTIPLE PROBES: Batcache only sends x-nananana on a cache HIT, and by
+        // default it only starts caching a URL after 2 visits within 120 seconds
+        // (see $batcache['times'] / ['seconds'] in batcache.php). So the sequence is:
+        //   probe 1 → miss (counter=1, no header)
+        //   probe 2 → miss (counter=2, page now cached, still no header)
+        //   probe 3 → HIT  (x-nananana: Batcache-Hit)
+        // A single fetch is therefore inherently hit-and-miss. We fetch the SAME URL
+        // (no cache-buster — a unique query string would never be cached) up to 5
+        // times, ~1.3s apart, and stop as soon as any response carries the header.
+        // cache:'reload' bypasses the browser cache; credentials:'omit' strips
+        // cookies so the request is batcache-eligible; Pragma:no-cache makes the
+        // Pressable edge BYPASS so we test batcache at origin, not a stale edge copy.
+        var pcmProbeMax = 5, pcmProbeGapMs = 1300, pcmProbing = false;
+
+        function pcmProbeOnce() {
+            return fetch(pcmSiteUrl, {
                 method: 'GET',
                 cache: 'reload',
                 credentials: 'omit',
                 redirect: 'follow',
                 headers: { 'Pragma': 'no-cache' },
-            })
-            .then(function(resp) {
-                var xNananana    = resp.headers.get('x-nananana') || '';
-                var serverHdr    = resp.headers.get('server') || '';
-                var cacheControl = resp.headers.get('cache-control') || '';
-                var age          = resp.headers.get('age') || '';
-                var isCloudflare = serverHdr.toLowerCase().indexOf('cloudflare') !== -1 ? '1' : '0';
-
-                // Parse max-age and display as human readable
-                var ttlHuman = '—';
-                var maxAgeMatch = cacheControl.match(/max-age=(\d+)/i);
-                if (maxAgeMatch) {
-                    ttlHuman = pcmSecondsToHuman(parseInt(maxAgeMatch[1]));
-                }
-                var ttlEl = document.getElementById('pcm-ttl-value');
-                if (ttlEl && ttlHuman !== '—') ttlEl.textContent = ttlHuman;
-
-                var body = 'action=pcm_report_batcache_header'
-                         + '&nonce='         + encodeURIComponent(pcmBatcacheNonce)
-                         + '&x_nananana='    + encodeURIComponent(xNananana)
-                         + '&is_cloudflare=' + isCloudflare;
-                return fetch(ajaxurl, {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: body,
-                });
-            })
-            .then(function(r) { return r.json(); })
-            .then(function(res) {
-                var status = pcmApplyStatus(res);
-                if (typeof onDone === 'function') onDone(status);
-            })
-            .catch(function() {
-                if (typeof onDone === 'function') onDone(null);
+            }).then(function(resp) {
+                var xN = resp.headers.get('x-nananana') || '';
+                var sv = (resp.headers.get('server') || '').toLowerCase();
+                return {
+                    hit: xN.toLowerCase().indexOf('batcache') !== -1,
+                    xN:  xN,
+                    cf:  sv.indexOf('cloudflare') !== -1 || !!resp.headers.get('cf-ray'),
+                    cc:  resp.headers.get('cache-control') || '',
+                };
             });
+        }
+
+        function pcmReport(xNananana, isCloudflare) {
+            var body = 'action=pcm_report_batcache_header'
+                     + '&nonce='         + encodeURIComponent(pcmBatcacheNonce)
+                     + '&x_nananana='    + encodeURIComponent(xNananana)
+                     + '&is_cloudflare=' + (isCloudflare ? '1' : '0');
+            return fetch(ajaxurl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body,
+            }).then(function(r) { return r.json(); });
+        }
+
+        function pcmProbeAndReport(onDone) {
+            if (pcmProbing) { if (typeof onDone === 'function') onDone(null); return; }
+            pcmProbing = true;
+            var badge = document.getElementById('pcm-bc-badge');
+            var label = document.getElementById('pcm-bc-label');
+            if (badge) { badge.classList.add('checking'); }
+            var attempt = 0, sawCf = false, lastXN = '';
+
+            function finish(xN, cf) {
+                pcmReport(xN, cf)
+                    .then(function(res) {
+                        if (badge) badge.classList.remove('checking');
+                        var status = pcmApplyStatus(res);
+                        pcmProbing = false;
+                        if (typeof onDone === 'function') onDone(status);
+                    })
+                    .catch(function() {
+                        if (badge) badge.classList.remove('checking');
+                        pcmProbing = false;
+                        if (typeof onDone === 'function') onDone(null);
+                    });
+            }
+
+            function step() {
+                attempt++;
+                if (label) label.textContent = '<?php echo esc_js( __( 'Checking', 'pressable_cache_management' ) ); ?>\u2026 ' + attempt + '/' + pcmProbeMax;
+                pcmProbeOnce().then(function(r) {
+                    sawCf = sawCf || r.cf;
+                    lastXN = r.xN || lastXN;
+                    // Surface the observed max-age
+                    var m = (r.cc || '').match(/max-age=(\d+)/i);
+                    if (m) {
+                        var ttlEl = document.getElementById('pcm-ttl-value');
+                        if (ttlEl) ttlEl.textContent = pcmSecondsToHuman(parseInt(m[1]));
+                    }
+                    if (r.hit) { finish(r.xN, sawCf); return; }          // definitive HIT — done
+                    if (attempt >= pcmProbeMax) { finish(lastXN, sawCf); return; } // exhausted → broken/cloudflare
+                    setTimeout(step, pcmProbeGapMs);
+                }).catch(function() {
+                    if (attempt >= pcmProbeMax) { finish(lastXN, sawCf); return; }
+                    setTimeout(step, pcmProbeGapMs);
+                });
+            }
+            step();
         }
 
         function pcmSecondsToHuman(s) {
@@ -357,7 +402,7 @@ function pressable_cache_management_display_settings_page() {
         }
 
         // Auto-poll: re-probe every 60s while status is broken (up to 5 attempts max)
-        var pcmPollTimer = null, pcmPollCount = 0, pcmPollMax = 5;
+        var pcmPollTimer = null, pcmPollCount = 0, pcmPollMax = 3;
         function pcmStartRecoveryPoll() {
             clearInterval(pcmPollTimer);
             pcmPollCount = 0;
@@ -369,7 +414,7 @@ function pressable_cache_management_display_settings_page() {
                         clearInterval(pcmPollTimer);
                     }
                 });
-            }, 60000);
+            }, 90000);
         }
 
         // Always fire one silent probe on page load to verify stored status.
@@ -666,7 +711,7 @@ function pressable_cache_management_display_settings_page() {
     /* Edge Cache tab styles */
     .edge-cache-loader {
         display:flex;align-items:center;height:30px;
-        font-style:italic;color:#94a3b8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;font-size:13px;
+        font-style:italic;color:#94a3b8;font-family:'Inter',sans-serif;font-size:13px;
     }
     .edge-cache-loader::before {
         content:'';border:3px solid #e2e8f0;border-top:3px solid #03fcc2;
@@ -678,7 +723,7 @@ function pressable_cache_management_display_settings_page() {
     #edge-cache-control-wrapper input[type="submit"] {
         padding:10px 28px;border:none;border-radius:8px;
         font-size:14px;font-weight:700;cursor:pointer;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;transition:background .2s;
+        font-family:'Inter',sans-serif;transition:background .2s;
     }
     /* Both Enable/Disable buttons use .purgecacahe → orange default, green hover */
     #edge_cache_settings_tab_options_enable,
@@ -707,7 +752,7 @@ function pressable_cache_management_display_settings_page() {
 
     <!-- Page heading -->
     <div style="margin-bottom:20px;">
-        <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+        <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
             <?php echo esc_html__( 'Manage Edge Cache Settings', 'pressable_cache_management' ); ?>
         </h2>
     </div>
@@ -719,10 +764,10 @@ function pressable_cache_management_display_settings_page() {
         <!-- Row 1: Turn On/Off -->
         <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:24px 28px;border-bottom:1px solid #f1f5f9;">
             <div>
-                <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+                <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
                     <?php echo esc_html__( 'Turn On/Off Edge Cache', 'pressable_cache_management' ); ?>
                 </p>
-                <p style="font-size:13px;color:#64748b;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+                <p style="font-size:13px;color:#64748b;margin:0;font-family:'Inter',sans-serif;">
                     <?php echo esc_html__( 'Enable or disable the edge cache for this site.', 'pressable_cache_management' ); ?>
                 </p>
             </div>
@@ -736,7 +781,7 @@ function pressable_cache_management_display_settings_page() {
 
             <!-- Purge title + button -->
             <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:12px;">
-                <p style="font-size:15px;font-weight:700;color:#040024;margin:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+                <p style="font-size:15px;font-weight:700;color:#040024;margin:0;font-family:'Inter',sans-serif;">
                     <?php echo esc_html__( 'Purge Edge Cache', 'pressable_cache_management' ); ?>
                 </p>
                 <form method="post" id="purge_edge_cache_nonce_form_static" style="flex-shrink:0;">
@@ -749,13 +794,13 @@ function pressable_cache_management_display_settings_page() {
                            disabled
                            class="ec-disabled-btn"
                            style="padding:10px 28px;border:none;border-radius:8px;font-size:14px;font-weight:700;
-                                  color:#fff;background:#dd3a03;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+                                  color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;
                                   transition:background .2s,opacity .2s;">
                 </form>
             </div>
 
             <!-- Description -->
-            <p style="font-size:13px;color:#64748b;margin:0 0 20px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+            <p style="font-size:13px;color:#64748b;margin:0 0 20px;font-family:'Inter',sans-serif;">
                 <?php echo esc_html__( 'Purging cache will temporarily slow down your site for all visitors while the cache rebuilds.', 'pressable_cache_management' ); ?>
             </p>
 
@@ -795,14 +840,14 @@ function pressable_cache_management_display_settings_page() {
             <!-- Title + status badge -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:10px;">
                 <div>
-                    <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+                    <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
                         <?php echo esc_html__( 'Edge Cache Defensive Mode', 'pressable_cache_management' ); ?>
                     </p>
-                    <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;">
+                    <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:'Inter',sans-serif;">
                         <?php echo esc_html__( 'Adds an extra layer of protection against spam bots and DDoS attacks. When enabled, visitors\' browsers must complete a small challenge before accessing the site. Legitimate users may see a brief challenge page. Edge Cache must be enabled to use this feature.', 'pressable_cache_management' ); ?>
                     </p>
                     <!-- Live status line — populated by JS -->
-                    <div id="pcm-dm-status-line" style="font-size:13px;font-weight:600;color:#94a3b8;margin:6px 0 0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;font-style:italic;line-height:1.6;">
+                    <div id="pcm-dm-status-line" style="font-size:13px;font-weight:600;color:#94a3b8;margin:6px 0 0;font-family:'Inter',sans-serif;font-style:italic;line-height:1.6;">
                         <?php echo esc_html__( 'Checking status…', 'pressable_cache_management' ); ?>
                     </div>
                 </div>
@@ -820,7 +865,7 @@ function pressable_cache_management_display_settings_page() {
                             name="defensive_mode_duration"
                             disabled
                             style="padding:9px 14px;border:1px solid #e2e8f0;border-radius:8px;
-                                   font-size:13px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;color:#040024;
+                                   font-size:13px;font-family:'Inter',sans-serif;color:#040024;
                                    background:#f8fafc;cursor:not-allowed;opacity:.5;transition:opacity .2s;">
                         <?php
                         $saved_slug = get_option( 'edge-cache-defensive-mode-slug', '30-minutes' );
@@ -836,7 +881,7 @@ function pressable_cache_management_display_settings_page() {
                            disabled
                            class="ec-disabled-btn"
                            style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;
-                                  color:#fff;background:#dd3a03;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+                                  color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;
                                   cursor:not-allowed;transition:background .2s,opacity .2s;">
                 </form>
 
@@ -850,7 +895,7 @@ function pressable_cache_management_display_settings_page() {
                            disabled
                            class="ec-disabled-btn"
                            style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;
-                                  color:#fff;background:#64748b;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+                                  color:#fff;background:#64748b;font-family:'Inter',sans-serif;
                                   cursor:not-allowed;transition:background .2s,opacity .2s;">
                 </form>
 
@@ -879,7 +924,7 @@ function pressable_cache_management_display_settings_page() {
         function pcmApplyDmState( edgeCacheEnabled ) {
             $.ajax({
                 url: ajaxurl, type: 'POST',
-                data: { action: 'pcm_check_defensive_mode_status', _ajax_nonce: '<?php echo esc_js( wp_create_nonce( "pcm_defensive_mode_status_nonce" ) ); ?>' },
+                data: { action: 'pcm_check_defensive_mode_status' },
                 success: function(r) {
                     if ( ! r.success ) {
                         dmStatusLine
@@ -953,7 +998,7 @@ function pressable_cache_management_display_settings_page() {
             wrapper.data('ec-checked', true);
             $.ajax({
                 url: ajaxurl, type: 'POST',
-                data: { action: 'pcm_check_edge_cache_status', _ajax_nonce: '<?php echo esc_js( wp_create_nonce( "pcm_edge_cache_status_nonce" ) ); ?>' },
+                data: { action: 'pcm_check_edge_cache_status', nonce: '<?php echo esc_js( wp_create_nonce( 'pcm_ec_nonce' ) ); ?>' },
                 success: function(r) {
                     var ecEnabled = false;
                     if (r.success && r.data.html_controls_enable_disable) {
@@ -1004,7 +1049,7 @@ function pressable_cache_management_display_settings_page() {
     }
     .pcm-card-title {
         font-size:15px;font-weight:700;color:#040024;margin:0 0 16px;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+        font-family:'Inter',sans-serif;
     }
     .pcm-toggle-row {
         display:flex;align-items:flex-start;gap:14px;
@@ -1012,22 +1057,22 @@ function pressable_cache_management_display_settings_page() {
     }
     .pcm-toggle-title {
         font-size:13.5px;font-weight:600;color:#040024;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;line-height:1.3;
+        font-family:'Inter',sans-serif;line-height:1.3;
     }
     .pcm-toggle-desc {
-        font-size:12px;color:#64748b;margin-top:2px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+        font-size:12px;color:#64748b;margin-top:2px;font-family:'Inter',sans-serif;
     }
     .pcm-ts-label {
         font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:.5px;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;font-weight:600;
+        font-family:'Inter',sans-serif;font-weight:600;
     }
     .pcm-ts-value {
-        font-size:12.5px;color:#040024;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;
+        font-size:12.5px;color:#040024;font-family:'Inter',sans-serif;
         font-weight:500;display:block;margin-top:2px;
     }
     .pcm-ts-inline {
         font-size:11.5px;color:#475569;display:block;margin-top:4px;
-        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen-Sans,Ubuntu,Cantarell,'Helvetica Neue',sans-serif;font-weight:500;
+        font-family:'Inter',sans-serif;font-weight:500;
     }
     /* Flush button: red, hover green */
     #pcm-flush-btn,
@@ -1061,9 +1106,7 @@ function pcm_footer_msg() {
 function pcm_replace_default_footer($footer_text) {
     if ( is_admin() && isset($_GET['page']) && sanitize_key( $_GET['page'] ) === 'pressable_cache_management' ) {
         $opts              = get_option('remove_pressable_branding_tab_options');
-        $branding_disabled = is_array( $opts )
-            && isset( $opts['branding_on_off_radio_button'] )
-            && 'disable' === $opts['branding_on_off_radio_button'];
+        $branding_disabled = $opts && 'disable' === $opts['branding_on_off_radio_button'];
 
         if ( $branding_disabled ) {
             // Branding hidden: "Built with ♥" — heart links to branding settings page
