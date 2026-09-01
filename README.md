@@ -93,6 +93,11 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
 
+#### **Version 6.1.1 (Sep 1, 2026)**
+
+* Added NULL-GUARD FIX for batcache manager plugin
+* Bump wp-coding-standards/wpcs from 3.2.0 to 3.4.1 to handle vulnerability warning for
+
 #### **Version 6.1.1 (Mar 17, 2026)**
 
 **Filename Standardization**
