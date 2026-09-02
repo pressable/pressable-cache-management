@@ -6,7 +6,6 @@
 * Fixed the Cache Settings link disappearing from the admin bar menu: its node id was the generic 'settings', so any other plugin registering an admin bar node with that id overwrote it. It now uses the namespaced id 'pcm-cache-settings', is shown to users with manage_options (the capability the settings page itself requires), is hidden only while viewing the plugin's own settings page, and is now also available in the front-end Flush Cache toolbar menu.
 
 = Version 6.2.3 (Sep 2, 2026) =
-
 * Fixed fatal error "Cannot redeclare class Batcache_Manager" on sites that still had the legacy hyphen-named mu-plugins/pcm-batcache-manager.php written by March-July 2026 builds alongside the current pcm_batcache_manager.php.
 * pcm_batcache_manager.php: wrapped the Batcache_Manager class and its instantiation in a class_exists() guard so a duplicate copy of the mu-plugin can never cause a fatal.
 * flush_batcache_for_woo_individual_page.php: removes the legacy mu-plugins/pcm-batcache-manager.php on both enable and disable. Also fixed the fresh-enable check, which could never be true after a successful copy, so the cache flush and activation notice now fire on first enable as intended.
