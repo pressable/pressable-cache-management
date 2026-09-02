@@ -205,6 +205,14 @@ function pressable_cache_management_display_settings_page() {
            class="nav-tab nav-tab-hidden <?php echo $tab === 'remove_pressable_branding_tab' ? 'nav-tab-active' : ''; ?>">Branding</a>
     </nav>
 
+    <script>
+    /* Shared by every tab: the Object Cache tab's Batcache probe and the Edge Cache tab's
+       Defensive Mode status check both use these. Declared here, outside the tab
+       conditionals, so they exist no matter which tab is rendered. */
+    var pcmBatcacheNonce = '<?php echo esc_js( wp_create_nonce( 'pcm_batcache_nonce' ) ); ?>';
+    var pcmSiteUrl       = '<?php echo esc_js( trailingslashit( get_site_url() ) ); ?>';
+    </script>
+
     <?php if ( $tab === null ) :
         $options = get_option('pressable_cache_management_options');
 
@@ -251,8 +259,6 @@ function pressable_cache_management_display_settings_page() {
             </span>
         </div>
         <script>
-        var pcmBatcacheNonce = '<?php echo esc_js( wp_create_nonce('pcm_batcache_nonce') ); ?>';
-        var pcmSiteUrl       = '<?php echo esc_js( trailingslashit( get_site_url() ) ); ?>';
 
         // WHY BROWSER-SIDE FETCH:
         // wp_remote_get() is a server-side loopback. Pressable routes loopbacks
@@ -921,10 +927,21 @@ function pressable_cache_management_display_settings_page() {
          * Apply defensive mode UI state.
          * Called once EC status is known so edgeCacheEnabled is accurate.
          */
+        function pcmSafeApplyDmState( edgeCacheEnabled ) {
+            try {
+                pcmApplyDmState( edgeCacheEnabled );
+            } catch ( e ) {
+                dmStatusLine
+                    .text('<?php echo esc_js( __( 'Could not retrieve Defensive Mode status.', 'pressable_cache_management' ) ); ?>')
+                    .css('color','#ef4444');
+                if ( window.console ) { console.error( 'PCM Defensive Mode status check failed:', e ); }
+            }
+        }
+
         function pcmApplyDmState( edgeCacheEnabled ) {
             $.ajax({
                 url: ajaxurl, type: 'POST',
-                data: { action: 'pcm_check_defensive_mode_status', nonce: pcmBatcacheNonce },
+                data: { action: 'pcm_check_defensive_mode_status', nonce: ( typeof pcmBatcacheNonce !== 'undefined' ) ? pcmBatcacheNonce : '' },
                 success: function(r) {
                     if ( ! r.success ) {
                         dmStatusLine
@@ -1013,13 +1030,14 @@ function pressable_cache_management_display_settings_page() {
                         var msg = (r.data && r.data.message) ? r.data.message : '<?php echo esc_js( __( 'Failed to retrieve status.', 'pressable_cache_management' ) ); ?>';
                         wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;">'+msg+'</p>');
                     }
-                    // Always run DM check after EC check resolves, passing accurate EC state
-                    pcmApplyDmState( ecEnabled );
+                    // Always run DM check after EC check resolves, passing accurate EC state.
+                    // Isolated so a failure in the DM check can never affect the EC controls above.
+                    pcmSafeApplyDmState( ecEnabled );
                 },
                 error: function() {
                     wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;"><?php echo esc_js( __( 'Could not connect to server.', 'pressable_cache_management' ) ); ?></p>');
                     // Still run DM check even if EC check fails, treating EC as off
-                    pcmApplyDmState( false );
+                    pcmSafeApplyDmState( false );
                 }
             });
         }

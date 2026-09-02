@@ -195,6 +195,18 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
                         'meta'   => array( 'class' => 'pcm-toolbar-child' ),
                     ));
                 }
+
+                // Cache Settings link for users who can open the settings page, so the
+                // page is reachable from the front-end toolbar as well as from wp-admin.
+                if ( current_user_can( 'manage_options' ) ) {
+                    $wp_admin_bar->add_menu( array(
+                        'id'     => 'pcm-cache-settings',
+                        'title'  => __( 'Cache Settings', 'pressable_cache_management' ),
+                        'parent' => $parent,
+                        'href'   => admin_url( 'admin.php?page=pressable_cache_management' ),
+                        'meta'   => array( 'class' => 'pcm-toolbar-child' ),
+                    ));
+                }
             }
 
             // Empty admin-side toolbar (handled by object_cache_admin_bar.php)

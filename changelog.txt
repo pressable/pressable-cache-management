@@ -1,5 +1,12 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.3.3 (Sep 2, 2026) =
+* Edge Cache tab: the Defensive Mode status check is now isolated so a failure in it can never affect the Enable/Disable Edge Cache controls or the Purge Edge Cache button, and a failure shows an error message instead of leaving the status on "Finding status".
+* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
+* Fixed the Cache Settings link disappearing from the admin bar menu: its node id was the generic 'settings', so any other plugin registering an admin bar node with that id overwrote it. It now uses the namespaced id 'pcm-cache-settings', is shown to users with manage_options (the capability the settings page itself requires), is hidden only while viewing the plugin's own settings page, and is now also available in the front-end Flush Cache toolbar menu.
+
+
+
 = Version 6.2.3 (Sep 2, 2026) =
 
 * Fixed fatal error "Cannot redeclare class Batcache_Manager" on sites that still had the legacy hyphen-named mu-plugins/pcm-batcache-manager.php written by March-July 2026 builds alongside the current pcm_batcache_manager.php.

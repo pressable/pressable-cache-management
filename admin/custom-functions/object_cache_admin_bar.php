@@ -243,14 +243,26 @@ function pcm_abar_add_menu( $wp_admin_bar ) {
         ));
     }
 
-    // Cache Settings (admin only)
-    if ( current_user_can('administrator') ) {
+    // Cache Settings link: shown to anyone who can open the settings page (manage_options,
+    // the same capability the page itself requires) on every screen except that page.
+    // The node id is namespaced: the previous generic id 'settings' let any other plugin
+    // that registered an admin bar node with the same id overwrite this one (WordPress
+    // merges nodes by id), which moved or removed the link from this menu.
+    if ( current_user_can( 'manage_options' ) && ! pcm_abar_is_settings_page() ) {
         $wp_admin_bar->add_menu( array(
-            'id'     => 'settings',
+            'id'     => 'pcm-cache-settings',
             'title'  => __( 'Cache Settings', 'pressable_cache_management' ),
             'parent' => $parent_id,
             'href'   => admin_url('admin.php?page=pressable_cache_management'),
             'meta'   => array( 'class' => 'pcm-wp-admin-toolbar-child' ),
         ));
+    }
+}
+
+// True while the plugin's own settings page is being viewed.
+if ( ! function_exists( 'pcm_abar_is_settings_page' ) ) {
+    function pcm_abar_is_settings_page() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only display check
+        return is_admin() && isset( $_GET['page'] ) && sanitize_key( wp_unslash( $_GET['page'] ) ) === 'pressable_cache_management';
     }
 }
