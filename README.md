@@ -54,14 +54,6 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
-#### **Version 6.2.0 (Mar 18, 2026)**
-
-**Security — Critical**
-* Fixed CSRF vulnerability on all AJAX cache-flush handlers — nonces are now generated and verified with check_ajax_referer() on every request
-* Added current_user_can('manage_options') authorization to legacy pressable_cache_purge_callback() which previously allowed any logged-in user to flush object cache
-* Added capability check to Edge Cache enable/disable handlers — previously any authenticated user with a valid nonce could toggle Edge Cache
-* Fixed targeted Batcache invalidation bug — wp_cache_set() was passing the cache group as the value argument instead of the group argument, causing single-page flushes to silently fail on distributed cache deployments
-
 **Security — High**
 * Hardened admin notice helpers with wp_kses_post() for message content and esc_attr() for CSS class values to prevent stored XSS
 * Replaced raw HTML echo in pcm_branded_notice() with wp_kses_post() filtering
@@ -92,6 +84,10 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Fixed remove-old-mu-plugins.php migration to run once (keyed on pcm_migration_version option) instead of on every admin page load
 * Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
+
+#### **Version 6.1.2 (Sep 2, 2026)**
+
+* Refactored cache flushing logic to improve clarity and maintainability 
 
 #### **Version 6.1.1 (Sep 1, 2026)**
 
