@@ -85,9 +85,16 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
 
+#### **Version 6.1.3 (Sep 2, 2026)**
+
+* exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.
+* pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
+* exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
+
 #### **Version 6.1.2 (Sep 2, 2026)**
 
-* Refactored cache flushing logic to improve clarity and maintainability 
+* Refactored cache flushing logic to improve clarity and maintainability
+
 
 #### **Version 6.1.1 (Sep 1, 2026)**
 
