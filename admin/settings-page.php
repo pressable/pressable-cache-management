@@ -924,7 +924,7 @@ function pressable_cache_management_display_settings_page() {
         function pcmApplyDmState( edgeCacheEnabled ) {
             $.ajax({
                 url: ajaxurl, type: 'POST',
-                data: { action: 'pcm_check_defensive_mode_status' },
+                data: { action: 'pcm_check_defensive_mode_status', nonce: pcmBatcacheNonce },
                 success: function(r) {
                     if ( ! r.success ) {
                         dmStatusLine

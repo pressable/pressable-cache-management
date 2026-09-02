@@ -177,6 +177,7 @@ add_action( 'init', 'pcm_pressable_disable_defensive_mode' );
 // Uses get_ec_ddos_until() which calls query_ec_backend( 'ddos_until' ) as a
 // GET (no body args) and returns the ddos_until Unix timestamp, or 0 if off.
 function pcm_ajax_check_defensive_mode_status() {
+    check_ajax_referer( 'pcm_batcache_nonce', 'nonce' );
     if ( ! current_user_can( 'manage_options' ) ) {
         wp_send_json_error( [ 'message' => 'Unauthorized' ], 403 );
         return;

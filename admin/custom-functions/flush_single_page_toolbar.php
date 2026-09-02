@@ -117,9 +117,12 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
             }
 
             public function load_toolbar_css() {
+                $pcm_css_path = plugin_dir_path( dirname( __FILE__ ) ) . 'public/css/toolbar.css';
                 wp_enqueue_style( 'pressable-cache-management-toolbar',
                     plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/toolbar.css',
-                    array(), time(), 'all' );
+                    array( 'admin-bar' ),
+                    file_exists( $pcm_css_path ) ? filemtime( $pcm_css_path ) : '6.1.3',
+                    'all' );
             }
 
             public function load_toolbar_js() {
@@ -209,12 +212,16 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
         } else {
             if ( ! function_exists('load_admin_toolbar_css') ) {
                 function load_admin_toolbar_css() {
+                    $pcm_css_path = plugin_dir_path( dirname( __FILE__ ) ) . 'public/css/toolbar.css';
                     wp_enqueue_style( 'pressable-cache-management-toolbar',
                         plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/toolbar.css',
-                        array(), time(), 'all' );
+                        array( 'admin-bar' ),
+                        file_exists( $pcm_css_path ) ? filemtime( $pcm_css_path ) : '6.1.3',
+                        'all' );
                 }
             }
-            add_action( 'init', 'load_admin_toolbar_css' );
+            add_action( 'admin_enqueue_scripts', 'load_admin_toolbar_css' );
+            add_action( 'wp_enqueue_scripts',    'load_admin_toolbar_css' );
         }
     }
 }

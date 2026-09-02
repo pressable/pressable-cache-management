@@ -46,7 +46,7 @@ function pcm_abar_object_js() { ?>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-cache-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.post(ajaxurl, { action: 'flush_pressable_cache' }, function(r){
+            $.post(ajaxurl, { action: 'flush_pressable_cache', _ajax_nonce: '<?php echo esc_js( wp_create_nonce( 'pcm_abar_nonce' ) ); ?>' }, function(r){
                 window.pcmShowModal(r.trim());
             });
         });
@@ -61,7 +61,7 @@ function pcm_abar_edge_js() { ?>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-edge-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'pressable_edge_cache_purge' },
+            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'pressable_edge_cache_purge', _ajax_nonce: '<?php echo esc_js( wp_create_nonce( 'pcm_abar_nonce' ) ); ?>' },
                 success: function(r){ window.pcmShowModal(r.trim()); },
                 error:   function(){ window.pcmShowModal('An error occurred during the Edge Cache purge request.'); }
             });
@@ -77,7 +77,7 @@ function pcm_abar_combined_js() { ?>
     jQuery(document).ready(function($){
         $('li#wp-admin-bar-combined-cache-purge .ab-item').on('click', function(e){
             e.preventDefault();
-            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'flush_combined_cache' },
+            $.ajax({ url: ajaxurl, type: 'POST', data: { action: 'flush_combined_cache', _ajax_nonce: '<?php echo esc_js( wp_create_nonce( 'pcm_abar_nonce' ) ); ?>' },
                 success: function(r){ window.pcmShowModal(r.trim()); },
                 error:   function(){ window.pcmShowModal('An error occurred during the combined cache flush.'); }
             });
@@ -88,11 +88,21 @@ function pcm_abar_combined_js() { ?>
 
 // ─── Enqueue toolbar CSS ───────────────────────────────────────────────────
 function pcm_abar_load_css() {
+    if ( ! is_admin_bar_showing() ) {
+        return;
+    }
+    $css_path = plugin_dir_path( dirname( __FILE__ ) ) . 'public/css/toolbar.css';
+    // Depending on 'admin-bar' guarantees our rules print after core's admin-bar.css,
+    // so load order can no longer decide which colours win. filemtime() lets browsers
+    // cache the file while still busting the cache whenever it changes.
     wp_enqueue_style( 'pressable-cache-management-toolbar',
         plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/toolbar.css',
-        array(), time(), 'all' );
+        array( 'admin-bar' ),
+        file_exists( $css_path ) ? filemtime( $css_path ) : '6.1.3',
+        'all' );
 }
-add_action( 'init', 'pcm_abar_load_css' );
+add_action( 'admin_enqueue_scripts', 'pcm_abar_load_css' );
+add_action( 'wp_enqueue_scripts',    'pcm_abar_load_css' );
 
 // ─── AJAX Hooks ───────────────────────────────────────────────────────────
 add_action( 'wp_ajax_flush_pressable_cache',    'pcm_abar_flush_object_callback' );
@@ -100,6 +110,8 @@ add_action( 'wp_ajax_pressable_edge_cache_purge', 'pcm_abar_purge_edge_callback'
 add_action( 'wp_ajax_flush_combined_cache',     'pcm_abar_flush_combined_callback' );
 
 function pcm_abar_flush_object_callback() {
+    // CSRF protection: the nonce is generated in the matching admin_footer script.
+    check_ajax_referer( 'pcm_abar_nonce' );
     if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
         echo 'You do not have permission to flush the Object Cache.';
         wp_die();
@@ -112,6 +124,8 @@ function pcm_abar_flush_object_callback() {
 }
 
 function pcm_abar_purge_edge_callback() {
+    // CSRF protection: the nonce is generated in the matching admin_footer script.
+    check_ajax_referer( 'pcm_abar_nonce' );
     if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
         echo 'You do not have permission to purge the Edge Cache.';
         wp_die();
@@ -136,6 +150,8 @@ function pcm_abar_purge_edge_callback() {
 }
 
 function pcm_abar_flush_combined_callback() {
+    // CSRF protection: the nonce is generated in the matching admin_footer script.
+    check_ajax_referer( 'pcm_abar_nonce' );
     if ( ! current_user_can('administrator') && ! current_user_can('editor') && ! current_user_can('manage_woocommerce') ) {
         echo 'You do not have permission to flush the combined cache.';
         wp_die();

@@ -17,6 +17,14 @@ $enabled = ! empty( $options['flush_batcache_for_woo_product_individual_page_che
 $mu_plugin_dest = WP_CONTENT_DIR . '/mu-plugins/pcm_batcache_manager.php';
 $mu_plugin_src  = plugin_dir_path( __FILE__ ) . 'pcm_batcache_manager.php';
 
+// Legacy filename written by plugin builds from March-July 2026. If it is left
+// beside pcm_batcache_manager.php, WordPress loads both (it sorts '-' before '_')
+// and PHP fatals with "Cannot redeclare class Batcache_Manager". Always remove it.
+$mu_plugin_legacy = WP_CONTENT_DIR . '/mu-plugins/pcm-batcache-manager.php';
+if ( file_exists( $mu_plugin_legacy ) ) {
+    @unlink( $mu_plugin_legacy );
+}
+
 if ( $enabled ) {
 
     // ── Feature ON ───────────────────────────────────────────────────────────
@@ -25,11 +33,12 @@ if ( $enabled ) {
     // pcm_batcache_manager.php (e.g. targeted flush fixes) take effect immediately.
     // Previously this only copied on first enable, meaning edits to the source
     // were never deployed to the live mu-plugin copy.
-    $needs_update = ! file_exists( $mu_plugin_dest )
+    $is_fresh_enable = ! file_exists( $mu_plugin_dest );
+    $needs_update    = $is_fresh_enable
         || ( file_exists( $mu_plugin_src ) && md5_file( $mu_plugin_src ) !== md5_file( $mu_plugin_dest ) );
 
     if ( $needs_update && file_exists( $mu_plugin_src ) && @copy( $mu_plugin_src, $mu_plugin_dest ) ) {
-        if ( ! file_exists( $mu_plugin_dest ) ) {
+        if ( $is_fresh_enable ) {
             // Only flush and show notice on fresh enable, not on every update
             wp_cache_flush();
             update_option( 'flush_batcache_for_woo_product_individual_page_activate_notice', 'activating' );

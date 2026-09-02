@@ -41,14 +41,31 @@ if (version_compare($current_version, '3.4.4', '>='))
  * which is created to store mu-plugins
  */
 
-$mu_plugins = ['cdn_exclude_specific_file.php', 'cdn_exclude_css.php', 'cdn_exclude_jpg_png_webp.php', 'cdn_exclude_js_json.php', 'cdn_extender.php'];
+$mu_plugins = [
+    // Pre-2023 builds wrote these directly into the mu-plugins root
+    'cdn_exclude_specific_file.php',
+    'cdn_exclude_css.php',
+    'cdn_exclude_jpg_png_webp.php',
+    'cdn_exclude_js_json.php',
+    'cdn_extender.php',
+    'pcm_exclude_pages_from_batcache.php',
+
+    // Hyphenated filenames written by builds from March-July 2026. Left beside
+    // their underscore successors they define the same classes/functions twice
+    // (e.g. "Cannot redeclare class Batcache_Manager"), so remove them everywhere.
+    'pcm-batcache-manager.php',
+    'pressable-cache-management/pcm-cache-wpp-cookies-pages.php',
+    'pressable-cache-management/pcm-exclude-pages-from-batcache.php',
+    'pressable-cache-management/pcm-exclude-query-string-gclid.php',
+    'pressable-cache-management/pcm-extend-batcache.php',
+];
 
 foreach ($mu_plugins as $mu_plugin)
 {
     $file = WP_CONTENT_DIR . '/mu-plugins/' . $mu_plugin;
     if (file_exists($file))
     {
-        unlink($file);
+        @unlink($file);
     }
 }
 

@@ -10,6 +10,15 @@
 *          unregistered post types/taxonomies. Search "NULL-GUARD FIX" for changes.
 */
 
+/*
+ * Guarded: if another copy of this mu-plugin is already loaded (e.g. a
+ * legacy pcm-batcache-manager.php left behind by an older plugin version,
+ * which WordPress loads first because '-' sorts before '_'), skip both the
+ * class declaration and the instantiation below instead of fatalling with
+ * "Cannot redeclare class Batcache_Manager".
+ */
+if ( ! class_exists( 'Batcache_Manager' ) ) {
+
 /**
 * Class Batcache_Manager
 */
@@ -516,3 +525,5 @@ class Batcache_Manager {
 
 global $batcache_manager;
 $batcache_manager = Batcache_Manager::get_instance();
+
+} // end class_exists guard

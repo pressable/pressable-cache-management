@@ -11,83 +11,81 @@
     height: 100%; 
     z-index: 9998;
 }
-#wp-admin-bar-pcm-toolbar-parent, #wp-admin-bar-cache-purge, #wp-admin-bar-pcm-toolbar-parent-delete-cache, #wp-admin-bar-pcm-toolbar-parent-remove-branding{
+/******************************************************************
+ * Pressable Cache Management - admin bar
+ *
+ * Every rule below is scoped to this plugin's own admin bar nodes and
+ * prefixed with #wpadminbar, so it outranks WordPress core's
+ * admin-bar.css and never restyles other plugins' admin bar items.
+ * Colours carry !important because third-party admin bar skins and
+ * colour-scheme plugins commonly use !important themselves; without
+ * it they can leave these items unreadable.
+ *
+ * Palette: mint #0AD8C7 hover background, navy #040024 hover text
+ * (11:1 contrast on mint), white #fff resting text.
+ *
+ * Node ids:
+ *   pcm-wp-admin-toolbar-parent[-remove-branding]  dropdown parent
+ *   cache-purge / edge-purge / combined-cache-purge / settings  children
+ *   pcm-toolbar-parent[-remove-branding]           "flush this page" (front end)
+ *****************************************************************/
+
+/* ---- Pointer cursor on the clickable nodes ---- */
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent > .ab-item,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding > .ab-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent > .ab-empty-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding > .ab-empty-item,
+#wpadminbar #wp-admin-bar-cache-purge > .ab-item,
+#wpadminbar #wp-admin-bar-edge-purge > .ab-item,
+#wpadminbar #wp-admin-bar-combined-cache-purge > .ab-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-flush-cache-of-this-page > .ab-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding-flush-cache-of-this-page > .ab-item {
     cursor: pointer;
 }
 
-
-/******************************
- * Show branding Option CSS
- *******************************/
-
-/* Pressable admin bar icon flush cache for single page Pressable icon*/
+/* ---- Icons ---- */
 @supports not (-ms-high-contrast: none) {
-    #wp-admin-bar-pcm-toolbar-parent > .ab-empty-item::before{
+    #wpadminbar #wp-admin-bar-pcm-toolbar-parent > .ab-empty-item::before,
+    #wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent > .ab-item::before {
         content: url("../img/icon.svg");
     }
-}
-
-/* Pressable admin bar icon*/
-@supports not (-ms-high-contrast: none) {
-    #wp-admin-bar-pcm-wp-admin-toolbar-parent > .ab-item::before{
-        content: url("../img/icon.svg");
-    }
-}
-
-
-/* Pressable flush batcache for single page button background color*/
-#wp-admin-bar-pcm-toolbar-parent .ab-empty-item:hover{
-    background-color: #0AD8C7;
-}
-
-/* Pressable flush cache admin bar button background color*/
-#wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:hover{ 
-  background-color: #0AD8C7;
-}
-
-
-
-
-/******************************
- * Hide branding Option CSS
- *******************************/
-
-
-/* Pressable admin bar icon when branding is removed from WP side menue*/
-@supports not (-ms-high-contrast: none) {
-    #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding > .ab-item::before{
+    /* Branding removed: neutral icon */
+    #wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding > .ab-item::before,
+    #wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding > .ab-empty-item::before {
         content: url("../img/cache_control.png");
     }
 }
 
-
-
-/* Pressable admin bar icon flush cache for single page Pressable icon*/
-@supports not (-ms-high-contrast: none) {
-    #wp-admin-bar-pcm-toolbar-parent-remove-branding > .ab-empty-item::before{ 
-        content: url("../img/cache_control.png");
-    }
+/* ---- Resting state: white text inside our dropdown and on the
+        front-end "flush this page" node ---- */
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-submenu .ab-item,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding .ab-submenu .ab-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent .ab-empty-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent .ab-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-empty-item,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item {
+    color: #fff !important;
 }
 
-
-/* Pressable flush cache for admin bar button background color*/
-#wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding  .ab-item:hover{ 
-  background-color: #0AD8C7;
-  
+/* ---- Hover / focus: mint background, navy text (parent link and children) ---- */
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:hover,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:focus,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding .ab-item:hover,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding .ab-item:focus,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent .ab-empty-item:hover,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent .ab-item:hover,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent .ab-item:focus,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-empty-item:hover,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item:hover,
+#wpadminbar #wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item:focus {
+    background-color: #0AD8C7 !important;
+    color: #040024 !important;
 }
 
-/* wp-admin-bar-pcm-wp-admin-toolbar-parent-default text color*/
-#wpadminbar .ab-submenu .ab-item {
-  color: #fff;
-}
-
-/* pcm-wp-admin-toolbar-child text color*/
-#wpadminbar .quicklinks .ab-sub-wrapper .menupop.hover > a, #wpadminbar .quicklinks .menupop ul li a:focus, #wpadminbar .quicklinks .menupop ul li a:focus strong, #wpadminbar .quicklinks .menupop ul li a:hover, #wpadminbar .quicklinks .menupop ul li a:hover strong, #wpadminbar .quicklinks .menupop.hover ul li a:focus, #wpadminbar .quicklinks .menupop.hover ul li a:hover, #wpadminbar .quicklinks .menupop.hover ul li div[tabindex]:focus, #wpadminbar .quicklinks .menupop.hover ul li div[tabindex]:hover, #wpadminbar li #adminbarsearch.adminbar-focused::before, #wpadminbar li .ab-item:focus .ab-icon::before, #wpadminbar li .ab-item:focus::before, #wpadminbar li a:focus .ab-icon::before, #wpadminbar li.hover .ab-icon::before, #wpadminbar li.hover .ab-item::before, #wpadminbar li:hover #adminbarsearch::before, #wpadminbar li:hover .ab-icon::before, #wpadminbar li:hover .ab-item::before, #wpadminbar.nojs .quicklinks .menupop:hover ul li a:focus, #wpadminbar.nojs .quicklinks .menupop:hover ul li a:hover {
-  color: #fff;
-}
-
-
-/* Pressable flush cache for single page admin bar button background color*/
-#wp-admin-bar-pcm-toolbar-parent-remove-branding .ab-item:hover{ 
-  background-color: #0AD8C7;
+/* Nested text nodes (WordPress wraps some labels in <strong>) follow the hover colour */
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:hover strong,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent .ab-item:focus strong,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding .ab-item:hover strong,
+#wpadminbar #wp-admin-bar-pcm-wp-admin-toolbar-parent-remove-branding .ab-item:focus strong {
+    color: #040024 !important;
 }
