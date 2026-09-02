@@ -85,6 +85,27 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
 
+
+
+= Version 6.2.3 (Sep 2, 2026) =
+
+* Fixed fatal error "Cannot redeclare class Batcache_Manager" on sites that still had the legacy hyphen-named mu-plugins/pcm-batcache-manager.php written by March-July 2026 builds alongside the current pcm_batcache_manager.php.
+* pcm_batcache_manager.php: wrapped the Batcache_Manager class and its instantiation in a class_exists() guard so a duplicate copy of the mu-plugin can never cause a fatal.
+* flush_batcache_for_woo_individual_page.php: removes the legacy mu-plugins/pcm-batcache-manager.php on both enable and disable. Also fixed the fresh-enable check, which could never be true after a successful copy, so the cache flush and activation notice now fire on first enable as intended.
+* remove_old_mu_plugins.php: legacy cleanup now also removes hyphen-era mu-plugin files (pcm-batcache-manager.php and the pcm-cache-wpp-cookies-pages, pcm-exclude-pages-from-batcache, pcm-exclude-query-string-gclid and pcm-extend-batcache variants in the pressable-cache-management folder) and the pre-2023 top-level pcm_exclude_pages_from_batcache.php.
+* Fixed unreadable hover state in the admin bar Cache Management menu: hovered items showed white text on the mint background (1.8:1 contrast); hover text is now navy #040024 (11.3:1 contrast).
+* Admin bar CSS is now scoped to the plugin's own menu items and prefixed with #wpadminbar, with !important on its colours, so styling from other plugins and admin colour schemes can no longer change how the menu looks, and the plugin no longer restyles other plugins' admin bar items (two global rules were removed).
+* The toolbar stylesheet now declares core's admin-bar.css as a dependency so it always loads after it, is enqueued on admin_enqueue_scripts/wp_enqueue_scripts only when the admin bar is showing, and uses filemtime() versioning instead of time() so browsers can cache it.
+* Security: added nonce verification (check_ajax_referer) to the admin bar Flush Object Cache, Purge Edge Cache and Flush Object & Edge Cache AJAX handlers, which previously checked only user capability and were open to CSRF.
+* Security: added nonce verification to the Defensive Mode status AJAX endpoint.
+* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
+
+
+= Version 6.1.3 (Sep 2, 2026) =
+* exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.
+* pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
+* exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
+
 #### **Version 6.1.3 (Sep 2, 2026)**
 
 * exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.
