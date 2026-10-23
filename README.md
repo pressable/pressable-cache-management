@@ -86,6 +86,11 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
 
 
+= Version 6.3.5 (Oct 23, 2026) =
+
+* Flush Cache on Comment Delete now also flushes when a comment is trashed outside wp-admin (WP-CLI, the REST API and apps that use it, such as the WordPress mobile app). Its code was only loaded on wp-admin requests.
+
+
 = Version 6.3.4 (Oct 23, 2026) =
 
 * Advanced Post Cache deprecation: confirmed this plugin never calls Advanced Post Cache ($advanced_post_cache_object->flush_cache()), so it does not cause the "advanced-post-cache: this plugin is deprecated" PHP warning. Sites that log the warning have separate custom code (such as the "Flush Object Cache on Particular Page" mu-plugin or a line in wp-config.php) that needs updating.
