@@ -27,6 +27,11 @@ if (!function_exists('cancel_the_cache')) {
             return;
         }
 
+        // No request URI under WP-CLI and cron
+        if (empty($_SERVER['REQUEST_URI'])) {
+            return;
+        }
+
         // Convert stored options into an array and trim spaces
         $exempted_pages = array_map('trim', explode(',', $exempted_pages));
 
@@ -42,8 +47,14 @@ if (!function_exists('cancel_the_cache')) {
 
         // Loop through exempted pages
         foreach ($exempted_pages as $page) {
-            // Match exact page or paginated versions (e.g., /about/, /about/page/2/)
-            if ($uri === $page || preg_match("#^" . preg_quote($page, '#') . "(/page/\d+/?)?$#i", $uri)) {
+            // Saved paths end in "/", so compare without it: /about/ also matches
+            // /about, /about/page/2/ and /about/page/2
+            $page = rtrim($page, '/');
+            if ($page === '') {
+                continue;
+            }
+
+            if (preg_match("#^" . preg_quote($page, '#') . "(/page/\d+)?/?$#i", $uri)) {
                 batcache_cancel();
                 disable_edge_cache();
                 return;

@@ -42,41 +42,10 @@ if ( isset( $options['flush_cache_page_edit_checkbox'] ) && ! empty( $options['f
             return;
         }
 
-        global $batcache, $wp_object_cache;
-
-        // Batcache must be loaded and the object cache must support incr()
-        if ( ! isset( $batcache ) || ! is_object( $batcache ) || ! method_exists( $wp_object_cache, 'incr' ) ) {
+        $url = pcm_flush_batcache_url( $url );
+        if ( ! $url ) {
             return;
         }
-
-        $batcache->configure_groups();
-
-        $url = apply_filters( 'batcache_manager_link', $url );
-        if ( empty( $url ) ) {
-            return;
-        }
-
-        do_action( 'batcache_manager_before_flush', $url );
-
-        // Batcache keys off the http:// version of the URL
-        $url     = set_url_scheme( $url, 'http' );
-        $url_key = md5( $url );
-
-        // Increment the version key — Batcache treats the cached copy as stale
-        wp_cache_add( "{$url_key}_version", 0, $batcache->group );
-        wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
-
-        // Handle sites where the Batcache group is excluded from remote sync
-        if ( property_exists( $wp_object_cache, 'no_remote_groups' ) ) {
-            $k = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
-            if ( false !== $k ) {
-                unset( $wp_object_cache->no_remote_groups[ $k ] );
-                wp_cache_set( "{$url_key}_version", $batcache->group );
-                $wp_object_cache->no_remote_groups[ $k ] = $batcache->group;
-            }
-        }
-
-        do_action( 'batcache_manager_after_flush', $url );
 
         // Record the flush for display on the settings page
         $post_type_obj  = get_post_type_object( $post->post_type );
@@ -92,5 +61,27 @@ if ( isset( $options['flush_cache_page_edit_checkbox'] ) && ! empty( $options['f
     }
 
     add_action( 'save_post', 'pcm_flush_batcache_on_page_edit', 10, 3 );
+
+    /**
+     * Flush the URL a published post had before this update when that URL no
+     * longer serves it: the post was unpublished, trashed, or its slug changed.
+     * save_post only sees the new URL, so the old cached copy stayed live.
+     *
+     * @param int     $post_id     The post ID.
+     * @param WP_Post $post_after  The post after the update.
+     * @param WP_Post $post_before The post before the update.
+     */
+    function pcm_flush_batcache_for_old_permalink( $post_id, $post_after, $post_before ) {
+        if ( 'publish' !== $post_before->post_status ) {
+            return;
+        }
+
+        $old_url = get_permalink( $post_before );
+        if ( $old_url && $old_url !== get_permalink( $post_after ) ) {
+            pcm_flush_batcache_url( $old_url );
+        }
+    }
+
+    add_action( 'post_updated', 'pcm_flush_batcache_for_old_permalink', 10, 3 );
 
 }

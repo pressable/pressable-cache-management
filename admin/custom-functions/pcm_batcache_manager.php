@@ -202,10 +202,6 @@ class Batcache_Manager {
 
 			// 3. Purge Edge Cache for the specific URL
 			if (class_exists('Edge_Cache_Plugin')) {
-				// Set the default timezone to UTC before calling date()
-				$timezone_backup = date_default_timezone_get();
-				date_default_timezone_set('UTC');
-
 				$edge_cache = Edge_Cache_Plugin::get_instance();
 				$urls = array($product_url);
 
@@ -213,11 +209,7 @@ class Batcache_Manager {
 				$result = $edge_cache->purge_uris_now($urls);
 
 				// Save time stamp to database if edge cache is purged for particular page
-				$edge_cache_purge_time = date('jS F Y g:ia') . "\nUTC";
-				update_option('single-page-edge-cache-purge-time-stamp', $edge_cache_purge_time);
-
-				// Restore the original timezone
-				date_default_timezone_set($timezone_backup);
+				update_option( 'single-page-edge-cache-purge-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
 			}
 		}
 		// --- END OF MODIFIED CODE ---
@@ -463,18 +455,7 @@ class Batcache_Manager {
 		// Clear out links
 		$this->links = array();
 
-		// --- START OF MODIFIED CODE ---
-		// Set the default timezone to UTC before calling date()
-		$timezone_backup = date_default_timezone_get();
-		date_default_timezone_set('UTC');
-
-		// Update the timestamp option with the specified format
-		$batcache_flush_time = date('jS F Y g:ia') . "\nUTC";
-		update_option( 'flush-object-cache-for-single-page-time-stamp', $batcache_flush_time );
-
-		// Restore the original timezone
-		date_default_timezone_set($timezone_backup);
-		// --- END OF MODIFIED CODE ---
+		update_option( 'flush-object-cache-for-single-page-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
 	}
 
 	/**

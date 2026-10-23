@@ -46,6 +46,10 @@ $options_to_delete = array(
     'edge-cache-status',                        // Edge cache status string
     'edge-cache-purge-time-stamp',              // Last edge cache purge time
     'edge-cache-single-page-url-purged',        // Last single-page edge purge URL
+    'edge-cache-defensive-mode-active',         // Defensive Mode on/off state
+    'edge-cache-defensive-mode-slug',           // Defensive Mode duration
+    'edge-cache-defensive-mode-expires-at',     // Defensive Mode expiry
+    'edge-cache-defensive-mode-set-at',         // Defensive Mode enabled time
 
     // ── Batcache extension ────────────────────────────────────────────────────
     'pcm_extend_batcache_notice_pending',       // Pending "extending batcache" notice flag
@@ -93,6 +97,8 @@ $options_to_delete = array(
     // ── Plugin own transients (stored as options by WP) ───────────────────────
     '_transient_pcm_batcache_status',
     '_transient_timeout_pcm_batcache_status',
+    '_transient_pcm_ec_status_cache',
+    '_transient_timeout_pcm_ec_status_cache',
 );
 
 foreach ( $options_to_delete as $option ) {

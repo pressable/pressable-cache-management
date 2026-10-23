@@ -81,58 +81,35 @@ if ( ! class_exists( 'FlushObjectCachePageColumn' ) ) {
 
         public function flush_object_cache_column() {
             if ( ! ( current_user_can('administrator') || current_user_can('editor') || current_user_can('manage_woocommerce') ) ) {
-                die( json_encode( array( 'success' => false, 'message' => 'Unauthorized' ) ) );
+                wp_send_json( array( 'success' => false, 'message' => 'Unauthorized' ) );
             }
 
-            if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'flush-object-cache_' . intval( $_GET['id'] ) ) ) {
-                die( json_encode( array( 'success' => false, 'message' => 'Nonce verification failed' ) ) );
+            $post_id = isset( $_GET['id'] ) ? absint( $_GET['id'] ) : 0;
+            if ( ! $post_id || ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'flush-object-cache_' . $post_id ) ) {
+                wp_send_json( array( 'success' => false, 'message' => 'Nonce verification failed' ) );
             }
 
-            $url_key    = get_permalink( intval( $_GET['id'] ) );
-            $page_title = get_the_title( intval( $_GET['id'] ) );
-            update_option( 'page-title', $page_title );
+            $permalink = get_permalink( $post_id );
+            update_option( 'page-title', get_the_title( $post_id ) );
 
-            global $batcache, $wp_object_cache;
-
-            if ( ! isset( $batcache ) || ! is_object( $batcache ) || ! method_exists( $wp_object_cache, 'incr' ) ) {
-                die( json_encode( array( 'success' => false ) ) );
+            $url = $permalink ? pcm_flush_batcache_url( $permalink ) : false;
+            if ( ! $url ) {
+                wp_send_json( array( 'success' => false ) );
             }
 
-            $batcache->configure_groups();
-            $url = apply_filters( 'batcache_manager_link', $url_key );
-            if ( empty( $url ) ) {
-                die( json_encode( array( 'success' => false ) ) );
-            }
-
-            do_action( 'batcache_manager_before_flush', $url );
-            $url     = set_url_scheme( $url, 'http' );
-            $url_key = md5( $url );
-
-            wp_cache_add( "{$url_key}_version", 0, $batcache->group );
-            wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
-
-            if ( property_exists( $wp_object_cache, 'no_remote_groups' ) ) {
-                $k = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
-                if ( false !== $k ) {
-                    unset( $wp_object_cache->no_remote_groups[ $k ] );
-                    wp_cache_set( "{$url_key}_version", $batcache->group );
-                    $wp_object_cache->no_remote_groups[ $k ] = $batcache->group;
-                }
-            }
-
-            do_action( 'batcache_manager_after_flush', $url );
             update_option( 'flush-object-cache-for-single-page-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
             // Also store the flushed URL so it shows on the settings page
             update_option( 'single-page-url-flushed', $url );
 
-            die( json_encode( array( 'success' => true ) ) );
+            wp_send_json( array( 'success' => true ) );
         }
 
         public function load_js() {
+            $js_path = plugin_dir_path( dirname( __FILE__ ) ) . 'public/js/column.js';
             wp_enqueue_script(
                 'flush-object-cache-column',
                 plugin_dir_url( dirname( __FILE__ ) ) . 'public/js/column.js',
-                array(), time(), true
+                array( 'jquery' ), file_exists( $js_path ) ? filemtime( $js_path ) : '6.3.4', true
             );
         }
     }

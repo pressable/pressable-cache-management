@@ -86,6 +86,26 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
 
 
+= Version 6.3.4 (Oct 23, 2026) =
+
+* Advanced Post Cache deprecation: confirmed this plugin never calls Advanced Post Cache ($advanced_post_cache_object->flush_cache()), so it does not cause the "advanced-post-cache: this plugin is deprecated" PHP warning. Sites that log the warning have separate custom code (such as the "Flush Object Cache on Particular Page" mu-plugin or a line in wp-config.php) that needs updating.
+* Fixed Batcache invalidation in the post-list Flush Cache link, the toolbar "Flush Cache for This Page" button and Flush Cache on Post/Page Edit: on object caches that keep the Batcache group local, wp_cache_set() was called with shifted arguments, so the version key was written to the default group with the group name as its value. The three copies are replaced by one helper, pcm_flush_batcache_url() in admin/custom-functions/flush_batcache_url.php.
+* Toolbar "Flush Cache for This Page" now flushes and purges the right URL on sites installed in a subdirectory (the page path was appended to home_url(), repeating the subdirectory) and on pages with non-ASCII or percent-encoded slugs (the path was URL-decoded, so it no longer matched the key Batcache stores). A missing nonce or path no longer raises PHP warnings.
+* Flush Cache on Post/Page Edit now also flushes a published post's old URL when the post is unpublished, trashed or its slug changes. Previously the old cached copy stayed live until it expired.
+* Flush Cache on Page Delete: the "Last flushed at" timestamp was overwritten on every post save even when nothing was flushed; it is now written only when the cache is flushed. Published posts and pages deleted permanently without going to the trash now flush the cache as well.
+* Flush Object Cache button: the flush ran only when the admin bar rendered, so the success notice could appear without anything being flushed. It now flushes as soon as the request is verified.
+* Post-list Flush Cache link: a missing post ID no longer raises PHP warnings, responses are sent with wp_send_json(), and column.js now declares its jQuery dependency and uses filemtime() versioning.
+* Defensive Mode: a WP_Error from the Edge Cache backend caused the fatal error "Cannot use object of type WP_Error as array". The error message is now shown instead.
+* Security: Enable/Disable Edge Cache now also requires manage_options, matching Purge Edge Cache and Defensive Mode.
+* Fixed the Edge Cache settings sanitize callback name (egde_ to edge_), which did not match the name registered with register_setting().
+* Exclude Pages mu-plugin: no longer raises warnings under WP-CLI and cron, where REQUEST_URI is not set, and now matches excluded pages with or without a trailing slash and their paginated URLs (/about/page/2/), which never matched before because saved paths end in "/".
+* WooCommerce Batcache manager mu-plugin: timestamps now use gmdate() instead of temporarily changing the PHP default timezone.
+* Flush Cache on Comment Delete: added the ABSPATH direct-access guard and gmdate() timestamps.
+* Uninstall: the recursive delete helper is renamed pcm_rrmdir() so it cannot collide with another plugin's rrmdir(), the object cache is flushed once instead of once per file, and the Defensive Mode options and Edge Cache status transient are now removed.
+* Removed unused files: the empty admin/public/js/toolbar_remove_branding.js (still enqueued on every page) and the unreferenced remove-old-mu-plugins.php and remove-mu-plugins-batcache-on-uninstall.php duplicates.
+
+
+
 = Version 6.3.3 (Sep 2, 2026) =
 
 * Edge Cache tab: the Defensive Mode status check is now isolated so a failure in it can never affect the Enable/Disable Edge Cache controls or the Purge Edge Cache button, and a failure shows an error message instead of leaving the status on "Finding status".

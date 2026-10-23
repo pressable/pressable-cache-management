@@ -52,6 +52,18 @@ function pcm_defensive_mode_durations() {
     ];
 }
 
+// query_ec_backend() returns an array with 'success', or a WP_Error when the request fails.
+function pcm_defensive_mode_request_failed( $result ) {
+    return is_wp_error( $result ) || ( is_array( $result ) && isset( $result['success'] ) && false === $result['success'] );
+}
+
+function pcm_defensive_mode_error( $result, $fallback ) {
+    if ( is_wp_error( $result ) ) {
+        return $result->get_error_message();
+    }
+    return ! empty( $result['error'] ) ? $result['error'] : $fallback;
+}
+
 // ─── Enable Defensive Mode ────────────────────────────────────────────────────
 function pcm_pressable_enable_defensive_mode() {
     if ( ! isset( $_POST['enable_defensive_mode_nonce'] ) ) {
@@ -92,8 +104,8 @@ function pcm_pressable_enable_defensive_mode() {
         ),
     ) );
 
-    if ( false === $result['success'] ) {
-        $err = ! empty( $result['error'] ) ? $result['error'] : esc_html__( 'Unknown error enabling Defensive Mode.', 'pressable_cache_management' );
+    if ( pcm_defensive_mode_request_failed( $result ) ) {
+        $err = pcm_defensive_mode_error( $result, esc_html__( 'Unknown error enabling Defensive Mode.', 'pressable_cache_management' ) );
         add_action( 'admin_notices', function() use ( $err ) {
             if ( function_exists( 'pcm_branded_notice' ) ) {
                 pcm_branded_notice( $err, '#dd3a03' );
@@ -149,8 +161,8 @@ function pcm_pressable_disable_defensive_mode() {
         ),
     ) );
 
-    if ( false === $result['success'] ) {
-        $err = ! empty( $result['error'] ) ? $result['error'] : esc_html__( 'Unknown error disabling Defensive Mode.', 'pressable_cache_management' );
+    if ( pcm_defensive_mode_request_failed( $result ) ) {
+        $err = pcm_defensive_mode_error( $result, esc_html__( 'Unknown error disabling Defensive Mode.', 'pressable_cache_management' ) );
         add_action( 'admin_notices', function() use ( $err ) {
             if ( function_exists( 'pcm_branded_notice' ) ) {
                 pcm_branded_notice( $err, '#dd3a03' );

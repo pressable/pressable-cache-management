@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-// Flush WP Object Cache + page caches. Hooked on demand by the handler below.
+// Flush WP Object Cache + page caches. Called by the handler below.
 function pressable_cache_button() {
     // Flush WP Object Cache (Redis / Memcached)
     wp_cache_flush();
@@ -73,7 +73,7 @@ function pcm_handle_flush_object_cache() {
         return;
     }
 
-    add_action( 'wp_before_admin_bar_render', 'pressable_cache_button', 999 );
+    pressable_cache_button();
     add_action( 'admin_notices', 'flush_cache_notice__success' );
 
     update_option( 'flush-obj-cache-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );

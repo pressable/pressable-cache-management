@@ -88,7 +88,8 @@ if ( ! function_exists( 'pcm_pressable_edge_cache_error_msg' ) ) {
 // ─── Enable Edge Cache (mirrors repo exactly, adds branded notices) ─────────
 function pcm_pressable_enable_edge_cache() {
     if ( isset( $_POST['enable_edge_cache_nonce'] ) &&
-         wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['enable_edge_cache_nonce'] ) ), 'enable_edge_cache_nonce' ) ) {
+         wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['enable_edge_cache_nonce'] ) ), 'enable_edge_cache_nonce' ) &&
+         current_user_can( 'manage_options' ) ) {
 
         if ( class_exists( 'Edge_Cache_Plugin' ) ) {
             $edge_cache = Edge_Cache_Plugin::get_instance();
@@ -118,7 +119,8 @@ add_action( 'init', 'pcm_pressable_enable_edge_cache' );
 // ─── Disable Edge Cache (mirrors repo exactly, adds branded notices) ────────
 function pcm_pressable_disable_edge_cache() {
     if ( isset( $_POST['disable_edge_cache_nonce'] ) &&
-         wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['disable_edge_cache_nonce'] ) ), 'disable_edge_cache_nonce' ) ) {
+         wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['disable_edge_cache_nonce'] ) ), 'disable_edge_cache_nonce' ) &&
+         current_user_can( 'manage_options' ) ) {
 
         if ( class_exists( 'Edge_Cache_Plugin' ) ) {
             $edge_cache = Edge_Cache_Plugin::get_instance();

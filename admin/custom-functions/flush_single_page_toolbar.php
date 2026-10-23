@@ -22,13 +22,11 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
                 if ( is_admin() ) {
                     add_action( 'wp_before_admin_bar_render', array( $this, 'PcmFlushCacheAdminbar' ) );
                     add_action( 'admin_enqueue_scripts', array( $this, 'load_toolbar_js' ) );
-                    add_action( 'admin_enqueue_scripts', array( $this, 'load_remove_branding_toolbar_js' ) );
                     add_action( 'admin_enqueue_scripts', array( $this, 'load_toolbar_css' ) );
                 } else {
                     if ( is_admin() || is_admin_bar_showing() ) {
                         add_action( 'wp_before_admin_bar_render', array( $this, 'pcm_toolbar_for_page_preview' ) );
                         add_action( 'wp_enqueue_scripts', array( $this, 'load_toolbar_js' ) );
-                        add_action( 'admin_enqueue_scripts', array( $this, 'load_remove_branding_toolbar_js' ) );
                         add_action( 'wp_enqueue_scripts', array( $this, 'load_toolbar_css' ) );
                         add_action( 'wp_footer', array( $this, 'print_my_inline_script' ) );
                     }
@@ -44,67 +42,47 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
                 if ( ! current_user_can( 'edit_posts' ) ) {
                     wp_send_json_error( array( 'reason' => 'Insufficient permissions' ), 403 );
                 }
-                if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'pcm_nonce' ) ) {
+                if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'pcm_nonce' ) ) {
                     die( json_encode( array( 'Security Error!', 'error', 'alert' ) ) );
                 }
 
-                global $batcache, $wp_object_cache;
-
-                if ( ! isset( $batcache ) || ! is_object( $batcache ) || ! method_exists( $wp_object_cache, 'incr' ) ) {
-                    return;
+                $path = $this->requested_path();
+                $url  = pcm_flush_batcache_url( pcm_site_url_for_path( $path ) );
+                if ( ! $url ) {
+                    wp_send_json_error( array( 'reason' => 'Batcache not available' ) );
                 }
 
-                $batcache->configure_groups();
-                $path = urldecode( esc_url_raw( wp_unslash( $_GET['path'] ) ) );
+                update_option( 'single-page-url-flushed', $url );
+                update_option( 'flush-object-cache-for-single-page-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
+                wp_send_json_success( array( 'flushed' => 'batcache' ) );
+            }
 
-                if ( preg_match( '/\.{2,}/', $path ) ) {
+            /**
+             * Path of the page the toolbar button was clicked on.
+             *
+             * Kept percent-encoded: Batcache keys on the raw REQUEST_URI, so
+             * decoding it would miss pages with non-ASCII or encoded slugs.
+             */
+            private function requested_path() {
+                $path = isset( $_GET['path'] ) ? esc_url_raw( wp_unslash( $_GET['path'] ) ) : '';
+
+                if ( '' === $path || '/' !== $path[0] || preg_match( '/\.{2,}/', $path ) ) {
                     die( 'Suspected Directory Traversal Attack' );
                 }
 
-                $url = get_home_url() . $path;
-                $url = apply_filters( 'batcache_manager_link', $url );
-                if ( empty( $url ) ) return false;
-
-                do_action( 'batcache_manager_before_flush', $url );
-                $url = set_url_scheme( $url, 'http' );
-                update_option( 'single-page-url-flushed', $url );
-
-                $url_key = md5( $url );
-                if ( is_object( $batcache ) ) {
-                    wp_cache_add( "{$url_key}_version", 0, $batcache->group );
-                    wp_cache_incr( "{$url_key}_version", 1, $batcache->group );
-                }
-
-                if ( property_exists( $wp_object_cache, 'no_remote_groups' ) ) {
-                    $k = array_search( $batcache->group, (array) $wp_object_cache->no_remote_groups );
-                    if ( false !== $k ) {
-                        unset( $wp_object_cache->no_remote_groups[ $k ] );
-                        wp_cache_set( "{$url_key}_version", $batcache->group );
-                        $wp_object_cache->no_remote_groups[ $k ] = $batcache->group;
-                    }
-                }
-
-                do_action( 'batcache_manager_after_flush', $url );
-                update_option( 'flush-object-cache-for-single-page-time-stamp', gmdate( 'j M Y, g:ia' ) . ' UTC' );
-                wp_send_json_success( array( 'flushed' => 'batcache' ) );
+                return $path;
             }
 
             public function pcm_purge_current_page_edge_cache() {
                 if ( ! current_user_can( 'edit_posts' ) ) {
                     wp_send_json_error( array( 'reason' => 'Insufficient permissions' ), 403 );
                 }
-                if ( ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'pcm_nonce' ) ) {
+                if ( ! isset( $_GET['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['nonce'] ) ), 'pcm_nonce' ) ) {
                     die( json_encode( array( 'Security Error!', 'error', 'alert' ) ) );
                 }
 
-                $path = urldecode( esc_url_raw( wp_unslash( $_GET['path'] ) ) );
-                if ( preg_match( '/\.{2,}/', $path ) ) {
-                    die( 'Suspected Directory Traversal Attack' );
-                }
-
-                $url = get_home_url() . $path;
+                $url = pcm_site_url_for_path( $this->requested_path() );
                 update_option( 'edge-cache-single-page-url-purged', $url );
-                if ( empty( $url ) ) return false;
 
                 if ( class_exists( 'Edge_Cache_Plugin' ) ) {
                     $edge_cache = Edge_Cache_Plugin::get_instance();
@@ -139,12 +117,6 @@ if ( isset( $options['flush_object_cache_for_single_page'] ) && ! empty( $option
                     'ajaxurl'  => admin_url( 'admin-ajax.php' ),
                     'flushEdge'=> $edge_on,
                 ) );
-            }
-
-            public function load_remove_branding_toolbar_js() {
-                wp_enqueue_script( 'pcm-toolbar-branding',
-                    plugin_dir_url( dirname( __FILE__ ) ) . 'public/js/toolbar_remove_branding.js',
-                    array( 'jquery' ), time(), true );
             }
 
             public function print_my_inline_script() { ?>

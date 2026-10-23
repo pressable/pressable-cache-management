@@ -78,7 +78,7 @@ function pressable_cache_management_callback_validate_options($input) {
 }
 
 // Callback: validate Edge Cache options
-function egde_cache_settings_tab_callback_validate_options($input) {
+function edge_cache_settings_tab_callback_validate_options($input) {
     if ( ! is_array( $input ) ) {
         return array();
     }
