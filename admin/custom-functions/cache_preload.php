@@ -28,13 +28,24 @@ function pcm_cache_preload_request( $enable = null ) {
     if ( ! class_exists( 'Edge_Cache_Plugin' ) ) {
         return array( 'success' => false, 'error' => __( 'Edge Cache dependency is not available.', 'pressable_cache_management' ) );
     }
-    $args = array();
-    if ( null !== $enable ) {
-        $args = array( 'body' => array( 'enable' => $enable ? 1 : 0, 'wp_action' => 'manual_dashboard_set' ) );
+    // query_ec_backend() gives the API 2 seconds, too short for a preload toggle (it schedules
+    // the crawl before answering): cURL error 28. Its args are array_merge()d over the defaults,
+    // so pass a longer timeout. The method must be explicit because any args make it POST.
+    if ( null === $enable ) {
+        $args = array( 'method' => 'GET', 'timeout' => 10 );
+    } else {
+        $args = array(
+            'method'  => 'POST',
+            'timeout' => 20,
+            'body'    => array( 'enable' => $enable ? 1 : 0, 'wp_action' => 'manual_dashboard_set' ),
+        );
     }
     $result = Edge_Cache_Plugin::get_instance()->query_ec_backend( 'preload', $args );
     if ( ! is_array( $result ) || empty( $result['success'] ) ) {
         $error = is_array( $result ) && ! empty( $result['error'] ) ? $result['error'] : __( 'Unknown error from the Edge Cache API.', 'pressable_cache_management' );
+        if ( false !== stripos( $error, 'cURL error 28' ) || false !== stripos( $error, 'timed out' ) ) {
+            $error = __( 'The WP Cloud API did not answer in time. Click the refresh button in a moment to see the current state.', 'pressable_cache_management' );
+        }
         return array( 'success' => false, 'error' => $error );
     }
     return $result;
@@ -89,12 +100,16 @@ function pcm_ajax_cache_preload_toggle() {
     }
     $enable = ! empty( $_POST['enable'] ) && '0' !== $_POST['enable'];
     $result = pcm_cache_preload_request( $enable );
+    // The docs say to confirm a settings update with a GET (also after an error: the change
+    // may have been applied even when the answer timed out); it also gives the crawl state.
+    $status = pcm_cache_preload_request();
     if ( empty( $result['success'] ) ) {
+        if ( ! empty( $status['success'] ) && ! empty( $status['data']->enabled ) === $enable ) {
+            wp_send_json_success( pcm_cache_preload_payload( $status['data'] ) );
+        }
         wp_send_json_error( array( 'message' => $result['error'] ) );
     }
-    // The docs say to confirm a settings update with a GET; it also gives the crawl state.
-    $status = pcm_cache_preload_request();
-    $data   = ! empty( $status['success'] ) ? $status['data'] : $result['data'];
+    $data = ! empty( $status['success'] ) ? $status['data'] : $result['data'];
     wp_send_json_success( pcm_cache_preload_payload( $data ) );
 }
 add_action( 'wp_ajax_pcm_cache_preload_toggle', 'pcm_ajax_cache_preload_toggle' );

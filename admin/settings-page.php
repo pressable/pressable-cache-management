@@ -1417,10 +1417,13 @@ function pcm_support_url() {
     return 'https://my.pressable.com/help';
 }
 
-// Right side of the admin footer: the plugin version instead of the WordPress version.
+// Right side of the admin footer: Send feedback and the plugin version, instead of the WordPress version.
 function pcm_footer_version( $text ) {
     if ( isset( $_GET['page'] ) && 'pressable_cache_management' === sanitize_key( $_GET['page'] ) ) {
-        return esc_html( 'Pressable Cache Management v' . pcm_plugin_version() );
+        return '<a href="' . esc_url( pcm_feedback_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">'
+            . esc_html__( 'Send feedback', 'pressable_cache_management' ) . '</a>'
+            . ' <span style="color:#cbd5e1;">&middot;</span> '
+            . esc_html( 'PCM v' . pcm_plugin_version() );
     }
     return $text;
 }
@@ -1441,10 +1444,10 @@ function pcm_replace_default_footer($footer_text) {
 
         if ( $branding_disabled ) {
             // Branding hidden: "Built with ♥" — heart links to branding settings page
-            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#03fcc2;font-size:18px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a>' . ' <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_feedback_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Send feedback', 'pressable_cache_management' ) . '</a> <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_support_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Pressable Support', 'pressable_cache_management' ) . '</a>';
+            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#03fcc2;font-size:18px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a>';
         } else {
             // Branding shown: full credit — heart links to branding settings page
-            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#dd3a03;font-size:20px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a> by The Pressable CS Team.' . ' <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_feedback_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Send feedback', 'pressable_cache_management' ) . '</a> <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_support_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Pressable Support', 'pressable_cache_management' ) . '</a>';
+            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#dd3a03;font-size:20px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a> by The Pressable CS Team.';
         }
     }
     return $footer_text;

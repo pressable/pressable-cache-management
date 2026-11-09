@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.4.2 (Nov 9, 2026) =
+* Edge Cache Preload: turning preload on or off failed with "cURL error 28: Operation timed out after 2001 milliseconds". The edge-cache mu-plugin gives the WP Cloud API 2 seconds, and the preload toggle takes longer because it schedules the crawl before answering. Toggle requests now allow 20 seconds and status requests 10. After any toggle error the current state is read back, and if the change was applied anyway the panel shows it instead of the error; a remaining timeout shows a plain-language message.
+* Footer: the right side now reads "Send feedback · PCM v6.4.2"; the Pressable Support link was removed from the footer (the Batcache alert still links to support).
+
 = Version 6.4.1 (Nov 9, 2026) =
 * Batcache status badge: when cookies block Batcache, one extra request is made as a returning visitor carrying those cookies. The alert now says whether the cookies are set only for first-time visitors (Batcache stores a page once a returning visitor loads it, so the site is cold after every flush until that happens) or on every request (Batcache can never store the page). Seen on brodo.com right after the 6.4.0 update flushed the cache: Stape Conversion Tracking's Cookie Keeper sets _sbp for new visitors.
 * Batcache status badge: added Stape Conversion Tracking (GTM Server Side) Cookie Keeper (_sbp) to the known cookie list with the setting to turn off.
