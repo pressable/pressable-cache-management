@@ -148,12 +148,14 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 **Batcache Status Badge**
 
 * The check now runs on the server (`pcm_probe_batcache()` in `admin/settings-page.php`), not in the browser. The browser `fetch()` read the Pressable edge cache, which can hold a copy of a Batcache miss (no `x-nananana` header) for up to a day, so the badge showed "Batcache Broken" on sites where Batcache worked.
-* Each probe request carries a unique `fbclid` value: the edge does not cache it, Batcache ignores it, so the real homepage entry is tested. Up to three requests are made because Batcache stores a page on its second visit.
+* Each probe request carries a unique `fbclid[]=` value: the edge strips a plain `fbclid=` but not the array form, so every request reaches origin, and Batcache ignores any `fbclid` key, so the real homepage entry is tested. Up to three requests are made because Batcache stores a page on its second visit.
 * Cookie interference is detected directly: Batcache never stores a response that sets a cookie. The badge shows "Batcache Blocked by Cookies" with the cookie names and the plugin that usually sets them.
+* Alert panel under the header for every non-active result: observed facts, each cookie with its likely source and fix, and numbered next steps. Edge cases: HTTP 4xx/5xx homepage (incl. Defensive Mode challenge) → "Status Unavailable"; homepage in Exclude Pages → "Homepage Excluded"; short max-age called out.
 * Results are stored for a day; a check runs at most once a minute unless the refresh button is clicked. "Status Unavailable" is shown when the site cannot be reached.
 
 **Settings page**
 
+* Footer shows the plugin version instead of the WordPress version and links to Send feedback (prefilled GitHub issue) and Pressable Support; the Batcache alert panel links to both.
 * Removed the negative right margin on the page wrapper that made the page scroll sideways; the card grid collapses to one column under 1100px.
 
 #### **Version 6.1.3 (Sep 2, 2026)**

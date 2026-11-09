@@ -94,12 +94,14 @@ if ( ! function_exists( 'pcm_branded_notice' ) ) {
 // the response headers. Batcache is advanced-cache.php, i.e. it runs inside PHP, so a
 // loopback request is handled by it exactly like a visitor's request.
 //
-// The request carries a unique fbclid query value. The Pressable edge cache keys on
-// the full URL, so it misses and forwards the request to origin; Batcache strips
-// fbclid (it is in its $ignored_query_args), so what gets tested is the real homepage
-// entry. Without this the edge can hold a copy of a Batcache MISS (no x-nananana) for
-// up to a day and every probe reads that copy — the previous browser-side fetch()
-// reported "Batcache Broken" for exactly that reason.
+// Each request carries a unique fbclid[]=... query value. The Pressable edge cache
+// strips a plain fbclid= but not the array form, so it misses and forwards every
+// request to origin; Batcache strips any fbclid key ($ignored_query_args), so what
+// gets tested is the real homepage entry and WordPress sees no other query args
+// (unknown parameters make some plugins set tracking cookies). Without this the edge
+// can hold a copy of a Batcache MISS (no x-nananana) for up to a day and every probe
+// reads that copy — the previous browser-side fetch() reported "Batcache Broken" for
+// exactly that reason.
 //
 // Batcache only stores a URL on its 2nd request within 120 s ($times = 2), so up to
 // three requests are made, stopping at the first x-nananana (Batcache-Set or -Hit).
@@ -125,36 +127,57 @@ function pcm_batcache_status_labels() {
         'cloudflare' => __( 'Cloudflare Detected',         'pressable_cache_management' ),
         'broken'     => __( 'Batcache Broken',             'pressable_cache_management' ),
         'unknown'    => __( 'Status Unavailable',          'pressable_cache_management' ),
+        'excluded'   => __( 'Homepage Excluded',           'pressable_cache_management' ),
     );
 }
 
-// Where a cookie set on the homepage usually comes from, by name prefix (case-insensitive).
+// Known cookie-name prefixes (matched case-insensitively): where the cookie comes
+// from and what to do about it. Only cookies sent as Set-Cookie HTTP headers block
+// Batcache; cookies set by JavaScript never do.
 function pcm_batcache_cookie_hint( $name ) {
-    static $hints = array(
-        'phpsessid'               => 'PHP session: session_start() in a plugin, theme or custom code',
-        'wp_woocommerce_session_' => 'WooCommerce session',
-        'woocommerce_'            => 'WooCommerce',
-        'pll_language'            => 'Polylang',
-        '_icl_'                   => 'WPML',
-        'wp-wpml_'                => 'WPML',
-        'wfwaf-'                  => 'Wordfence',
-        'wfvt_'                   => 'Wordfence',
-        'tk_ai'                   => 'Jetpack',
-        'mailchimp'               => 'Mailchimp for WooCommerce',
-        'cookielawinfo'           => 'CookieYes / GDPR Cookie Consent',
-        'cookieyes'               => 'CookieYes',
-        'moove_gdpr'              => 'GDPR Cookie Compliance',
-        'cmplz_'                  => 'Complianz',
-        'yith_wcwl_'              => 'YITH WooCommerce Wishlist',
-        '_lscache_vary'           => 'LiteSpeed Cache',
-    );
+    static $hints = null;
+    if ( null === $hints ) {
+        $one_at_a_time = __( 'Deactivate plugins one at a time and click the refresh button on the badge after each one to find it.', 'pressable_cache_management' );
+        $consent       = __( 'Consent cookies should be set by JavaScript. Update the plugin and look in its settings for a PHP or server-side cookie option; if the cookie is still sent as a header, deactivate the plugin and re-check.', 'pressable_cache_management' );
+        $wpml          = __( 'In WPML > Languages, turn off the browser-language redirect and the language cookie used for AJAX filtering, then re-check. See the Pressable guide "Allowing Caching for WPML and WCML on Pressable".', 'pressable_cache_management' );
+        $hints = array(
+            'phpsessid'               => array( __( 'PHP session (session_start())', 'pressable_cache_management' ), __( 'A plugin or theme starts a PHP session on every page.', 'pressable_cache_management' ) . ' ' . $one_at_a_time . ' ' . __( 'If the plugin is needed, ask its developer to start the session only on the pages that use it.', 'pressable_cache_management' ) ),
+            'wp_woocommerce_session_' => array( __( 'WooCommerce session', 'pressable_cache_management' ), __( 'WooCommerce normally sets this cookie only once a visitor has something in the cart. A plugin or theme (often geolocation, currency, wishlist or "recently viewed" features) is forcing a session for every visitor, and visitors holding this cookie bypass Batcache as well.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
+            'woocommerce_'            => array( __( 'WooCommerce', 'pressable_cache_management' ), __( 'Set when the cart or recently viewed products are touched while the page loads. A plugin or theme is doing that for every visitor.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
+            'pll_language'            => array( __( 'Polylang', 'pressable_cache_management' ), __( "Polylang sets its language cookie on every page. Add define( 'PLL_COOKIE', false ); to wp-config.php to stop it (browser language detection stops too), then re-check.", 'pressable_cache_management' ) ),
+            '_icl_'                   => array( __( 'WPML', 'pressable_cache_management' ), $wpml ),
+            'wp-wpml_'                => array( __( 'WPML', 'pressable_cache_management' ), $wpml ),
+            'wfvt_'                   => array( __( 'Wordfence Live Traffic', 'pressable_cache_management' ), __( 'In Wordfence > All Options > Live Traffic, set logging to "Security only", then re-check.', 'pressable_cache_management' ) ),
+            'yith_wcwl_'              => array( __( 'YITH WooCommerce Wishlist', 'pressable_cache_management' ), __( 'The wishlist starts a session for every visitor. Deactivate it, or ask YITH about setting the cookie only when a wishlist is used, then re-check.', 'pressable_cache_management' ) ),
+            'mailchimp'               => array( __( 'Mailchimp for WooCommerce', 'pressable_cache_management' ), __( 'Older versions set a landing-site cookie for every new visitor from PHP. Update the plugin; if the cookie is still sent, deactivate it and re-check.', 'pressable_cache_management' ) ),
+            'wordpress_test_cookie'   => array( __( 'WordPress login test cookie', 'pressable_cache_management' ), __( 'Normally only the login page sets this. A plugin is rendering a login form or setting it on every page.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
+            'cookielawinfo'           => array( __( 'CookieYes / GDPR Cookie Consent', 'pressable_cache_management' ), $consent ),
+            'moove_gdpr'              => array( __( 'GDPR Cookie Compliance', 'pressable_cache_management' ), $consent ),
+            'tk_ai'                   => array( __( 'Jetpack / WooCommerce Tracks', 'pressable_cache_management' ), __( 'Normally set by JavaScript. Sent as a header, it means a plugin sets it from PHP.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
+        );
+    }
     $lower = strtolower( $name );
-    foreach ( $hints as $prefix => $source ) {
+    foreach ( $hints as $prefix => $hint ) {
         if ( 0 === strpos( $lower, $prefix ) ) {
-            return $source;
+            return array( 'source' => $hint[0], 'fix' => $hint[1] );
         }
     }
-    return '';
+    return array(
+        'source' => '',
+        'fix'    => __( 'Search your plugins and theme (wp-content) for this cookie name and for setcookie() or session_start() calls.', 'pressable_cache_management' ) . ' ' . $one_at_a_time,
+    );
+}
+
+// True when "/" is in the Exclude Pages from Batcache setting: the homepage is skipped on purpose.
+function pcm_batcache_home_excluded() {
+    $opts = get_option( 'pressable_cache_management_options' );
+    $list = is_array( $opts ) && ! empty( $opts['exempt_from_batcache'] ) ? $opts['exempt_from_batcache'] : '';
+    foreach ( array_map( 'trim', explode( ',', (string) $list ) ) as $path ) {
+        if ( '/' === $path ) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /**
@@ -163,12 +186,19 @@ function pcm_batcache_cookie_hint( $name ) {
  */
 function pcm_probe_batcache() {
     $result = array( 'status' => 'broken', 'cookies' => array(), 'max_age' => 0, 'checked' => time(), 'error' => '', 'attempts' => 0 );
-    $cloudflare = false;
+    $cloudflare     = false;
     $reached_origin = false;
-    $errors = array();
+    $ok_responses   = 0;
+    $errors         = array();
+    $http_codes     = array();
 
     for ( $i = 1; $i <= 3; $i++ ) {
-        $url  = add_query_arg( 'fbclid', 'pcm-probe-' . wp_generate_password( 12, false ), home_url( '/' ) );
+        // fbclid[] (array form): the edge does not recognise it as fbclid, so every request
+        // misses the edge and reaches origin; Batcache strips any 'fbclid' key, so the real
+        // homepage entry is tested. A plain fbclid=... is stripped by the edge too, so only the
+        // first request would reach origin and the rest would read the edge copy of it.
+        $home = home_url( '/' );
+        $url  = $home . ( false === strpos( $home, '?' ) ? '?' : '&' ) . 'fbclid%5B%5D=pcm-probe-' . wp_generate_password( 12, false );
         $resp = wp_remote_get( $url, array(
             'timeout'     => 15,
             'redirection' => 3,
@@ -192,14 +222,24 @@ function pcm_probe_batcache() {
             $result['max_age'] = (int) $m[1];
         }
         foreach ( wp_remote_retrieve_cookies( $resp ) as $cookie ) {
-            $result['cookies'][] = $cookie->name;
+            if ( is_object( $cookie ) && ! empty( $cookie->name ) ) {
+                $result['cookies'][] = $cookie->name;
+            }
         }
 
         if ( false !== strpos( $nananana, 'batcache' ) ) {
             $result['status'] = 'active';
             break;
         }
-        // An edge HIT was answered without reaching origin, so it says nothing about Batcache.
+
+        // Error pages (maintenance, coming soon, an edge challenge) are never cached and say nothing about Batcache.
+        $code = (int) wp_remote_retrieve_response_code( $resp );
+        if ( $code >= 400 ) {
+            $http_codes[] = $code;
+            continue;
+        }
+        $ok_responses++;
+        // An edge HIT was answered without reaching origin, so it says nothing about Batcache either.
         if ( ! preg_match( '/\bhit\b/', $x_ac ) ) {
             $reached_origin = true;
         }
@@ -210,13 +250,24 @@ function pcm_probe_batcache() {
     if ( 'active' !== $result['status'] ) {
         if ( ! empty( $result['cookies'] ) ) {
             $result['status'] = 'cookies';
+        } elseif ( 0 === $ok_responses && ( $http_codes || $errors ) ) {
+            $result['status'] = 'unknown';
+            if ( $http_codes ) {
+                /* translators: %s: HTTP status code(s) */
+                $result['error'] = sprintf( __( 'The homepage answered with HTTP %s instead of a page.', 'pressable_cache_management' ), implode( ' / ', array_unique( $http_codes ) ) );
+                if ( 'yes' === get_option( 'edge-cache-defensive-mode-active' ) ) {
+                    $result['error'] .= ' ' . __( 'Edge Cache Defensive Mode is on, so the check is being challenged like a visitor; turn it off to check Batcache.', 'pressable_cache_management' );
+                }
+            } else {
+                $result['error'] = implode( '; ', array_unique( $errors ) );
+            }
+        } elseif ( pcm_batcache_home_excluded() ) {
+            $result['status'] = 'excluded';
         } elseif ( $cloudflare ) {
             $result['status'] = 'cloudflare';
         } elseif ( ! $reached_origin ) {
             $result['status'] = 'unknown';
-            $result['error']  = $errors
-                ? implode( '; ', array_unique( $errors ) )
-                : __( 'Every response came from the edge cache, so Batcache could not be observed.', 'pressable_cache_management' );
+            $result['error']  = __( 'Every response came from the edge cache, so Batcache could not be observed.', 'pressable_cache_management' );
         }
     }
 
@@ -224,43 +275,103 @@ function pcm_probe_batcache() {
     return $result;
 }
 
+// Last step of an alert: links to Pressable Support (%1$s) and the feedback form (%2$s). Returns escaped HTML.
+function pcm_batcache_alert_help_step( $template ) {
+    $link = '<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>';
+    return sprintf(
+        esc_html( $template ),
+        sprintf( $link, esc_url( pcm_support_url() ), esc_html__( 'contact Pressable Support', 'pressable_cache_management' ) ),
+        sprintf( $link, esc_url( pcm_feedback_url() ), esc_html__( 'send us feedback', 'pressable_cache_management' ) )
+    );
+}
+
+// The alert panel shown under the header for anything but an active Batcache.
+function pcm_batcache_alert_html( $r ) {
+    $tone  = 'error';
+    $title = '';
+    $text  = '';
+    $items = array();
+    $steps = array();
+
+    switch ( $r['status'] ) {
+        case 'cookies':
+            $title = __( 'Cookies are blocking Batcache', 'pressable_cache_management' );
+            $text  = __( 'When the homepage was requested as a first-time visitor (no cookies), the response set the cookies below. Batcache never stores a response that sets a cookie, so PHP builds these pages for every visitor.', 'pressable_cache_management' );
+            foreach ( $r['cookies'] as $name ) {
+                $hint    = pcm_batcache_cookie_hint( $name );
+                $items[] = '<code>' . esc_html( $name ) . '</code>'
+                    . ( $hint['source'] ? ' &mdash; <span class="pcm-bc-source">' . esc_html( $hint['source'] ) . '</span>' : '' )
+                    . '<br>' . esc_html( $hint['fix'] );
+            }
+            $steps = array(
+                esc_html__( 'Fix or deactivate what sets each cookie (see above), then click the ↻ button on the badge to re-check.', 'pressable_cache_management' ),
+                esc_html__( 'If the plugin is needed, ask its developer to set the cookie with JavaScript or only on the pages that use it. Cookies set by JavaScript do not block Batcache; only Set-Cookie headers sent by PHP do.', 'pressable_cache_management' ),
+                esc_html__( 'Logged-in users and shoppers with items in their cart are never served from Batcache; that is expected and not a problem.', 'pressable_cache_management' ),
+                pcm_batcache_alert_help_step( __( 'Still stuck? %1$s and include the cookie names above, or %2$s about this check.', 'pressable_cache_management' ) ),
+            );
+            break;
+
+        case 'broken':
+            $title = __( 'Batcache is not caching the homepage', 'pressable_cache_management' );
+            $text  = __( 'Three requests as a first-time visitor returned no Batcache header and set no cookies, so something else stops Batcache from storing the page.', 'pressable_cache_management' );
+            if ( $r['max_age'] > 0 && $r['max_age'] < 60 ) {
+                /* translators: %d: seconds */
+                $items[] = esc_html( sprintf( __( 'The response carried Cache-Control max-age=%d, which is too short for Batcache to keep the page.', 'pressable_cache_management' ), $r['max_age'] ) );
+            }
+            $steps = array(
+                esc_html__( 'Look for a plugin or theme that sends Cache-Control: no-cache, private or max-age=0 headers, or calls batcache_cancel(). Caching plugins such as WP Rocket, W3 Total Cache and LiteSpeed Cache should have their page caching disabled on Pressable.', 'pressable_cache_management' ),
+                esc_html__( 'Deactivate plugins one at a time and click the ↻ button on the badge after each one.', 'pressable_cache_management' ),
+                pcm_batcache_alert_help_step( __( 'If it stays broken, %1$s or %2$s.', 'pressable_cache_management' ) ),
+            );
+            break;
+
+        case 'excluded':
+            $tone  = 'warn';
+            $title = __( 'The homepage is excluded from Batcache', 'pressable_cache_management' );
+            $text  = __( 'Your Exclude Pages setting lists "/", so Batcache skips the homepage on purpose and the status cannot be checked there. Remove "/" from the exclusions and click the ↻ button to check again.', 'pressable_cache_management' );
+            break;
+
+        case 'cloudflare':
+            $tone  = 'warn';
+            $title = __( 'Cloudflare is in front of the site', 'pressable_cache_management' );
+            $text  = __( 'The check sees Cloudflare\'s response, so Batcache headers cannot be observed. Batcache may still work at origin. To verify, pause Cloudflare or add a "Bypass cache" rule for HTML, then click the ↻ button.', 'pressable_cache_management' );
+            break;
+
+        case 'unknown':
+            if ( empty( $r['error'] ) ) {
+                return '';
+            }
+            $tone  = 'warn';
+            $title = __( 'The Batcache status could not be checked', 'pressable_cache_management' );
+            $text  = $r['error'] . ' ' . __( 'Click the ↻ button to try again. If it keeps failing, contact Pressable Support.', 'pressable_cache_management' );
+            break;
+
+        default:
+            return '';
+    }
+
+    $html  = '<div class="pcm-bc-alert-title">' . esc_html( $title ) . '</div>';
+    $html .= '<p>' . esc_html( $text ) . '</p>';
+    if ( $items ) {
+        $html .= '<ul><li>' . implode( '</li><li>', $items ) . '</li></ul>';
+    }
+    if ( $steps ) {
+        $html .= '<p class="pcm-bc-alert-next">' . esc_html__( 'What to do next', 'pressable_cache_management' ) . '</p>';
+        $html .= '<ol><li>' . implode( '</li><li>', $steps ) . '</li></ol>';
+    }
+    return '<div class="pcm-bc-alert pcm-bc-alert--' . esc_attr( $tone ) . '">' . $html . '</div>';
+}
+
 // What the badge shows for a stored result.
 function pcm_batcache_status_payload( $r ) {
     $labels = pcm_batcache_status_labels();
-    $detail = '';
-    switch ( $r['status'] ) {
-        case 'cookies':
-            $parts = array();
-            foreach ( $r['cookies'] as $name ) {
-                $hint    = pcm_batcache_cookie_hint( $name );
-                $parts[] = $hint ? $name . ' (' . $hint . ')' : $name;
-            }
-            $detail = sprintf(
-                /* translators: %s: comma-separated cookie names */
-                __( 'The homepage sets cookies for anonymous visitors, and Batcache never stores a response that sets a cookie: %s. Disable the plugin, theme or custom code that sets them.', 'pressable_cache_management' ),
-                implode( ', ', $parts )
-            );
-            break;
-        case 'broken':
-            $detail = __( 'The homepage was requested three times without a Batcache header and without setting cookies. Check for a Cache-Control: no-cache / private / max-age=0 header, batcache_cancel(), or a plugin that disables caching.', 'pressable_cache_management' );
-            break;
-        case 'cloudflare':
-            $detail = __( 'Responses come from Cloudflare, so Batcache headers cannot be observed. Check the caching settings in your Cloudflare dashboard.', 'pressable_cache_management' );
-            break;
-        case 'unknown':
-            if ( ! empty( $r['error'] ) ) {
-                /* translators: %s: error message */
-                $detail = sprintf( __( 'The status check could not get an answer from the site: %s', 'pressable_cache_management' ), $r['error'] );
-            }
-            break;
-    }
     return array(
-        'status'  => $r['status'],
-        'label'   => $labels[ $r['status'] ],
-        'detail'  => $detail,
-        'max_age' => (int) $r['max_age'],
+        'status'     => $r['status'],
+        'label'      => $labels[ $r['status'] ],
+        'alert_html' => pcm_batcache_alert_html( $r ),
+        'max_age'    => (int) $r['max_age'],
         /* translators: %s: human-readable time difference */
-        'checked' => empty( $r['checked'] ) ? '' : sprintf( __( 'Checked %s ago', 'pressable_cache_management' ), human_time_diff( $r['checked'] ) ),
+        'checked'    => empty( $r['checked'] ) ? '' : sprintf( __( 'Checked %s ago', 'pressable_cache_management' ), human_time_diff( $r['checked'] ) ),
     );
 }
 
@@ -343,7 +454,7 @@ function pressable_cache_management_display_settings_page() {
         $bc_payload = pcm_batcache_status_payload( $bc );
         $bc_never   = ( 'unknown' === $bc['status'] && empty( $bc['checked'] ) );
         $bc_label   = $bc_never ? __( 'Checking…', 'pressable_cache_management' ) : $bc_payload['label'];
-        $bc_class   = ( 'cookies' === $bc['status'] ) ? 'broken' : $bc['status'];
+        $bc_class   = ( 'cookies' === $bc['status'] ) ? 'broken' : ( 'excluded' === $bc['status'] ? 'unknown' : $bc['status'] );
     ?>
 
     <!-- Header: logo + status badge -->
@@ -376,7 +487,6 @@ function pressable_cache_management_display_settings_page() {
                     </span>
                 </span>
             </div>
-            <p id="pcm-bc-detail" style="margin:0;font-size:11.5px;line-height:1.5;color:#64748b;text-align:right;font-family:'Inter',sans-serif;<?php echo $bc_payload['detail'] ? '' : 'display:none;'; ?>"><?php echo esc_html( $bc_payload['detail'] ); ?></p>
         </div>
         <script>
         // The probe runs in PHP (see pcm_probe_batcache); this only asks for it and
@@ -387,14 +497,14 @@ function pressable_cache_management_display_settings_page() {
             var d = res.data;
             var badge = document.getElementById('pcm-bc-badge');
             var label = document.getElementById('pcm-bc-label');
-            var detail = document.getElementById('pcm-bc-detail');
+            var alertBox = document.getElementById('pcm-bc-alert');
             if (!badge || !label) return null;
             label.textContent = d.label;
-            badge.className = 'pcm-batcache-status ' + (d.status === 'cookies' ? 'broken' : d.status);
+            badge.className = 'pcm-batcache-status ' + (d.status === 'cookies' ? 'broken' : d.status === 'excluded' ? 'unknown' : d.status);
             badge.title = d.checked || '';
-            if (detail) {
-                detail.textContent = d.detail || '';
-                detail.style.display = d.detail ? 'block' : 'none';
+            if (alertBox) {
+                alertBox.innerHTML = d.alert_html || '';
+                alertBox.style.display = d.alert_html ? 'block' : 'none';
             }
             var ttlEl = document.getElementById('pcm-ttl-value');
             if (ttlEl && d.max_age) ttlEl.textContent = pcmSecondsToHuman(d.max_age);
@@ -466,6 +576,9 @@ function pressable_cache_management_display_settings_page() {
         })();
         </script>
     </div>
+
+    <!-- Batcache alert panel (filled by PHP now, by JS after each check) -->
+    <div id="pcm-bc-alert" style="<?php echo $bc_payload['alert_html'] ? '' : 'display:none;'; ?>"><?php echo $bc_payload['alert_html']; ?></div>
 
     <!-- ── 2-column grid ── -->
     <div class="pcm-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
@@ -1255,6 +1368,37 @@ function pressable_cache_management_display_settings_page() {
 }
 
 // ─── Footer ──────────────────────────────────────────────────────────────────
+// Plugin version from the main file header (no constant to keep in sync).
+function pcm_plugin_version() {
+    static $v = null;
+    if ( null === $v ) {
+        $data = get_file_data( plugin_dir_path( dirname( __FILE__ ) ) . 'pressable-cache-management.php', array( 'Version' => 'Version' ) );
+        $v    = ! empty( $data['Version'] ) ? $data['Version'] : '';
+    }
+    return $v;
+}
+
+// Where feedback goes: a prefilled GitHub issue on the plugin repo (public, issues on).
+function pcm_feedback_url() {
+    global $wp_version;
+    $title = 'Feedback: Pressable Cache Management ' . pcm_plugin_version();
+    $body  = "Plugin version: " . pcm_plugin_version() . "\nWordPress: " . $wp_version . "\n\nWhat happened, or what would you like changed?\n";
+    return 'https://github.com/pressable/pressable-cache-management/issues/new?title=' . rawurlencode( $title ) . '&body=' . rawurlencode( $body );
+}
+
+function pcm_support_url() {
+    return 'https://my.pressable.com/help';
+}
+
+// Right side of the admin footer: the plugin version instead of the WordPress version.
+function pcm_footer_version( $text ) {
+    if ( isset( $_GET['page'] ) && 'pressable_cache_management' === sanitize_key( $_GET['page'] ) ) {
+        return esc_html( 'Pressable Cache Management v' . pcm_plugin_version() );
+    }
+    return $text;
+}
+add_filter( 'update_footer', 'pcm_footer_version', 11 );
+
 function pcm_footer_msg() {
     if ( 'not-exists' === get_option('remove_pressable_branding_tab_options','not-exists') ) {
         add_option('remove_pressable_branding_tab_options','');
@@ -1270,10 +1414,10 @@ function pcm_replace_default_footer($footer_text) {
 
         if ( $branding_disabled ) {
             // Branding hidden: "Built with ♥" — heart links to branding settings page
-            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#03fcc2;font-size:18px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a>';
+            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#03fcc2;font-size:18px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a>' . ' <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_feedback_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Send feedback', 'pressable_cache_management' ) . '</a> <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_support_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Pressable Support', 'pressable_cache_management' ) . '</a>';
         } else {
             // Branding shown: full credit — heart links to branding settings page
-            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#dd3a03;font-size:20px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a> by The Pressable CS Team.';
+            return 'Built with <a href="admin.php?page=pressable_cache_management&tab=remove_pressable_branding_tab" title="Show or Hide Plugin Branding" style="text-decoration:none;"><span style="color:#dd3a03;font-size:20px;transition:opacity .2s;" onmouseover="this.style.opacity=\'0.7\'" onmouseout="this.style.opacity=\'1\'">&#x2665;</span></a> by The Pressable CS Team.' . ' <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_feedback_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Send feedback', 'pressable_cache_management' ) . '</a> <span style="color:#cbd5e1;">&middot;</span> <a href="' . esc_url( pcm_support_url() ) . '" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;text-decoration:none;font-weight:600;">' . esc_html__( 'Pressable Support', 'pressable_cache_management' ) . '</a>';
         }
     }
     return $footer_text;

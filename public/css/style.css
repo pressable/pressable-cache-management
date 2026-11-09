@@ -644,3 +644,21 @@ div.notice.pcm-branded.pcm-warning {
     border: 1px solid #cbd5e1;
 }
 .pcm-batcache-status.unknown .pcm-dot { background: #94a3b8; }
+
+/* ---- Batcache alert panel ---- */
+.pcm-bc-alert {
+  background: #fff; border: 1px solid #e2e8f0; border-left: 4px solid #dd3a03;
+  border-radius: 0 12px 12px 0; padding: 18px 22px; margin: -8px 0 24px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04); font-family: 'Inter', sans-serif;
+}
+/* Tone classes are prefixed: WordPress moves any div.error/.notice/.updated to the top of the page. */
+.pcm-bc-alert--warn { border-left-color: #f59e0b; }
+.pcm-bc-alert-title { font-size: 14px; font-weight: 700; color: #040024; margin: 0 0 6px; }
+.pcm-bc-alert p { font-size: 13px; color: #475569; margin: 0 0 10px; line-height: 1.55; }
+.pcm-bc-alert p.pcm-bc-alert-next { font-weight: 700; color: #040024; margin: 4px 0 6px; }
+.pcm-bc-alert ul, .pcm-bc-alert ol { margin: 0 0 10px 18px; padding: 0; font-size: 13px; color: #475569; line-height: 1.55; }
+.pcm-bc-alert ul { list-style: disc; }
+.pcm-bc-alert ol { list-style: decimal; }
+.pcm-bc-alert li { margin: 0 0 8px; }
+.pcm-bc-alert code { background: #fef2f2; color: #dd3a03; border: 1px solid #fecaca; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+.pcm-bc-alert .pcm-bc-source { font-weight: 600; color: #040024; }
