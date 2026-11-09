@@ -138,6 +138,10 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
 * exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
 
+#### **Version 6.4.1 (Nov 9, 2026)**
+
+* Batcache status badge: after cookies are detected, one extra request is made as a returning visitor carrying them. The alert states whether the cookies are set only for first-time visitors (cache primes once a returning visitor loads the page, so it is cold after every flush) or on every request (never cached). Added Stape Conversion Tracking Cookie Keeper (`_sbp`) to the known cookie list.
+
 #### **Version 6.4.0 (Nov 9, 2026)**
 
 **Edge Cache Preload (WP Cloud beta)**

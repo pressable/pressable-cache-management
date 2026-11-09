@@ -117,7 +117,7 @@ function pcm_get_batcache_status() {
     if ( is_array( $r ) && isset( $r['status'] ) ) {
         return $r;
     }
-    return array( 'status' => 'unknown', 'cookies' => array(), 'max_age' => 0, 'checked' => 0, 'error' => '' );
+    return array( 'status' => 'unknown', 'cookies' => array(), 'max_age' => 0, 'checked' => 0, 'error' => '', 'primes' => null );
 }
 
 function pcm_batcache_status_labels() {
@@ -141,6 +141,7 @@ function pcm_batcache_cookie_hint( $name ) {
         $consent       = __( 'Consent cookies should be set by JavaScript. Update the plugin and look in its settings for a PHP or server-side cookie option; if the cookie is still sent as a header, deactivate the plugin and re-check.', 'pressable_cache_management' );
         $wpml          = __( 'In WPML > Languages, turn off the browser-language redirect and the language cookie used for AJAX filtering, then re-check. See the Pressable guide "Allowing Caching for WPML and WCML on Pressable".', 'pressable_cache_management' );
         $hints = array(
+            '_sbp'                    => array( __( 'Stape Conversion Tracking (GTM Server Side) Cookie Keeper', 'pressable_cache_management' ), __( 'The Cookie Keeper option sets the _sbp visitor cookie from PHP for every new visitor. In Settings > GTM Server Side (Stape), turn Cookie Keeper off, or use its same-origin custom loader instead, then re-check.', 'pressable_cache_management' ) ),
             'phpsessid'               => array( __( 'PHP session (session_start())', 'pressable_cache_management' ), __( 'A plugin or theme starts a PHP session on every page.', 'pressable_cache_management' ) . ' ' . $one_at_a_time . ' ' . __( 'If the plugin is needed, ask its developer to start the session only on the pages that use it.', 'pressable_cache_management' ) ),
             'wp_woocommerce_session_' => array( __( 'WooCommerce session', 'pressable_cache_management' ), __( 'WooCommerce normally sets this cookie only once a visitor has something in the cart. A plugin or theme (often geolocation, currency, wishlist or "recently viewed" features) is forcing a session for every visitor, and visitors holding this cookie bypass Batcache as well.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
             'woocommerce_'            => array( __( 'WooCommerce', 'pressable_cache_management' ), __( 'Set when the cart or recently viewed products are touched while the page loads. A plugin or theme is doing that for every visitor.', 'pressable_cache_management' ) . ' ' . $one_at_a_time ),
@@ -191,21 +192,26 @@ function pcm_probe_batcache() {
     $ok_responses   = 0;
     $errors         = array();
     $http_codes     = array();
+    $seen_cookies   = array();
+
+    $home      = home_url( '/' );
+    $probe_url = function() use ( $home ) {
+        return $home . ( false === strpos( $home, '?' ) ? '?' : '&' ) . 'fbclid%5B%5D=pcm-probe-' . wp_generate_password( 12, false );
+    };
+    $probe_args = array(
+        'timeout'     => 15,
+        'redirection' => 3,
+        'cookies'     => array(),
+        'user-agent'  => 'Pressable-Cache-Management batcache-probe',
+        'headers'     => array( 'Accept' => 'text/html' ),
+    );
 
     for ( $i = 1; $i <= 3; $i++ ) {
         // fbclid[] (array form): the edge does not recognise it as fbclid, so every request
         // misses the edge and reaches origin; Batcache strips any 'fbclid' key, so the real
         // homepage entry is tested. A plain fbclid=... is stripped by the edge too, so only the
         // first request would reach origin and the rest would read the edge copy of it.
-        $home = home_url( '/' );
-        $url  = $home . ( false === strpos( $home, '?' ) ? '?' : '&' ) . 'fbclid%5B%5D=pcm-probe-' . wp_generate_password( 12, false );
-        $resp = wp_remote_get( $url, array(
-            'timeout'     => 15,
-            'redirection' => 3,
-            'cookies'     => array(),
-            'user-agent'  => 'Pressable-Cache-Management batcache-probe',
-            'headers'     => array( 'Accept' => 'text/html' ),
-        ) );
+        $resp = wp_remote_get( $probe_url(), $probe_args );
         $result['attempts'] = $i;
 
         if ( is_wp_error( $resp ) ) {
@@ -223,7 +229,8 @@ function pcm_probe_batcache() {
         }
         foreach ( wp_remote_retrieve_cookies( $resp ) as $cookie ) {
             if ( is_object( $cookie ) && ! empty( $cookie->name ) ) {
-                $result['cookies'][] = $cookie->name;
+                $result['cookies'][]            = $cookie->name;
+                $seen_cookies[ $cookie->name ]  = $cookie;
             }
         }
 
@@ -246,6 +253,19 @@ function pcm_probe_batcache() {
     }
 
     $result['cookies'] = array_values( array_unique( $result['cookies'] ) );
+
+    // One more request as a returning visitor carrying the cookies we were given. A plugin that
+    // sets its cookie only for first-time visitors leaves Batcache able to store the page once a
+    // returning visitor loads it (so the cache is cold after every flush until that happens); a
+    // plugin that sets it on every request never lets Batcache store the page.
+    $result['primes'] = null;
+    if ( 'active' !== $result['status'] && $seen_cookies ) {
+        $resp = wp_remote_get( $probe_url(), array_merge( $probe_args, array( 'cookies' => array_values( $seen_cookies ) ) ) );
+        if ( ! is_wp_error( $resp ) && (int) wp_remote_retrieve_response_code( $resp ) < 400 ) {
+            $nananana         = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-nananana' ) );
+            $result['primes'] = false !== strpos( $nananana, 'batcache' ) || ! wp_remote_retrieve_cookies( $resp );
+        }
+    }
 
     if ( 'active' !== $result['status'] ) {
         if ( ! empty( $result['cookies'] ) ) {
@@ -296,7 +316,14 @@ function pcm_batcache_alert_html( $r ) {
     switch ( $r['status'] ) {
         case 'cookies':
             $title = __( 'Cookies are blocking Batcache', 'pressable_cache_management' );
-            $text  = __( 'When the homepage was requested as a first-time visitor (no cookies), the response set the cookies below. Batcache never stores a response that sets a cookie, so PHP builds these pages for every visitor.', 'pressable_cache_management' );
+            $text  = __( 'When the homepage was requested as a first-time visitor (no cookies), the response set the cookies below. Batcache never stores a response that sets a cookie.', 'pressable_cache_management' );
+            if ( ! empty( $r['primes'] ) ) {
+                $text .= ' ' . __( 'They are set only for visitors who do not have them yet, so Batcache stores a page only once a returning visitor loads it: after every cache flush the site stays uncached until that happens, and first-time visitors are never served from Batcache on pages nobody has primed.', 'pressable_cache_management' );
+            } elseif ( isset( $r['primes'] ) && false === $r['primes'] ) {
+                $text .= ' ' . __( 'They are set on every request, so Batcache can never store these pages and PHP builds them for every visitor.', 'pressable_cache_management' );
+            } else {
+                $text .= ' ' . __( 'PHP builds these pages for every visitor they are set for.', 'pressable_cache_management' );
+            }
             foreach ( $r['cookies'] as $name ) {
                 $hint    = pcm_batcache_cookie_hint( $name );
                 $items[] = '<code>' . esc_html( $name ) . '</code>'
