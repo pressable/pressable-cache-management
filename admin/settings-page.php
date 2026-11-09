@@ -1288,6 +1288,7 @@ function pressable_cache_management_display_settings_page() {
             pages:    '<?php echo esc_js( __( '%1$s of %2$s pages preloaded', 'pressable_cache_management' ) ); ?>',
             finished: '<?php echo esc_js( __( 'Finished', 'pressable_cache_management' ) ); ?>',
             failed:   '<?php echo esc_js( __( 'Could not retrieve Cache Preload status.', 'pressable_cache_management' ) ); ?>',
+            onNoEc:   '<?php echo esc_js( __( 'Edge Cache is off, so preloading has no effect until Edge Cache is enabled again.', 'pressable_cache_management' ) ); ?>',
             working:  '<?php echo esc_js( __( 'Working…', 'pressable_cache_management' ) ); ?>'
         };
 
@@ -1309,6 +1310,7 @@ function pressable_cache_management_display_settings_page() {
                 }
                 if (d.finished_time) parts.push(T.finished + ': ' + d.finished_time);
                 if (d.error) parts.push('<span style="color:#dd3a03;">' + $('<span>').text(d.error).html() + '</span>');
+                if (!ecOn) parts.push('<span style="color:#b45309;">' + T.onNoEc + '</span>');
                 if (parts.length) html += '<br><span style="font-size:13px;color:#475569;font-weight:400;">' + parts.join(' &middot; ') + '</span>';
                 line.html(html).css({ color:'#059669', fontStyle:'normal' });
                 setBtn(enable, false, '#dd3a03');
@@ -1364,13 +1366,32 @@ function pressable_cache_management_display_settings_page() {
         var enable  = $('#pcm-woo-enable-btn');
         var disable = $('#pcm-woo-disable-btn');
         var wooActive = <?php echo class_exists( 'WooCommerce' ) ? 'true' : 'false'; ?>;
+        <?php
+        // What to tell the user when WooCommerce is not running, with the next step as a link.
+        $pcm_woo_file = 'woocommerce/woocommerce.php';
+        if ( class_exists( 'WooCommerce' ) ) {
+            $pcm_woo_missing = '';
+        } elseif ( file_exists( WP_PLUGIN_DIR . '/' . $pcm_woo_file ) ) {
+            $pcm_woo_missing = esc_html__( 'WooCommerce is installed but not active. Activate the WooCommerce plugin to use Cart Caching.', 'pressable_cache_management' );
+            if ( current_user_can( 'activate_plugins' ) ) {
+                $pcm_woo_missing .= ' <a href="' . esc_url( wp_nonce_url( admin_url( 'plugins.php?action=activate&plugin=' . rawurlencode( $pcm_woo_file ) ), 'activate-plugin_' . $pcm_woo_file ) ) . '" style="color:#dd3a03;font-weight:600;text-decoration:none;">' . esc_html__( 'Activate WooCommerce', 'pressable_cache_management' ) . '</a>';
+            }
+        } else {
+            $pcm_woo_missing = esc_html__( 'WooCommerce is not installed. Cart Caching is only for WooCommerce stores; install and activate the WooCommerce plugin to use it.', 'pressable_cache_management' );
+            if ( current_user_can( 'install_plugins' ) ) {
+                $pcm_woo_missing .= ' <a href="' . esc_url( admin_url( 'plugin-install.php?s=woocommerce&tab=search&type=term' ) ) . '" style="color:#dd3a03;font-weight:600;text-decoration:none;">' . esc_html__( 'Install WooCommerce', 'pressable_cache_management' ) . '</a>';
+            }
+        }
+        ?>
+        var wooMissingHtml = <?php echo wp_json_encode( $pcm_woo_missing ); ?>;
         var ecOn = false, busy = false;
         var T = {
             enabled:  '<?php echo esc_js( __( 'Enabled', 'pressable_cache_management' ) ); ?>',
             enabledD: '<?php echo esc_js( __( 'shoppers with items in their cart are served from Edge Cache', 'pressable_cache_management' ) ); ?>',
             disabled: '<?php echo esc_js( __( 'Disabled', 'pressable_cache_management' ) ); ?>',
             needEc:   '<?php echo esc_js( __( 'Disabled — Edge Cache must be enabled first.', 'pressable_cache_management' ) ); ?>',
-            noWoo:    '<?php echo esc_js( __( 'WooCommerce is not active on this site.', 'pressable_cache_management' ) ); ?>',
+            onNoWoo:  '<?php echo esc_js( __( 'but WooCommerce is not active, so it has no effect. Disable it, or activate WooCommerce.', 'pressable_cache_management' ) ); ?>',
+            onNoEc:   '<?php echo esc_js( __( 'but Edge Cache is off, so it has no effect until Edge Cache is enabled again.', 'pressable_cache_management' ) ); ?>',
             failed:   '<?php echo esc_js( __( 'Could not retrieve Cart Caching status.', 'pressable_cache_management' ) ); ?>',
             working:  '<?php echo esc_js( __( 'Working…', 'pressable_cache_management' ) ); ?>',
             confirm:  '<?php echo esc_js( __( 'Enable WooCommerce Cart Caching? Shoppers with items in their cart will get cached pages, and the cart may look empty for a moment while each page loads. Test your cart icon and mini-cart afterwards.', 'pressable_cache_management' ) ); ?>'
@@ -1381,17 +1402,30 @@ function pressable_cache_management_display_settings_page() {
                .css({ opacity: on ? 1 : .4, cursor: on ? 'pointer' : 'not-allowed', pointerEvents: on ? 'auto' : 'none', background: bg });
         }
 
+        function showNoWoo() {
+            line.html(wooMissingHtml).css({ color:'#b45309', fontStyle:'normal' });
+            setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
+        }
+
+        // Cart caching is a WP Cloud setting, independent of WooCommerce and Edge Cache being on,
+        // so an enabled setting is always shown (with Disable) even when it currently has no effect.
         function render(on) {
             if (on) {
-                line.html('<strong style="color:#059669;">' + T.enabled + '</strong> &mdash; ' + T.enabledD).css({ color:'#059669', fontStyle:'normal' });
-            } else {
-                line.text(ecOn ? T.disabled : T.needEc).css({ color: ecOn ? '#64748b' : '#94a3b8', fontStyle:'normal' });
+                var note = !wooActive ? T.onNoWoo : (!ecOn ? T.onNoEc : '');
+                line.html('<strong style="color:#059669;">' + T.enabled + '</strong> &mdash; ' + (note || T.enabledD))
+                    .css({ color: note ? '#b45309' : '#059669', fontStyle:'normal' });
+                setBtn(enable, false, '#dd3a03');
+                setBtn(disable, true, '#dd3a03');
+                return;
             }
-            setBtn(enable, !on && ecOn, '#dd3a03');
-            setBtn(disable, on, on ? '#dd3a03' : '#64748b');
+            if (!wooActive) { showNoWoo(); return; }
+            line.text(ecOn ? T.disabled : T.needEc).css({ color: ecOn ? '#64748b' : '#94a3b8', fontStyle:'normal' });
+            setBtn(enable, ecOn, '#dd3a03');
+            setBtn(disable, false, '#64748b');
         }
 
         function fail(msg) {
+            if (!wooActive) { showNoWoo(); return; }
             line.text(msg || T.failed).css({ color:'#ef4444', fontStyle:'normal' });
             setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
         }
@@ -1417,10 +1451,7 @@ function pressable_cache_management_display_settings_page() {
 
         window.pcmWooCartInit = function(edgeCacheEnabled) {
             ecOn = !!edgeCacheEnabled;
-            if (!wooActive) {
-                line.text(T.noWoo).css({ color:'#94a3b8', fontStyle:'normal' });
-                return;
-            }
+            // Read the setting even without WooCommerce: it may still be on from before.
             call({});
         };
     })(jQuery);

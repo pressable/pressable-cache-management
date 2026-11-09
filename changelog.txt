@@ -1,5 +1,12 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.5.1 (Nov 9, 2026) =
+* WooCommerce Cart Caching: when WooCommerce is not running, the card now says what to do. If WooCommerce is installed but inactive it shows "WooCommerce is installed but not active" with an Activate WooCommerce link (one click, for users who can activate plugins); if it is not installed it explains that Cart Caching is for WooCommerce stores, with an Install WooCommerce link. Previously it only said "WooCommerce is not active on this site."
+* WooCommerce Cart Caching: the setting is now read even when WooCommerce is inactive. If cart caching was left on, the card shows "Enabled — but WooCommerce is not active, so it has no effect" with Disable available, instead of hiding it.
+* Cart Caching and Cache Preload: when either is on while Edge Cache is off, the card says it has no effect until Edge Cache is enabled again, and Disable stays available.
+* Edge Cache tab: while Defensive Mode is on, Edge Cache was reported as off, so the tab offered "Enable Edge Cache", locked Purge, and told Preload and Cart Caching that Edge Cache must be enabled first. Defensive Mode runs on top of Edge Cache, so it is now treated as on.
+* Cache Preload and Cart Caching: an "Authorization" error from WP Cloud now explains that the beta feature may not be available for the site yet and to contact Pressable Support, instead of showing only the raw error.
+
 = Version 6.5.0 (Nov 9, 2026) =
 * New: WooCommerce Cart Caching (WP Cloud beta) on the Edge Cache tab. Normally a shopper with items in the cart bypasses Edge Cache on every page. With cart caching on, they get the cached page and WooCommerce fills in their cart with JavaScript. Cart and checkout are never cached and logged-in users still bypass the cache. The card shows whether it is on, has Enable/Disable buttons (Enable asks for confirmation), explains how to test the theme, and is inactive with a note when WooCommerce is not active or Edge Cache is off. It uses the edge-cache mu-plugin's query_ec_backend('woo_cart_cache') (admin/custom-functions/woo_cart_cache.php).
 * The Edge Cache API helper used by Cache Preload is now shared by both features (pcm_edge_feature_request), with the same longer timeouts and read-back after a failed toggle.

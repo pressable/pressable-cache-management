@@ -374,6 +374,9 @@ function pcm_ajax_check_edge_cache_status()
         $status_flag = 'Success';
         $ttl         = 300; // 5 minutes — stable state
     } elseif ( $server_status === Edge_Cache_Plugin::EC_DDOS ) {
+        // Defensive Mode runs on top of Edge Cache, so Edge Cache is on: without this the tab
+        // offered "Enable Edge Cache" and locked Purge, Preload and Cart Caching during an attack.
+        $is_enabled  = true;
         $status_text = 'Defensive Mode (DDoS)';
         $status_flag = 'Warning';
         $ttl         = 60; // re-check sooner during DDoS mode

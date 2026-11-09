@@ -138,6 +138,15 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
 * exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
 
+#### **Version 6.5.1 (Nov 9, 2026)**
+
+**Edge cases on the Edge Cache tab**
+
+* WooCommerce Cart Caching without WooCommerce: "installed but not active" with an **Activate WooCommerce** link, or "not installed" with an **Install WooCommerce** link. An enabled setting is still shown ("Enabled — but WooCommerce is not active…") with Disable available.
+* Cart Caching or Cache Preload on while Edge Cache is off: the card says it has no effect until Edge Cache is enabled again.
+* Defensive Mode (`EC_DDOS`) now counts as Edge Cache on, so the tab no longer offers "Enable Edge Cache" or locks Purge, Preload and Cart Caching during an attack.
+* WP Cloud "Authorization" errors on the beta endpoints explain that the feature may not be enabled for the site and to contact Pressable Support.
+
 #### **Version 6.5.0 (Nov 9, 2026)**
 
 **WooCommerce Cart Caching (WP Cloud beta)**

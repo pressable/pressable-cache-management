@@ -46,6 +46,10 @@ function pcm_edge_feature_request( $endpoint, $enable = null ) {
         $error = is_array( $result ) && ! empty( $result['error'] ) ? $result['error'] : __( 'Unknown error from the Edge Cache API.', 'pressable_cache_management' );
         if ( false !== stripos( $error, 'cURL error 28' ) || false !== stripos( $error, 'timed out' ) ) {
             $error = __( 'The WP Cloud API did not answer in time. Click the refresh button in a moment to see the current state.', 'pressable_cache_management' );
+        } elseif ( false !== stripos( $error, 'Authorization' ) ) {
+            // 400/403/404 from these beta endpoints usually means the feature is not enabled for the site.
+            /* translators: %s: the API error */
+            $error = sprintf( __( 'WP Cloud refused the request (%s). This beta feature may not be available for this site yet; contact Pressable Support to request access.', 'pressable_cache_management' ), $error );
         }
         return array( 'success' => false, 'error' => $error );
     }
