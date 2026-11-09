@@ -138,6 +138,24 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
 * exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
 
+#### **Version 6.4.0 (Nov 9, 2026)**
+
+**Edge Cache Preload (WP Cloud beta)**
+
+* New card on the Edge Cache tab. The preloader crawls the site from the front page, stores pages in a preload cache at the origin data center and refreshes them after purges. The panel shows on/off, crawl state, pages preloaded and Enable/Disable buttons, and polls every 10 seconds while a crawl runs.
+* Uses the edge-cache mu-plugin's `query_ec_backend( 'preload' )` (GET for status, POST `enable=1|0` to toggle), the same signed channel Defensive Mode uses. Code in `admin/custom-functions/cache_preload.php`. Verify with the `x-sc` response header (`x-ac: MISS` + `x-sc: HIT` means the page came from the preload cache).
+
+**Batcache Status Badge**
+
+* The check now runs on the server (`pcm_probe_batcache()` in `admin/settings-page.php`), not in the browser. The browser `fetch()` read the Pressable edge cache, which can hold a copy of a Batcache miss (no `x-nananana` header) for up to a day, so the badge showed "Batcache Broken" on sites where Batcache worked.
+* Each probe request carries a unique `fbclid` value: the edge does not cache it, Batcache ignores it, so the real homepage entry is tested. Up to three requests are made because Batcache stores a page on its second visit.
+* Cookie interference is detected directly: Batcache never stores a response that sets a cookie. The badge shows "Batcache Blocked by Cookies" with the cookie names and the plugin that usually sets them.
+* Results are stored for a day; a check runs at most once a minute unless the refresh button is clicked. "Status Unavailable" is shown when the site cannot be reached.
+
+**Settings page**
+
+* Removed the negative right margin on the page wrapper that made the page scroll sideways; the card grid collapses to one column under 1100px.
+
 #### **Version 6.1.3 (Sep 2, 2026)**
 
 * exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.

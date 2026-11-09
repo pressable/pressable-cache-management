@@ -90,91 +90,213 @@ if ( ! function_exists( 'pcm_branded_notice' ) ) {
 }
 
 // ─── Batcache status check ───────────────────────────────────────────────────
-// WHY BROWSER-SIDE: wp_remote_get() is a server-side loopback request. Pressable's
-// infrastructure routes loopback requests directly to PHP, bypassing the Batcache/CDN
-// layer entirely — so x-nananana is never present regardless of real cache state.
-// The browser is the only client that sees the actual CDN response headers.
-// SOLUTION: JS fetches the homepage with cache:reload (forces a fresh CDN response)
-// and reads x-nananana directly, then reports the result back to PHP via AJAX.
-// PHP only stores/returns the transient — it never probes the URL itself.
+// HOW IT WORKS: PHP requests the homepage from the server (wp_remote_get) and reads
+// the response headers. Batcache is advanced-cache.php, i.e. it runs inside PHP, so a
+// loopback request is handled by it exactly like a visitor's request.
+//
+// The request carries a unique fbclid query value. The Pressable edge cache keys on
+// the full URL, so it misses and forwards the request to origin; Batcache strips
+// fbclid (it is in its $ignored_query_args), so what gets tested is the real homepage
+// entry. Without this the edge can hold a copy of a Batcache MISS (no x-nananana) for
+// up to a day and every probe reads that copy — the previous browser-side fetch()
+// reported "Batcache Broken" for exactly that reason.
+//
+// Batcache only stores a URL on its 2nd request within 120 s ($times = 2), so up to
+// three requests are made, stopping at the first x-nananana (Batcache-Set or -Hit).
+// Server-side is also the only place Set-Cookie response headers can be read
+// (fetch() hides them): Batcache never stores a response that sets a cookie, so those
+// cookie names are the "culprits" and are shown under the badge.
+//
+// Cost: at most three homepage requests, only when an admin opens this page or clicks
+// refresh, and never more than once a minute (results are stored in a transient).
 
 function pcm_get_batcache_status() {
-    $cached = get_transient( 'pcm_batcache_status' );
-    return ( $cached !== false ) ? $cached : 'unknown';
+    $r = get_transient( 'pcm_batcache_status' );
+    if ( is_array( $r ) && isset( $r['status'] ) ) {
+        return $r;
+    }
+    return array( 'status' => 'unknown', 'cookies' => array(), 'max_age' => 0, 'checked' => 0, 'error' => '' );
 }
 
-// ── AJAX: browser reports the header value it observed ───────────────────────
-function pcm_ajax_report_batcache_header() {
-    check_ajax_referer( 'pcm_batcache_nonce', 'nonce' );
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_send_json_error( 'Unauthorized', 403 );
-    }
-
-    $raw = isset( $_POST['x_nananana'] ) ? sanitize_text_field( wp_unslash( $_POST['x_nananana'] ) ) : '';
-    $val = strtolower( trim( $raw ) );
-
-    if ( strpos( $val, 'batcache' ) !== false ) {
-        $status = 'active';
-    } elseif ( isset( $_POST['is_cloudflare'] ) && $_POST['is_cloudflare'] === '1' ) {
-        $status = 'cloudflare';
-    } else {
-        $status = 'broken';
-    }
-
-    // Active: 24 hrs — prevents the badge falsely flipping to broken after 5 min.
-    // Broken: 2 min — re-probe frequently until resolved.
-    $ttl = ( $status === 'active' ) ? 86400 : 120;
-    set_transient( 'pcm_batcache_status', $status, $ttl );
-
-    $labels = array(
-        'active'     => __( 'Batcache Active',     'pressable_cache_management' ),
-        'cloudflare' => __( 'Cloudflare Detected', 'pressable_cache_management' ),
-        'broken'     => __( 'Batcache Broken',     'pressable_cache_management' ),
+function pcm_batcache_status_labels() {
+    return array(
+        'active'     => __( 'Batcache Active',             'pressable_cache_management' ),
+        'cookies'    => __( 'Batcache Blocked by Cookies', 'pressable_cache_management' ),
+        'cloudflare' => __( 'Cloudflare Detected',         'pressable_cache_management' ),
+        'broken'     => __( 'Batcache Broken',             'pressable_cache_management' ),
+        'unknown'    => __( 'Status Unavailable',          'pressable_cache_management' ),
     );
-
-    wp_send_json_success( array(
-        'status' => $status,
-        'label'  => $labels[ $status ],
-    ) );
 }
-add_action( 'wp_ajax_pcm_report_batcache_header', 'pcm_ajax_report_batcache_header' );
 
-// ── AJAX: return current stored status (for badge refresh without re-fetching) ─
-function pcm_ajax_get_batcache_status() {
-    check_ajax_referer( 'pcm_batcache_nonce', 'nonce' );
-    if ( ! current_user_can( 'manage_options' ) ) {
-        wp_send_json_error( 'Unauthorized', 403 );
-    }
-
-    $status = pcm_get_batcache_status();
-    $labels = array(
-        'active'     => __( 'Batcache Active',     'pressable_cache_management' ),
-        'cloudflare' => __( 'Cloudflare Detected', 'pressable_cache_management' ),
-        'broken'     => __( 'Batcache Broken',     'pressable_cache_management' ),
-        'unknown'    => __( 'Batcache Broken',     'pressable_cache_management' ),
+// Where a cookie set on the homepage usually comes from, by name prefix (case-insensitive).
+function pcm_batcache_cookie_hint( $name ) {
+    static $hints = array(
+        'phpsessid'               => 'PHP session: session_start() in a plugin, theme or custom code',
+        'wp_woocommerce_session_' => 'WooCommerce session',
+        'woocommerce_'            => 'WooCommerce',
+        'pll_language'            => 'Polylang',
+        '_icl_'                   => 'WPML',
+        'wp-wpml_'                => 'WPML',
+        'wfwaf-'                  => 'Wordfence',
+        'wfvt_'                   => 'Wordfence',
+        'tk_ai'                   => 'Jetpack',
+        'mailchimp'               => 'Mailchimp for WooCommerce',
+        'cookielawinfo'           => 'CookieYes / GDPR Cookie Consent',
+        'cookieyes'               => 'CookieYes',
+        'moove_gdpr'              => 'GDPR Cookie Compliance',
+        'cmplz_'                  => 'Complianz',
+        'yith_wcwl_'              => 'YITH WooCommerce Wishlist',
+        '_lscache_vary'           => 'LiteSpeed Cache',
     );
-
-    wp_send_json_success( array(
-        'status' => $status,
-        'label'  => isset( $labels[ $status ] ) ? $labels[ $status ] : $labels['broken'],
-    ) );
+    $lower = strtolower( $name );
+    foreach ( $hints as $prefix => $source ) {
+        if ( 0 === strpos( $lower, $prefix ) ) {
+            return $source;
+        }
+    }
+    return '';
 }
-add_action( 'wp_ajax_pcm_get_batcache_status', 'pcm_ajax_get_batcache_status' );
-
-// Keep the old action name as an alias so any cached JS still works
-add_action( 'wp_ajax_pcm_refresh_batcache_status', 'pcm_ajax_get_batcache_status' );
 
 /**
- * Clear the cached status immediately after any cache flush
- * so the badge re-checks on next page load.
+ * Request the homepage up to three times and classify what Batcache did.
+ * Stores and returns array( status, cookies, max_age, checked, error, attempts ).
+ */
+function pcm_probe_batcache() {
+    $result = array( 'status' => 'broken', 'cookies' => array(), 'max_age' => 0, 'checked' => time(), 'error' => '', 'attempts' => 0 );
+    $cloudflare = false;
+    $reached_origin = false;
+    $errors = array();
+
+    for ( $i = 1; $i <= 3; $i++ ) {
+        $url  = add_query_arg( 'fbclid', 'pcm-probe-' . wp_generate_password( 12, false ), home_url( '/' ) );
+        $resp = wp_remote_get( $url, array(
+            'timeout'     => 15,
+            'redirection' => 3,
+            'cookies'     => array(),
+            'user-agent'  => 'Pressable-Cache-Management batcache-probe',
+            'headers'     => array( 'Accept' => 'text/html' ),
+        ) );
+        $result['attempts'] = $i;
+
+        if ( is_wp_error( $resp ) ) {
+            $errors[] = $resp->get_error_message();
+            continue;
+        }
+
+        $nananana = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-nananana' ) );
+        $x_ac     = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-ac' ) );
+        $server   = strtolower( (string) wp_remote_retrieve_header( $resp, 'server' ) );
+        $cloudflare = $cloudflare || false !== strpos( $server, 'cloudflare' ) || '' !== (string) wp_remote_retrieve_header( $resp, 'cf-ray' );
+
+        if ( preg_match( '/max-age=(\d+)/i', (string) wp_remote_retrieve_header( $resp, 'cache-control' ), $m ) ) {
+            $result['max_age'] = (int) $m[1];
+        }
+        foreach ( wp_remote_retrieve_cookies( $resp ) as $cookie ) {
+            $result['cookies'][] = $cookie->name;
+        }
+
+        if ( false !== strpos( $nananana, 'batcache' ) ) {
+            $result['status'] = 'active';
+            break;
+        }
+        // An edge HIT was answered without reaching origin, so it says nothing about Batcache.
+        if ( ! preg_match( '/\bhit\b/', $x_ac ) ) {
+            $reached_origin = true;
+        }
+    }
+
+    $result['cookies'] = array_values( array_unique( $result['cookies'] ) );
+
+    if ( 'active' !== $result['status'] ) {
+        if ( ! empty( $result['cookies'] ) ) {
+            $result['status'] = 'cookies';
+        } elseif ( $cloudflare ) {
+            $result['status'] = 'cloudflare';
+        } elseif ( ! $reached_origin ) {
+            $result['status'] = 'unknown';
+            $result['error']  = $errors
+                ? implode( '; ', array_unique( $errors ) )
+                : __( 'Every response came from the edge cache, so Batcache could not be observed.', 'pressable_cache_management' );
+        }
+    }
+
+    set_transient( 'pcm_batcache_status', $result, DAY_IN_SECONDS );
+    return $result;
+}
+
+// What the badge shows for a stored result.
+function pcm_batcache_status_payload( $r ) {
+    $labels = pcm_batcache_status_labels();
+    $detail = '';
+    switch ( $r['status'] ) {
+        case 'cookies':
+            $parts = array();
+            foreach ( $r['cookies'] as $name ) {
+                $hint    = pcm_batcache_cookie_hint( $name );
+                $parts[] = $hint ? $name . ' (' . $hint . ')' : $name;
+            }
+            $detail = sprintf(
+                /* translators: %s: comma-separated cookie names */
+                __( 'The homepage sets cookies for anonymous visitors, and Batcache never stores a response that sets a cookie: %s. Disable the plugin, theme or custom code that sets them.', 'pressable_cache_management' ),
+                implode( ', ', $parts )
+            );
+            break;
+        case 'broken':
+            $detail = __( 'The homepage was requested three times without a Batcache header and without setting cookies. Check for a Cache-Control: no-cache / private / max-age=0 header, batcache_cancel(), or a plugin that disables caching.', 'pressable_cache_management' );
+            break;
+        case 'cloudflare':
+            $detail = __( 'Responses come from Cloudflare, so Batcache headers cannot be observed. Check the caching settings in your Cloudflare dashboard.', 'pressable_cache_management' );
+            break;
+        case 'unknown':
+            if ( ! empty( $r['error'] ) ) {
+                /* translators: %s: error message */
+                $detail = sprintf( __( 'The status check could not get an answer from the site: %s', 'pressable_cache_management' ), $r['error'] );
+            }
+            break;
+    }
+    return array(
+        'status'  => $r['status'],
+        'label'   => $labels[ $r['status'] ],
+        'detail'  => $detail,
+        'max_age' => (int) $r['max_age'],
+        /* translators: %s: human-readable time difference */
+        'checked' => empty( $r['checked'] ) ? '' : sprintf( __( 'Checked %s ago', 'pressable_cache_management' ), human_time_diff( $r['checked'] ) ),
+    );
+}
+
+// ── AJAX: run the probe (or return the stored result) ────────────────────────
+function pcm_ajax_probe_batcache() {
+    check_ajax_referer( 'pcm_batcache_nonce', 'nonce' );
+    if ( ! current_user_can( 'manage_options' ) ) {
+        wp_send_json_error( 'Unauthorized', 403 );
+    }
+
+    $force  = ! empty( $_POST['force'] );
+    $stored = pcm_get_batcache_status();
+
+    // A result under a minute old is fresh enough unless the user clicked refresh;
+    // the lock stops two tabs probing at the same time.
+    if ( ( ! $force && $stored['checked'] > time() - MINUTE_IN_SECONDS ) || get_transient( 'pcm_batcache_probe_lock' ) ) {
+        $result = $stored;
+    } else {
+        set_transient( 'pcm_batcache_probe_lock', 1, 45 );
+        $result = pcm_probe_batcache();
+        delete_transient( 'pcm_batcache_probe_lock' );
+    }
+
+    wp_send_json_success( pcm_batcache_status_payload( $result ) );
+}
+add_action( 'wp_ajax_pcm_probe_batcache', 'pcm_ajax_probe_batcache' );
+
+/**
+ * Clear the stored status after any cache flush so the badge re-checks on the next
+ * page load (the probe also re-warms the homepage in Batcache).
  */
 function pcm_clear_batcache_status_transient() {
     delete_transient( 'pcm_batcache_status' );
 }
 add_action( 'pcm_after_object_cache_flush', 'pcm_clear_batcache_status_transient' );
 add_action( 'pcm_after_batcache_flush',     'pcm_clear_batcache_status_transient' );
-// Also clear when edge cache is fully purged — Batcache is implicitly invalidated too,
-// so the next probe will correctly detect the transitional 'broken' state.
 add_action( 'pcm_after_edge_cache_purge',   'pcm_clear_batcache_status_transient' );
 
 // ─── Main page ───────────────────────────────────────────────────────────────
@@ -187,11 +309,12 @@ function pressable_cache_management_display_settings_page() {
     $show_branding  = ! ( $branding_opts && 'disable' == $branding_opts['branding_on_off_radio_button'] );
 
     wp_enqueue_style( 'pressable_cache_management',
-        plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/style.css', array(), '3.0.0', 'screen' );
+        plugin_dir_url( dirname( __FILE__ ) ) . 'public/css/style.css', array(),
+        filemtime( plugin_dir_path( dirname( __FILE__ ) ) . 'public/css/style.css' ), 'screen' );
     wp_enqueue_style( 'pcm-google-fonts',
         'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap', array(), null );
     ?>
-    <div class="wrap" style="background:#f0f2f5;margin-left:-20px;margin-right:-20px;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
+    <div class="wrap pcm-wrap" style="background:#f0f2f5;padding:24px 28px 40px;min-height:calc(100vh - 32px);font-family:'Inter',sans-serif;">
     <div style="max-width:1120px;margin:0 auto;">
     <h1 style="display:none;"><?php echo esc_html( get_admin_page_title() ); ?></h1>
 
@@ -206,27 +329,21 @@ function pressable_cache_management_display_settings_page() {
     </nav>
 
     <script>
-    /* Shared by every tab: the Object Cache tab's Batcache probe and the Edge Cache tab's
-       Defensive Mode status check both use these. Declared here, outside the tab
-       conditionals, so they exist no matter which tab is rendered. */
+    /* Shared by every tab: the Object Cache tab's Batcache status check and the Edge Cache
+       tab's Defensive Mode status check both use this nonce. Declared outside the tab
+       conditionals so it exists no matter which tab is rendered. */
     var pcmBatcacheNonce = '<?php echo esc_js( wp_create_nonce( 'pcm_batcache_nonce' ) ); ?>';
-    var pcmSiteUrl       = '<?php echo esc_js( trailingslashit( get_site_url() ) ); ?>';
     </script>
 
     <?php if ( $tab === null ) :
         $options = get_option('pressable_cache_management_options');
 
-        // Batcache status badge
-        $bc_status     = pcm_get_batcache_status();
-        $bc_is_unknown = ( $bc_status === 'unknown' );
-        $bc_label      = $bc_is_unknown
-            ? __( 'Checking…', 'pressable_cache_management' )
-            : ( $bc_status === 'active'
-                ? __( 'Batcache Active', 'pressable_cache_management' )
-                : ( $bc_status === 'cloudflare'
-                    ? __( 'Cloudflare Detected', 'pressable_cache_management' )
-                    : __( 'Batcache Broken', 'pressable_cache_management' ) ) );
-        $bc_class  = $bc_status === 'active' ? 'active' : ( $bc_status === 'cloudflare' ? 'cloudflare' : 'broken' );
+        // Batcache status badge: render the stored result now; JS re-checks on load.
+        $bc         = pcm_get_batcache_status();
+        $bc_payload = pcm_batcache_status_payload( $bc );
+        $bc_never   = ( 'unknown' === $bc['status'] && empty( $bc['checked'] ) );
+        $bc_label   = $bc_never ? __( 'Checking…', 'pressable_cache_management' ) : $bc_payload['label'];
+        $bc_class   = ( 'cookies' === $bc['status'] ) ? 'broken' : $bc['status'];
     ?>
 
     <!-- Header: logo + status badge -->
@@ -242,140 +359,71 @@ function pressable_cache_management_display_settings_page() {
             <h2 style="font-size:20px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;"><?php echo esc_html__( 'Cache Control', 'pressable_cache_management' ); ?></h2>
             <?php endif; ?>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;">
-            <span class="pcm-batcache-status <?php echo esc_attr($bc_class); ?>" id="pcm-bc-badge">
-                <span class="pcm-dot" id="pcm-bc-dot"></span>
-                <span id="pcm-bc-label"><?php echo esc_html($bc_label); ?></span>
-                <button id="pcm-bc-refresh" title="<?php esc_attr_e('Re-check Batcache status', 'pressable_cache_management'); ?>"
-                        style="background:none;border:none;cursor:pointer;padding:0 0 0 6px;line-height:1;opacity:.6;font-size:13px;vertical-align:middle;"
-                        onclick="pcmRefreshBatcacheStatus()">&#x21BB;</button>
-            </span>
-            <span class="pcm-bc-tooltip-wrap" style="position:relative;display:inline-flex;align-items:center;">
-                <span style="width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;font-family:'Inter',sans-serif;line-height:1;flex-shrink:0;" aria-label="Batcache info">&#x3F;</span>
-                <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:270px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:'Inter',sans-serif;font-weight:400;">
-                    <?php echo esc_html__( 'Use the refresh button to manually check your cache status. If the cache status remains broken for more than 4 minutes after two visits are recorded on your site, it is likely that caching is failing due to cookie interference from your plugin, theme or custom code.', 'pressable_cache_management' ); ?>
-                    <span style="position:absolute;right:8px;top:-5px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid #1e293b;"></span>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:460px;">
+            <div style="display:flex;align-items:center;gap:6px;">
+                <span class="pcm-batcache-status <?php echo esc_attr($bc_class); ?>" id="pcm-bc-badge" title="<?php echo esc_attr( $bc_payload['checked'] ); ?>">
+                    <span class="pcm-dot" id="pcm-bc-dot"></span>
+                    <span id="pcm-bc-label"><?php echo esc_html($bc_label); ?></span>
+                    <button id="pcm-bc-refresh" title="<?php esc_attr_e('Re-check Batcache status', 'pressable_cache_management'); ?>"
+                            style="background:none;border:none;cursor:pointer;padding:0 0 0 6px;line-height:1;opacity:.6;font-size:13px;vertical-align:middle;"
+                            onclick="pcmRefreshBatcacheStatus()">&#x21BB;</button>
                 </span>
-            </span>
+                <span class="pcm-bc-tooltip-wrap" style="position:relative;display:inline-flex;align-items:center;">
+                    <span style="width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;font-family:'Inter',sans-serif;line-height:1;flex-shrink:0;" aria-label="Batcache info">&#x3F;</span>
+                    <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:270px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:'Inter',sans-serif;font-weight:400;">
+                        <?php echo esc_html__( 'The status is checked from the server: the homepage is requested up to three times (Batcache stores a page on its second visit) and the response headers are read. A result is reused for one minute; the refresh button re-checks right away. If the homepage sets cookies for anonymous visitors, Batcache never caches it and the cookie names are listed under the badge.', 'pressable_cache_management' ); ?>
+                        <span style="position:absolute;right:8px;top:-5px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid #1e293b;"></span>
+                    </span>
+                </span>
+            </div>
+            <p id="pcm-bc-detail" style="margin:0;font-size:11.5px;line-height:1.5;color:#64748b;text-align:right;font-family:'Inter',sans-serif;<?php echo $bc_payload['detail'] ? '' : 'display:none;'; ?>"><?php echo esc_html( $bc_payload['detail'] ); ?></p>
         </div>
         <script>
-
-        // WHY BROWSER-SIDE FETCH:
-        // wp_remote_get() is a server-side loopback. Pressable routes loopbacks
-        // directly to PHP, bypassing the Batcache/CDN layer, so x-nananana is
-        // never returned regardless of real cache state.
-        // The browser is the only client that sees the actual CDN response headers.
-        // We fetch the homepage from JS, read x-nananana directly, then POST the
-        // result to PHP which stores it in the transient.
-
-        // Apply AJAX response to the badge DOM
+        // The probe runs in PHP (see pcm_probe_batcache); this only asks for it and
+        // paints the answer. The server reuses a result under a minute old unless
+        // force=1 (the refresh button), so loading this page is cheap.
         function pcmApplyStatus(res) {
             if (!res || !res.success) return null;
+            var d = res.data;
             var badge = document.getElementById('pcm-bc-badge');
             var label = document.getElementById('pcm-bc-label');
+            var detail = document.getElementById('pcm-bc-detail');
             if (!badge || !label) return null;
-            label.textContent = res.data.label;
-            ['active','broken','cloudflare'].forEach(function(cls) {
-                badge.classList.remove(cls);
-            });
-            badge.classList.add(
-                res.data.status === 'active' ? 'active'
-                : res.data.status === 'cloudflare' ? 'cloudflare'
-                : 'broken');
-            return res.data.status;
+            label.textContent = d.label;
+            badge.className = 'pcm-batcache-status ' + (d.status === 'cookies' ? 'broken' : d.status);
+            badge.title = d.checked || '';
+            if (detail) {
+                detail.textContent = d.detail || '';
+                detail.style.display = d.detail ? 'block' : 'none';
+            }
+            var ttlEl = document.getElementById('pcm-ttl-value');
+            if (ttlEl && d.max_age) ttlEl.textContent = pcmSecondsToHuman(d.max_age);
+            return d.status;
         }
 
-        // Core: multi-probe engine.
-        // WHY MULTIPLE PROBES: Batcache only sends x-nananana on a cache HIT, and by
-        // default it only starts caching a URL after 2 visits within 120 seconds
-        // (see $batcache['times'] / ['seconds'] in batcache.php). So the sequence is:
-        //   probe 1 → miss (counter=1, no header)
-        //   probe 2 → miss (counter=2, page now cached, still no header)
-        //   probe 3 → HIT  (x-nananana: Batcache-Hit)
-        // A single fetch is therefore inherently hit-and-miss. We fetch the SAME URL
-        // (no cache-buster — a unique query string would never be cached) up to 5
-        // times, ~1.3s apart, and stop as soon as any response carries the header.
-        // cache:'reload' bypasses the browser cache; credentials:'omit' strips
-        // cookies so the request is batcache-eligible; Pragma:no-cache makes the
-        // Pressable edge BYPASS so we test batcache at origin, not a stale edge copy.
-        var pcmProbeMax = 5, pcmProbeGapMs = 1300, pcmProbing = false;
-
-        function pcmProbeOnce() {
-            return fetch(pcmSiteUrl, {
-                method: 'GET',
-                cache: 'reload',
-                credentials: 'omit',
-                redirect: 'follow',
-                headers: { 'Pragma': 'no-cache' },
-            }).then(function(resp) {
-                var xN = resp.headers.get('x-nananana') || '';
-                var sv = (resp.headers.get('server') || '').toLowerCase();
-                return {
-                    hit: xN.toLowerCase().indexOf('batcache') !== -1,
-                    xN:  xN,
-                    cf:  sv.indexOf('cloudflare') !== -1 || !!resp.headers.get('cf-ray'),
-                    cc:  resp.headers.get('cache-control') || '',
-                };
-            });
-        }
-
-        function pcmReport(xNananana, isCloudflare) {
-            var body = 'action=pcm_report_batcache_header'
-                     + '&nonce='         + encodeURIComponent(pcmBatcacheNonce)
-                     + '&x_nananana='    + encodeURIComponent(xNananana)
-                     + '&is_cloudflare=' + (isCloudflare ? '1' : '0');
-            return fetch(ajaxurl, {
-                method: 'POST',
-                credentials: 'same-origin',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: body,
-            }).then(function(r) { return r.json(); });
-        }
-
-        function pcmProbeAndReport(onDone) {
-            if (pcmProbing) { if (typeof onDone === 'function') onDone(null); return; }
+        var pcmProbing = false;
+        function pcmProbeBatcache(force, onDone) {
+            if (pcmProbing) { if (onDone) onDone(); return; }
             pcmProbing = true;
             var badge = document.getElementById('pcm-bc-badge');
             var label = document.getElementById('pcm-bc-label');
-            if (badge) { badge.classList.add('checking'); }
-            var attempt = 0, sawCf = false, lastXN = '';
-
-            function finish(xN, cf) {
-                pcmReport(xN, cf)
-                    .then(function(res) {
-                        if (badge) badge.classList.remove('checking');
-                        var status = pcmApplyStatus(res);
-                        pcmProbing = false;
-                        if (typeof onDone === 'function') onDone(status);
-                    })
-                    .catch(function() {
-                        if (badge) badge.classList.remove('checking');
-                        pcmProbing = false;
-                        if (typeof onDone === 'function') onDone(null);
-                    });
-            }
-
-            function step() {
-                attempt++;
-                if (label) label.textContent = '<?php echo esc_js( __( 'Checking', 'pressable_cache_management' ) ); ?>\u2026 ' + attempt + '/' + pcmProbeMax;
-                pcmProbeOnce().then(function(r) {
-                    sawCf = sawCf || r.cf;
-                    lastXN = r.xN || lastXN;
-                    // Surface the observed max-age
-                    var m = (r.cc || '').match(/max-age=(\d+)/i);
-                    if (m) {
-                        var ttlEl = document.getElementById('pcm-ttl-value');
-                        if (ttlEl) ttlEl.textContent = pcmSecondsToHuman(parseInt(m[1]));
-                    }
-                    if (r.hit) { finish(r.xN, sawCf); return; }          // definitive HIT — done
-                    if (attempt >= pcmProbeMax) { finish(lastXN, sawCf); return; } // exhausted → broken/cloudflare
-                    setTimeout(step, pcmProbeGapMs);
-                }).catch(function() {
-                    if (attempt >= pcmProbeMax) { finish(lastXN, sawCf); return; }
-                    setTimeout(step, pcmProbeGapMs);
-                });
-            }
-            step();
+            var prev  = label.textContent;
+            badge.classList.add('checking');
+            label.textContent = '<?php echo esc_js( __( 'Checking…', 'pressable_cache_management' ) ); ?>';
+            fetch(ajaxurl, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'action=pcm_probe_batcache&nonce=' + encodeURIComponent(pcmBatcacheNonce) + '&force=' + (force ? '1' : '0')
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(res) { if (pcmApplyStatus(res) === null) label.textContent = prev; })
+            .catch(function() { label.textContent = prev; })
+            .finally(function() {
+                badge.classList.remove('checking');
+                pcmProbing = false;
+                if (onDone) onDone();
+            });
         }
 
         function pcmSecondsToHuman(s) {
@@ -394,46 +442,21 @@ function pressable_cache_management_display_settings_page() {
             return h > 0 ? d + ' day' + (d !== 1 ? 's' : '') + ' ' + h + ' hr' : d + ' day' + (d !== 1 ? 's' : '');
         }
 
-        // Manual refresh button
+        // Manual refresh button: always re-probes.
         function pcmRefreshBatcacheStatus() {
-            var btn   = document.getElementById('pcm-bc-refresh');
-            var label = document.getElementById('pcm-bc-label');
+            var btn = document.getElementById('pcm-bc-refresh');
             btn.style.opacity = '0.3';
             btn.disabled = true;
-            label.textContent = '<?php echo esc_js(__('Checking…', 'pressable_cache_management')); ?>';
-            pcmProbeAndReport(function() {
+            pcmProbeBatcache(true, function() {
                 btn.style.opacity = '0.6';
                 btn.disabled = false;
             });
         }
 
-        // Auto-poll: re-probe every 60s while status is broken (up to 5 attempts max)
-        var pcmPollTimer = null, pcmPollCount = 0, pcmPollMax = 3;
-        function pcmStartRecoveryPoll() {
-            clearInterval(pcmPollTimer);
-            pcmPollCount = 0;
-            pcmPollTimer = setInterval(function() {
-                pcmPollCount++;
-                if (pcmPollCount > pcmPollMax) { clearInterval(pcmPollTimer); return; }
-                pcmProbeAndReport(function(status) {
-                    if (status === 'active') {
-                        clearInterval(pcmPollTimer);
-                    }
-                });
-            }, 90000);
-        }
+        // On load: confirm the stored status (served from the transient when fresh).
+        pcmProbeBatcache(false);
 
-        // Always fire one silent probe on page load to verify stored status.
-        // If transient expired (unknown) → show Checking… then update to real result.
-        // If stored active → silently confirms or corrects without waiting 24 hrs.
-        // If stored broken → re-probes immediately, starts recovery poll if still broken.
-        <?php if ( $bc_is_unknown ) : ?>
-        document.getElementById('pcm-bc-label').textContent = '<?php echo esc_js( __( 'Checking…', 'pressable_cache_management' ) ); ?>';
-        <?php endif; ?>
-        pcmProbeAndReport(function(status) {
-            if (status !== 'active') pcmStartRecoveryPoll();
-        });
-                // Tooltip show/hide
+        // Tooltip show/hide
         (function() {
             var wrap = document.querySelector('.pcm-bc-tooltip-wrap');
             if (!wrap) return;
@@ -445,7 +468,7 @@ function pressable_cache_management_display_settings_page() {
     </div>
 
     <!-- ── 2-column grid ── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="pcm-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
 
         <!-- LEFT -->
         <div style="display:flex;flex-direction:column;gap:20px;">
@@ -909,6 +932,36 @@ function pressable_cache_management_display_settings_page() {
 
         </div><!-- /Row 3 -->
 
+        <!-- Row 4: Edge Cache Preload -->
+        <div style="padding:24px 28px;border-top:1px solid #f1f5f9;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:10px;">
+                <div>
+                    <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                        <?php echo esc_html__( 'Edge Cache Preload', 'pressable_cache_management' ); ?>
+                        <span style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle;"><?php echo esc_html__( 'Beta', 'pressable_cache_management' ); ?></span>
+                    </p>
+                    <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                        <?php echo esc_html__( 'Crawls the site from the front page and caches pages before visitors request them, then refreshes pages after purges. Helps sites with many rarely visited pages, such as large product catalogs. The crawl renders every page it finds, so it uses PHP workers while running, and a cache flush drops the warmed pages and starts a new crawl. Edge Cache must be enabled.', 'pressable_cache_management' ); ?>
+                    </p>
+                    <div id="pcm-preload-status-line" style="font-size:13px;font-weight:600;color:#94a3b8;margin:6px 0 0;font-family:'Inter',sans-serif;font-style:italic;line-height:1.6;">
+                        <?php echo esc_html__( 'Checking status…', 'pressable_cache_management' ); ?>
+                    </div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;">
+                <button type="button" id="pcm-preload-enable-btn" disabled class="ec-disabled-btn"
+                        style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;cursor:not-allowed;transition:background .2s,opacity .2s;">
+                    <?php echo esc_html__( 'Enable Preload', 'pressable_cache_management' ); ?>
+                </button>
+                <button type="button" id="pcm-preload-disable-btn" disabled class="ec-disabled-btn"
+                        style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:#64748b;font-family:'Inter',sans-serif;cursor:not-allowed;transition:background .2s,opacity .2s;">
+                    <?php echo esc_html__( 'Disable Preload', 'pressable_cache_management' ); ?>
+                </button>
+                <button type="button" id="pcm-preload-refresh-btn" title="<?php esc_attr_e( 'Refresh preload status', 'pressable_cache_management' ); ?>"
+                        style="background:none;border:none;cursor:pointer;padding:0 4px;line-height:1;opacity:.6;font-size:16px;color:#040024;">&#x21BB;</button>
+            </div>
+        </div><!-- /Row 4 -->
+
     </div><!-- /card -->
     </div><!-- /max-width -->
 
@@ -1033,16 +1086,105 @@ function pressable_cache_management_display_settings_page() {
                     // Always run DM check after EC check resolves, passing accurate EC state.
                     // Isolated so a failure in the DM check can never affect the EC controls above.
                     pcmSafeApplyDmState( ecEnabled );
+                    if ( window.pcmPreloadInit ) { pcmPreloadInit( ecEnabled ); }
                 },
                 error: function() {
                     wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;"><?php echo esc_js( __( 'Could not connect to server.', 'pressable_cache_management' ) ); ?></p>');
                     // Still run DM check even if EC check fails, treating EC as off
                     pcmSafeApplyDmState( false );
+                    if ( window.pcmPreloadInit ) { pcmPreloadInit( false ); }
                 }
             });
         }
 
     });
+    </script>
+    <script>
+    // ── Edge Cache Preload panel ───────────────────────────────────────────────
+    // pcmPreloadInit(ecEnabled) is called from the Edge Cache status check above
+    // once it knows whether Edge Cache is on. Status comes from the WP Cloud API
+    // (not from crawling the site), so it is polled every 10 s only while a crawl
+    // is pending or running and this tab is visible.
+    (function($){
+        var line    = $('#pcm-preload-status-line');
+        var enable  = $('#pcm-preload-enable-btn');
+        var disable = $('#pcm-preload-disable-btn');
+        var refresh = $('#pcm-preload-refresh-btn');
+        var ecOn    = false, timer = null, busy = false;
+        var T = {
+            enabled:  '<?php echo esc_js( __( 'Enabled', 'pressable_cache_management' ) ); ?>',
+            disabled: '<?php echo esc_js( __( 'Disabled', 'pressable_cache_management' ) ); ?>',
+            needEc:   '<?php echo esc_js( __( 'Disabled — Edge Cache must be enabled first.', 'pressable_cache_management' ) ); ?>',
+            pages:    '<?php echo esc_js( __( '%1$s of %2$s pages preloaded', 'pressable_cache_management' ) ); ?>',
+            finished: '<?php echo esc_js( __( 'Finished', 'pressable_cache_management' ) ); ?>',
+            failed:   '<?php echo esc_js( __( 'Could not retrieve Cache Preload status.', 'pressable_cache_management' ) ); ?>',
+            working:  '<?php echo esc_js( __( 'Working…', 'pressable_cache_management' ) ); ?>'
+        };
+
+        function setBtn(btn, on, bg) {
+            btn.prop('disabled', !on).toggleClass('ec-disabled-btn', !on)
+               .css({ opacity: on ? 1 : .4, cursor: on ? 'pointer' : 'not-allowed', pointerEvents: on ? 'auto' : 'none', background: bg });
+        }
+
+        function render(d) {
+            var html;
+            if (d.enabled) {
+                html = '<strong style="color:#059669;">' + T.enabled + '</strong>';
+                if (d.state_label) html += ' &mdash; ' + $('<span>').text(d.state_label).html();
+                var parts = [];
+                if (d.urls_preloaded !== null && d.urls_found !== null) {
+                    parts.push(T.pages.replace('%1$s', d.urls_preloaded).replace('%2$s', d.urls_found + (d.searching ? '+' : '')));
+                } else if (d.urls_preloaded !== null) {
+                    parts.push(d.urls_preloaded + ' ' + T.pages.split(' ').slice(-2).join(' '));
+                }
+                if (d.finished_time) parts.push(T.finished + ': ' + d.finished_time);
+                if (d.error) parts.push('<span style="color:#dd3a03;">' + $('<span>').text(d.error).html() + '</span>');
+                if (parts.length) html += '<br><span style="font-size:13px;color:#475569;font-weight:400;">' + parts.join(' &middot; ') + '</span>';
+                line.html(html).css({ color:'#059669', fontStyle:'normal' });
+                setBtn(enable, false, '#dd3a03');
+                setBtn(disable, true, '#dd3a03');
+            } else {
+                line.text(ecOn ? T.disabled : T.needEc).css({ color: ecOn ? '#64748b' : '#94a3b8', fontStyle:'normal' });
+                setBtn(enable, ecOn, '#dd3a03');
+                setBtn(disable, false, '#64748b');
+            }
+            clearTimeout(timer);
+            if (d.enabled && (d.state === 'pending' || d.state === 'running')) {
+                timer = setTimeout(function(){ if (!document.hidden) load(); else timer = setTimeout(load, 10000); }, 10000);
+            }
+        }
+
+        function fail(msg) {
+            line.text(msg || T.failed).css({ color:'#ef4444', fontStyle:'normal' });
+            setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
+        }
+
+        function load() {
+            $.post(ajaxurl, { action: 'pcm_cache_preload_status', nonce: pcmBatcacheNonce })
+             .done(function(r){ r.success ? render(r.data) : fail(r.data && r.data.message); })
+             .fail(function(){ fail(); });
+        }
+
+        function toggle(on) {
+            if (busy) return;
+            busy = true;
+            line.text(T.working).css({ color:'#94a3b8', fontStyle:'italic' });
+            setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
+            $.post(ajaxurl, { action: 'pcm_cache_preload_toggle', nonce: pcmBatcacheNonce, enable: on ? 1 : 0 })
+             .done(function(r){ r.success ? render(r.data) : fail(r.data && r.data.message); })
+             .fail(function(){ fail(); })
+             .always(function(){ busy = false; });
+        }
+
+        enable.on('click', function(){ toggle(true); });
+        disable.on('click', function(){ toggle(false); });
+        refresh.on('click', function(){ clearTimeout(timer); load(); });
+
+        window.pcmPreloadInit = function(edgeCacheEnabled) {
+            ecOn = !!edgeCacheEnabled;
+            load();
+        };
+    })(jQuery);
     </script>
     <?php elseif ( $tab === 'remove_pressable_branding_tab' ) : ?>
 

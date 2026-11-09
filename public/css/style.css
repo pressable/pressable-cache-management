@@ -625,3 +625,22 @@ div.notice.pcm-branded.pcm-warning {
     0%, 100% { opacity: 1; transform: scale(1); }
     50%      { opacity: .35; transform: scale(.75); }
 }
+
+/* ---- Page layout ---- */
+/* Full-bleed settings page: pull over #wpcontent's left padding only. The old inline
+   margin-right:-20px made the page 20px wider than the viewport, so it scrolled sideways. */
+.pcm-wrap { margin: 0 0 0 -20px; }
+@media screen and (max-width: 782px) {
+  .pcm-wrap { margin-left: -10px; }
+}
+/* The two-column card grid becomes one column before the cards' content overflows. */
+@media screen and (max-width: 1100px) {
+  .pcm-grid { grid-template-columns: 1fr !important; }
+}
+
+.pcm-batcache-status.unknown {
+    background: #f1f5f9;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+}
+.pcm-batcache-status.unknown .pcm-dot { background: #94a3b8; }
