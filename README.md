@@ -138,6 +138,14 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
 * exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
 
+#### **Version 6.5.0 (Nov 9, 2026)**
+
+**WooCommerce Cart Caching (WP Cloud beta)**
+
+* New card on the Edge Cache tab. Shoppers with items in their cart normally bypass Edge Cache; with cart caching on they get the cached page and WooCommerce fills in the cart with JavaScript. Cart and checkout are never cached; logged-in users still bypass.
+* Uses `query_ec_backend( 'woo_cart_cache' )` (GET for status, POST `enable=1|0`). Code in `admin/custom-functions/woo_cart_cache.php`; the request helper `pcm_edge_feature_request()` is shared with Cache Preload.
+* Verify with a request that carries cart cookies: `x-ac` shows `HIT` instead of `BYPASS`.
+
 #### **Version 6.4.2 (Nov 9, 2026)**
 
 * Edge Cache Preload: fixed "cURL error 28 … after 2001 milliseconds" when turning preload on or off. `query_ec_backend()` defaults to a 2-second timeout; preload calls now pass 20 s (toggle) / 10 s (status), and a toggle error is double-checked with a status read so an applied change is shown as success.

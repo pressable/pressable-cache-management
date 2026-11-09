@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.5.0 (Nov 9, 2026) =
+* New: WooCommerce Cart Caching (WP Cloud beta) on the Edge Cache tab. Normally a shopper with items in the cart bypasses Edge Cache on every page. With cart caching on, they get the cached page and WooCommerce fills in their cart with JavaScript. Cart and checkout are never cached and logged-in users still bypass the cache. The card shows whether it is on, has Enable/Disable buttons (Enable asks for confirmation), explains how to test the theme, and is inactive with a note when WooCommerce is not active or Edge Cache is off. It uses the edge-cache mu-plugin's query_ec_backend('woo_cart_cache') (admin/custom-functions/woo_cart_cache.php).
+* The Edge Cache API helper used by Cache Preload is now shared by both features (pcm_edge_feature_request), with the same longer timeouts and read-back after a failed toggle.
+
 = Version 6.4.2 (Nov 9, 2026) =
 * Edge Cache Preload: turning preload on or off failed with "cURL error 28: Operation timed out after 2001 milliseconds". The edge-cache mu-plugin gives the WP Cloud API 2 seconds, and the preload toggle takes longer because it schedules the crawl before answering. Toggle requests now allow 20 seconds and status requests 10. After any toggle error the current state is read back, and if the change was applied anyway the panel shows it instead of the error; a remaining timeout shows a plain-language message.
 * Footer: the right side now reads "Send feedback · PCM v6.4.2"; the Pressable Support link was removed from the footer (the Batcache alert still links to support).

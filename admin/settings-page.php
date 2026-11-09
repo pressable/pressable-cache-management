@@ -1102,6 +1102,34 @@ function pressable_cache_management_display_settings_page() {
             </div>
         </div><!-- /Row 4 -->
 
+        <!-- Row 5: WooCommerce Cart Caching -->
+        <div style="padding:24px 28px;border-top:1px solid #f1f5f9;">
+            <p style="font-size:15px;font-weight:700;color:#040024;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                <?php echo esc_html__( 'WooCommerce Cart Caching', 'pressable_cache_management' ); ?>
+                <span style="font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle;"><?php echo esc_html__( 'Beta', 'pressable_cache_management' ); ?></span>
+            </p>
+            <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                <?php echo esc_html__( 'Normally a shopper with items in the cart bypasses Edge Cache on every page. With cart caching on, they get the cached page and WooCommerce fills in their cart with JavaScript, so the cart may look empty for a moment while the page loads. Cart and checkout pages are never cached and logged-in users still bypass the cache. Edge Cache must be enabled.', 'pressable_cache_management' ); ?>
+            </p>
+            <p style="font-size:13px;color:#64748b;margin:0 0 6px;font-family:'Inter',sans-serif;">
+                <?php echo esc_html__( 'After enabling, test in a private window: add a product to the cart, browse other pages, and check that the cart icon, count and mini-cart are correct. If they stay empty, your theme or a plugin is not compatible; disable cart caching.', 'pressable_cache_management' ); ?>
+                <a href="https://wp.cloud/docs/performance/cache/woo-cart-caching/" target="_blank" rel="noopener noreferrer" style="color:#dd3a03;font-weight:600;text-decoration:none;"><?php echo esc_html__( 'How to test', 'pressable_cache_management' ); ?></a>
+            </p>
+            <div id="pcm-woo-status-line" style="font-size:13px;font-weight:600;color:#94a3b8;margin:6px 0 0;font-family:'Inter',sans-serif;font-style:italic;line-height:1.6;">
+                <?php echo esc_html__( 'Checking status…', 'pressable_cache_management' ); ?>
+            </div>
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;">
+                <button type="button" id="pcm-woo-enable-btn" disabled class="ec-disabled-btn"
+                        style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:#dd3a03;font-family:'Inter',sans-serif;cursor:not-allowed;transition:background .2s,opacity .2s;">
+                    <?php echo esc_html__( 'Enable Cart Caching', 'pressable_cache_management' ); ?>
+                </button>
+                <button type="button" id="pcm-woo-disable-btn" disabled class="ec-disabled-btn"
+                        style="padding:10px 22px;border:none;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:#64748b;font-family:'Inter',sans-serif;cursor:not-allowed;transition:background .2s,opacity .2s;">
+                    <?php echo esc_html__( 'Disable Cart Caching', 'pressable_cache_management' ); ?>
+                </button>
+            </div>
+        </div><!-- /Row 5 -->
+
     </div><!-- /card -->
     </div><!-- /max-width -->
 
@@ -1227,12 +1255,14 @@ function pressable_cache_management_display_settings_page() {
                     // Isolated so a failure in the DM check can never affect the EC controls above.
                     pcmSafeApplyDmState( ecEnabled );
                     if ( window.pcmPreloadInit ) { pcmPreloadInit( ecEnabled ); }
+                    if ( window.pcmWooCartInit ) { pcmWooCartInit( ecEnabled ); }
                 },
                 error: function() {
                     wrapper.html('<p style="color:#ef4444;font-size:13px;margin:0;"><?php echo esc_js( __( 'Could not connect to server.', 'pressable_cache_management' ) ); ?></p>');
                     // Still run DM check even if EC check fails, treating EC as off
                     pcmSafeApplyDmState( false );
                     if ( window.pcmPreloadInit ) { pcmPreloadInit( false ); }
+                    if ( window.pcmWooCartInit ) { pcmWooCartInit( false ); }
                 }
             });
         }
@@ -1323,6 +1353,75 @@ function pressable_cache_management_display_settings_page() {
         window.pcmPreloadInit = function(edgeCacheEnabled) {
             ecOn = !!edgeCacheEnabled;
             load();
+        };
+    })(jQuery);
+    </script>
+    <script>
+    // ── WooCommerce Cart Caching panel ─────────────────────────────────────────
+    // pcmWooCartInit(ecEnabled) is called from the Edge Cache status check, like the preload panel.
+    (function($){
+        var line    = $('#pcm-woo-status-line');
+        var enable  = $('#pcm-woo-enable-btn');
+        var disable = $('#pcm-woo-disable-btn');
+        var wooActive = <?php echo class_exists( 'WooCommerce' ) ? 'true' : 'false'; ?>;
+        var ecOn = false, busy = false;
+        var T = {
+            enabled:  '<?php echo esc_js( __( 'Enabled', 'pressable_cache_management' ) ); ?>',
+            enabledD: '<?php echo esc_js( __( 'shoppers with items in their cart are served from Edge Cache', 'pressable_cache_management' ) ); ?>',
+            disabled: '<?php echo esc_js( __( 'Disabled', 'pressable_cache_management' ) ); ?>',
+            needEc:   '<?php echo esc_js( __( 'Disabled — Edge Cache must be enabled first.', 'pressable_cache_management' ) ); ?>',
+            noWoo:    '<?php echo esc_js( __( 'WooCommerce is not active on this site.', 'pressable_cache_management' ) ); ?>',
+            failed:   '<?php echo esc_js( __( 'Could not retrieve Cart Caching status.', 'pressable_cache_management' ) ); ?>',
+            working:  '<?php echo esc_js( __( 'Working…', 'pressable_cache_management' ) ); ?>',
+            confirm:  '<?php echo esc_js( __( 'Enable WooCommerce Cart Caching? Shoppers with items in their cart will get cached pages, and the cart may look empty for a moment while each page loads. Test your cart icon and mini-cart afterwards.', 'pressable_cache_management' ) ); ?>'
+        };
+
+        function setBtn(btn, on, bg) {
+            btn.prop('disabled', !on).toggleClass('ec-disabled-btn', !on)
+               .css({ opacity: on ? 1 : .4, cursor: on ? 'pointer' : 'not-allowed', pointerEvents: on ? 'auto' : 'none', background: bg });
+        }
+
+        function render(on) {
+            if (on) {
+                line.html('<strong style="color:#059669;">' + T.enabled + '</strong> &mdash; ' + T.enabledD).css({ color:'#059669', fontStyle:'normal' });
+            } else {
+                line.text(ecOn ? T.disabled : T.needEc).css({ color: ecOn ? '#64748b' : '#94a3b8', fontStyle:'normal' });
+            }
+            setBtn(enable, !on && ecOn, '#dd3a03');
+            setBtn(disable, on, on ? '#dd3a03' : '#64748b');
+        }
+
+        function fail(msg) {
+            line.text(msg || T.failed).css({ color:'#ef4444', fontStyle:'normal' });
+            setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
+        }
+
+        function call(data) {
+            if (busy) return;
+            busy = true;
+            $.post(ajaxurl, $.extend({ action: 'pcm_woo_cart_cache', nonce: pcmBatcacheNonce }, data))
+             .done(function(r){ r.success ? render(r.data.enabled) : fail(r.data && r.data.message); })
+             .fail(function(){ fail(); })
+             .always(function(){ busy = false; });
+        }
+
+        function toggle(on) {
+            if (on && !window.confirm(T.confirm)) return;
+            line.text(T.working).css({ color:'#94a3b8', fontStyle:'italic' });
+            setBtn(enable, false, '#dd3a03'); setBtn(disable, false, '#64748b');
+            call({ enable: on ? 1 : 0 });
+        }
+
+        enable.on('click', function(){ toggle(true); });
+        disable.on('click', function(){ toggle(false); });
+
+        window.pcmWooCartInit = function(edgeCacheEnabled) {
+            ecOn = !!edgeCacheEnabled;
+            if (!wooActive) {
+                line.text(T.noWoo).css({ color:'#94a3b8', fontStyle:'normal' });
+                return;
+            }
+            call({});
         };
     })(jQuery);
     </script>

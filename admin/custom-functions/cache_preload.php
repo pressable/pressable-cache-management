@@ -21,14 +21,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * GET the preload status, or POST a new enabled value when $enable is given.
+ * GET the status of an Edge Cache feature endpoint ('preload', 'woo_cart_cache'), or POST a
+ * new enabled value when $enable is given.
  * Returns array( 'success' => bool, 'data' => object ) or array( 'success' => false, 'error' => string ).
  */
-function pcm_cache_preload_request( $enable = null ) {
+function pcm_edge_feature_request( $endpoint, $enable = null ) {
     if ( ! class_exists( 'Edge_Cache_Plugin' ) ) {
         return array( 'success' => false, 'error' => __( 'Edge Cache dependency is not available.', 'pressable_cache_management' ) );
     }
-    // query_ec_backend() gives the API 2 seconds, too short for a preload toggle (it schedules
+    // query_ec_backend() gives the API 2 seconds, too short for these toggles (preload schedules
     // the crawl before answering): cURL error 28. Its args are array_merge()d over the defaults,
     // so pass a longer timeout. The method must be explicit because any args make it POST.
     if ( null === $enable ) {
@@ -40,7 +41,7 @@ function pcm_cache_preload_request( $enable = null ) {
             'body'    => array( 'enable' => $enable ? 1 : 0, 'wp_action' => 'manual_dashboard_set' ),
         );
     }
-    $result = Edge_Cache_Plugin::get_instance()->query_ec_backend( 'preload', $args );
+    $result = Edge_Cache_Plugin::get_instance()->query_ec_backend( $endpoint, $args );
     if ( ! is_array( $result ) || empty( $result['success'] ) ) {
         $error = is_array( $result ) && ! empty( $result['error'] ) ? $result['error'] : __( 'Unknown error from the Edge Cache API.', 'pressable_cache_management' );
         if ( false !== stripos( $error, 'cURL error 28' ) || false !== stripos( $error, 'timed out' ) ) {
@@ -49,6 +50,10 @@ function pcm_cache_preload_request( $enable = null ) {
         return array( 'success' => false, 'error' => $error );
     }
     return $result;
+}
+
+function pcm_cache_preload_request( $enable = null ) {
+    return pcm_edge_feature_request( 'preload', $enable );
 }
 
 // Shape the API data for the status panel.
