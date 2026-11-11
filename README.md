@@ -54,90 +54,6 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
-**Security — High**
-* Hardened admin notice helpers with wp_kses_post() for message content and esc_attr() for CSS class values to prevent stored XSS
-* Replaced raw HTML echo in pcm_branded_notice() with wp_kses_post() filtering
-* Escaped all dynamic HTML attributes (name, id, for, value) in settings callback markup
-* Fixed malformed HTML: broken hidden input tag, duplicate name attributes on radio buttons, missing closing quotes on for/class attributes
-* Replaced role-name authorization checks (current_user_can('administrator'), current_user_can('editor')) with proper capability checks (manage_options, edit_posts, manage_woocommerce) across all handlers
-
-**PHP 8.1 Compatibility**
-* Removed deprecated FILTER_SANITIZE_NUMBER_INT — replaced with simple boolean normalization for all 7 checkbox validations
-* Replaced all date() calls with gmdate() and removed date_default_timezone_set()/date_default_timezone_get() timezone mutation pattern
-* Standardized timestamp format to 'j M Y, g:ia UTC' across all flush actions
-* Added is_array() and isset() guards before array access on option values to prevent PHP 8.1 warnings
-* Updated plugin header from Requires PHP: 7.4 to Requires PHP: 8.1
-
-**Security — Medium**
-* Added nonce verification to Edge Cache status and Defensive Mode status AJAX endpoints
-* Converted all state-changing AJAX requests from GET to POST (toolbar flush, column flush)
-* Replaced die(json_encode()) with wp_send_json_success()/wp_send_json_error() for consistent response handling
-* Added ABSPATH direct-access guards to flush-cache-on-comment-delete.php, remove-pressable-branding.php, wp-write-to-file-lib.php, and pcm-batcache-manager.php
-* Removed @ error suppression operators from file operations in flush-batcache-for-woo-individual-page.php and wp-write-to-file-lib.php
-
-**Performance**
-* Replaced time() asset versioning with filemtime() for all CSS/JS enqueues — assets now cache properly in browsers
-* Removed third-party Google Fonts dependency — settings page now uses system font stack
-* Removed blocking sleep(2) call from Edge Cache purge flow
-
-**Maintenance**
-* Fixed remove-old-mu-plugins.php migration to run once (keyed on pcm_migration_version option) instead of on every admin page load
-* Replaced insecure uniqid(mt_rand()) temporary filename generation with wp_unique_filename()
-* Simplified remove-pressable-branding.php — removed confusing array-to-string-to-array mutation pattern
-
-
-= Version 6.3.5 (Oct 23, 2026) =
-
-* Flush Cache on Comment Delete now also flushes when a comment is trashed outside wp-admin (WP-CLI, the REST API and apps that use it, such as the WordPress mobile app). Its code was only loaded on wp-admin requests.
-
-
-= Version 6.3.4 (Oct 23, 2026) =
-
-* Advanced Post Cache deprecation: confirmed this plugin never calls Advanced Post Cache ($advanced_post_cache_object->flush_cache()), so it does not cause the "advanced-post-cache: this plugin is deprecated" PHP warning. Sites that log the warning have separate custom code (such as the "Flush Object Cache on Particular Page" mu-plugin or a line in wp-config.php) that needs updating.
-* Fixed Batcache invalidation in the post-list Flush Cache link, the toolbar "Flush Cache for This Page" button and Flush Cache on Post/Page Edit: on object caches that keep the Batcache group local, wp_cache_set() was called with shifted arguments, so the version key was written to the default group with the group name as its value. The three copies are replaced by one helper, pcm_flush_batcache_url() in admin/custom-functions/flush_batcache_url.php.
-* Toolbar "Flush Cache for This Page" now flushes and purges the right URL on sites installed in a subdirectory (the page path was appended to home_url(), repeating the subdirectory) and on pages with non-ASCII or percent-encoded slugs (the path was URL-decoded, so it no longer matched the key Batcache stores). A missing nonce or path no longer raises PHP warnings.
-* Flush Cache on Post/Page Edit now also flushes a published post's old URL when the post is unpublished, trashed or its slug changes. Previously the old cached copy stayed live until it expired.
-* Flush Cache on Page Delete: the "Last flushed at" timestamp was overwritten on every post save even when nothing was flushed; it is now written only when the cache is flushed. Published posts and pages deleted permanently without going to the trash now flush the cache as well.
-* Flush Object Cache button: the flush ran only when the admin bar rendered, so the success notice could appear without anything being flushed. It now flushes as soon as the request is verified.
-* Post-list Flush Cache link: a missing post ID no longer raises PHP warnings, responses are sent with wp_send_json(), and column.js now declares its jQuery dependency and uses filemtime() versioning.
-* Defensive Mode: a WP_Error from the Edge Cache backend caused the fatal error "Cannot use object of type WP_Error as array". The error message is now shown instead.
-* Security: Enable/Disable Edge Cache now also requires manage_options, matching Purge Edge Cache and Defensive Mode.
-* Fixed the Edge Cache settings sanitize callback name (egde_ to edge_), which did not match the name registered with register_setting().
-* Exclude Pages mu-plugin: no longer raises warnings under WP-CLI and cron, where REQUEST_URI is not set, and now matches excluded pages with or without a trailing slash and their paginated URLs (/about/page/2/), which never matched before because saved paths end in "/".
-* WooCommerce Batcache manager mu-plugin: timestamps now use gmdate() instead of temporarily changing the PHP default timezone.
-* Flush Cache on Comment Delete: added the ABSPATH direct-access guard and gmdate() timestamps.
-* Uninstall: the recursive delete helper is renamed pcm_rrmdir() so it cannot collide with another plugin's rrmdir(), the object cache is flushed once instead of once per file, and the Defensive Mode options and Edge Cache status transient are now removed.
-* Removed unused files: the empty admin/public/js/toolbar_remove_branding.js (still enqueued on every page) and the unreferenced remove-old-mu-plugins.php and remove-mu-plugins-batcache-on-uninstall.php duplicates.
-
-
-
-= Version 6.3.3 (Sep 2, 2026) =
-
-* Edge Cache tab: the Defensive Mode status check is now isolated so a failure in it can never affect the Enable/Disable Edge Cache controls or the Purge Edge Cache button, and a failure shows an error message instead of leaving the status on "Finding status".
-* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
-* Fixed the Cache Settings link disappearing from the admin bar menu: its node id was the generic 'settings', so any other plugin registering an admin bar node with that id overwrote it. It now uses the namespaced id 'pcm-cache-settings', is shown to users with manage_options (the capability the settings page itself requires), is hidden only while viewing the plugin's own settings page, and is now also available in the front-end Flush Cache toolbar menu.
-
-
-
-= Version 6.2.3 (Sep 2, 2026) =
-
-* Fixed fatal error "Cannot redeclare class Batcache_Manager" on sites that still had the legacy hyphen-named mu-plugins/pcm-batcache-manager.php written by March-July 2026 builds alongside the current pcm_batcache_manager.php.
-* pcm_batcache_manager.php: wrapped the Batcache_Manager class and its instantiation in a class_exists() guard so a duplicate copy of the mu-plugin can never cause a fatal.
-* flush_batcache_for_woo_individual_page.php: removes the legacy mu-plugins/pcm-batcache-manager.php on both enable and disable. Also fixed the fresh-enable check, which could never be true after a successful copy, so the cache flush and activation notice now fire on first enable as intended.
-* remove_old_mu_plugins.php: legacy cleanup now also removes hyphen-era mu-plugin files (pcm-batcache-manager.php and the pcm-cache-wpp-cookies-pages, pcm-exclude-pages-from-batcache, pcm-exclude-query-string-gclid and pcm-extend-batcache variants in the pressable-cache-management folder) and the pre-2023 top-level pcm_exclude_pages_from_batcache.php.
-* Fixed unreadable hover state in the admin bar Cache Management menu: hovered items showed white text on the mint background (1.8:1 contrast); hover text is now navy #040024 (11.3:1 contrast).
-* Admin bar CSS is now scoped to the plugin's own menu items and prefixed with #wpadminbar, with !important on its colours, so styling from other plugins and admin colour schemes can no longer change how the menu looks, and the plugin no longer restyles other plugins' admin bar items (two global rules were removed).
-* The toolbar stylesheet now declares core's admin-bar.css as a dependency so it always loads after it, is enqueued on admin_enqueue_scripts/wp_enqueue_scripts only when the admin bar is showing, and uses filemtime() versioning instead of time() so browsers can cache it.
-* Security: added nonce verification (check_ajax_referer) to the admin bar Flush Object Cache, Purge Edge Cache and Flush Object & Edge Cache AJAX handlers, which previously checked only user capability and were open to CSRF.
-* Security: added nonce verification to the Defensive Mode status AJAX endpoint.
-* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
-
-
-= Version 6.1.3 (Sep 2, 2026) =
-* exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.
-* pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
-* exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
-
 #### **Version 6.6.0 (Nov 11, 2026)**
 
 **Batcache status check: finds the cause, not just the symptom**
@@ -194,6 +110,47 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Footer shows the plugin version instead of the WordPress version and links to Send feedback (prefilled GitHub issue) and Pressable Support; the Batcache alert panel links to both.
 * Removed the negative right margin on the page wrapper that made the page scroll sideways; the card grid collapses to one column under 1100px.
 
+#### **Version 6.3.5 (Oct 23, 2026)**
+
+* Flush Cache on Comment Delete now also flushes when a comment is trashed outside wp-admin (WP-CLI, the REST API and apps that use it, such as the WordPress mobile app). Its code was only loaded on wp-admin requests.
+
+#### **Version 6.3.4 (Oct 23, 2026)**
+
+* Advanced Post Cache deprecation: confirmed this plugin never calls Advanced Post Cache ($advanced_post_cache_object->flush_cache()), so it does not cause the "advanced-post-cache: this plugin is deprecated" PHP warning. Sites that log the warning have separate custom code (such as the "Flush Object Cache on Particular Page" mu-plugin or a line in wp-config.php) that needs updating.
+* Fixed Batcache invalidation in the post-list Flush Cache link, the toolbar "Flush Cache for This Page" button and Flush Cache on Post/Page Edit: on object caches that keep the Batcache group local, wp_cache_set() was called with shifted arguments, so the version key was written to the default group with the group name as its value. The three copies are replaced by one helper, pcm_flush_batcache_url() in admin/custom-functions/flush_batcache_url.php.
+* Toolbar "Flush Cache for This Page" now flushes and purges the right URL on sites installed in a subdirectory (the page path was appended to home_url(), repeating the subdirectory) and on pages with non-ASCII or percent-encoded slugs (the path was URL-decoded, so it no longer matched the key Batcache stores). A missing nonce or path no longer raises PHP warnings.
+* Flush Cache on Post/Page Edit now also flushes a published post's old URL when the post is unpublished, trashed or its slug changes. Previously the old cached copy stayed live until it expired.
+* Flush Cache on Page Delete: the "Last flushed at" timestamp was overwritten on every post save even when nothing was flushed; it is now written only when the cache is flushed. Published posts and pages deleted permanently without going to the trash now flush the cache as well.
+* Flush Object Cache button: the flush ran only when the admin bar rendered, so the success notice could appear without anything being flushed. It now flushes as soon as the request is verified.
+* Post-list Flush Cache link: a missing post ID no longer raises PHP warnings, responses are sent with wp_send_json(), and column.js now declares its jQuery dependency and uses filemtime() versioning.
+* Defensive Mode: a WP_Error from the Edge Cache backend caused the fatal error "Cannot use object of type WP_Error as array". The error message is now shown instead.
+* Security: Enable/Disable Edge Cache now also requires manage_options, matching Purge Edge Cache and Defensive Mode.
+* Fixed the Edge Cache settings sanitize callback name (egde_ to edge_), which did not match the name registered with register_setting().
+* Exclude Pages mu-plugin: no longer raises warnings under WP-CLI and cron, where REQUEST_URI is not set, and now matches excluded pages with or without a trailing slash and their paginated URLs (/about/page/2/), which never matched before because saved paths end in "/".
+* WooCommerce Batcache manager mu-plugin: timestamps now use gmdate() instead of temporarily changing the PHP default timezone.
+* Flush Cache on Comment Delete: added the ABSPATH direct-access guard and gmdate() timestamps.
+* Uninstall: the recursive delete helper is renamed pcm_rrmdir() so it cannot collide with another plugin's rrmdir(), the object cache is flushed once instead of once per file, and the Defensive Mode options and Edge Cache status transient are now removed.
+* Removed unused files: the empty admin/public/js/toolbar_remove_branding.js (still enqueued on every page) and the unreferenced remove-old-mu-plugins.php and remove-mu-plugins-batcache-on-uninstall.php duplicates.
+
+#### **Version 6.3.3 (Sep 2, 2026)**
+
+* Edge Cache tab: the Defensive Mode status check is now isolated so a failure in it can never affect the Enable/Disable Edge Cache controls or the Purge Edge Cache button, and a failure shows an error message instead of leaving the status on "Finding status".
+* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
+* Fixed the Cache Settings link disappearing from the admin bar menu: its node id was the generic 'settings', so any other plugin registering an admin bar node with that id overwrote it. It now uses the namespaced id 'pcm-cache-settings', is shown to users with manage_options (the capability the settings page itself requires), is hidden only while viewing the plugin's own settings page, and is now also available in the front-end Flush Cache toolbar menu.
+
+#### **Version 6.2.3 (Sep 2, 2026)**
+
+* Fixed fatal error "Cannot redeclare class Batcache_Manager" on sites that still had the legacy hyphen-named mu-plugins/pcm-batcache-manager.php written by March-July 2026 builds alongside the current pcm_batcache_manager.php.
+* pcm_batcache_manager.php: wrapped the Batcache_Manager class and its instantiation in a class_exists() guard so a duplicate copy of the mu-plugin can never cause a fatal.
+* flush_batcache_for_woo_individual_page.php: removes the legacy mu-plugins/pcm-batcache-manager.php on both enable and disable. Also fixed the fresh-enable check, which could never be true after a successful copy, so the cache flush and activation notice now fire on first enable as intended.
+* remove_old_mu_plugins.php: legacy cleanup now also removes hyphen-era mu-plugin files (pcm-batcache-manager.php and the pcm-cache-wpp-cookies-pages, pcm-exclude-pages-from-batcache, pcm-exclude-query-string-gclid and pcm-extend-batcache variants in the pressable-cache-management folder) and the pre-2023 top-level pcm_exclude_pages_from_batcache.php.
+* Fixed unreadable hover state in the admin bar Cache Management menu: hovered items showed white text on the mint background (1.8:1 contrast); hover text is now navy #040024 (11.3:1 contrast).
+* Admin bar CSS is now scoped to the plugin's own menu items and prefixed with #wpadminbar, with !important on its colours, so styling from other plugins and admin colour schemes can no longer change how the menu looks, and the plugin no longer restyles other plugins' admin bar items (two global rules were removed).
+* The toolbar stylesheet now declares core's admin-bar.css as a dependency so it always loads after it, is enqueued on admin_enqueue_scripts/wp_enqueue_scripts only when the admin bar is showing, and uses filemtime() versioning instead of time() so browsers can cache it.
+* Security: added nonce verification (check_ajax_referer) to the admin bar Flush Object Cache, Purge Edge Cache and Flush Object & Edge Cache AJAX handlers, which previously checked only user capability and were open to CSRF.
+* Security: added nonce verification to the Defensive Mode status AJAX endpoint.
+* Security: removed the unused admin/custom-functions/cache-purge-admin-bar.php, whose pressable_cache_purge AJAX handler had neither a nonce nor a capability check.
+
 #### **Version 6.1.3 (Sep 2, 2026)**
 
 * exclude_pages_from_batcache_mu_plugin.php: wrapped cancel_the_cache() and disable_edge_cache() in function_exists() guards, matching the pattern already used in the gclid mu-plugin template. Behavior is unchanged; the init hook still fires once.
@@ -203,7 +160,6 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 #### **Version 6.1.2 (Sep 2, 2026)**
 
 * Refactored cache flushing logic to improve clarity and maintainability
-
 
 #### **Version 6.1.1 (Sep 1, 2026)**
 
@@ -221,9 +177,11 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Updated uninstall cleanup to reference hyphenated filenames
 
 #### **Version 6.1.0 (Mar 12, 2026)**
+
 * Added feature to enhance Edge Cache
 
 #### **Version 6.0.0 (Mar 12, 2026)**
+
 * Added defensive mode feature for Edge Cache
 
 #### **Version 5.9.9 (Mar 08, 2026)**
@@ -332,75 +290,80 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 * Updated permissions: Administrators, Editors, and users with `manage_woocommerce` can see the **Flush Cache** option
 
-= Version 5.0.0 (May 30, 2025) =
+#### **Version 5.0.0 (May 30, 2025)**
+
 * Removed CDN tab as CDN feature has been phased out from Pressable
 
-= Version 4.9.9 (Mar 22, 2025) =
+#### **Version 4.9.9 (Mar 22, 2025)**
+
 * Added functionality to exclude specific pages from Batcache caching, ensuring they are not cached by the Edge Cache
-* Updated description for the option exlude page from Batcache to include Edge Cache 
+* Updated description for the option exlude page from Batcache to include Edge Cache
 
-= Version 4.8.9 (Feb 22, 2025) =
-* Fix bug to resolve issue with cache terminating when a single page is excluded from cache. 
+#### **Version 4.8.9 (Feb 22, 2025)**
 
-= Version 4.7.9 (Jan 28, 2025) =
+* Fix bug to resolve issue with cache terminating when a single page is excluded from cache.
+
+#### **Version 4.7.9 (Jan 28, 2025)**
 
 * Fix bug that breaks site when excluding single file from CDN
 
-= Version 4.6.9 (Nov 15, 2024) =
+#### **Version 4.6.9 (Nov 15, 2024)**
 
 * Added features to exclude home page from caching
 
-= Version 4.5.9 (Oct 31, 2024) =
+#### **Version 4.5.9 (Oct 31, 2024)**
 
 * Added a check if the "Name" key exists in $plugin_info before trying to access it to prevent  "Undefined array key 'Name'"
 
-= Version 4.4.9 (Oct 3, 2024) =
+#### **Version 4.4.9 (Oct 3, 2024)**
 
-* Fix: ensure HTML/CSS is not output on every page load including AJAX requests 
+* Fix: ensure HTML/CSS is not output on every page load including AJAX requests
 
-= Version 4.3.9 (July 24, 2024) =
+#### **Version 4.3.9 (July 24, 2024)**
 
 * Updated Pressable branding
 
-= Version 4.2.9 (July 22, 2024) =
+#### **Version 4.2.9 (July 22, 2024)**
 
 * Fixed bugs
 
-= Version 4.2.8 (July 22, 2024) =
+#### **Version 4.2.8 (July 22, 2024)**
 
 * Sync the plugin CDN and Edge Cache state with MyPressable Control Panel when the plugin is authenticated
 * Disable CDN state by defualt on plugin install
 * Hide CDN tab if /cdn api endpoint is not found
 
-= Version 4.2.7 (June 27, 2024) =
-* Fixed bug with <p> tag added to robots.txt code snippet when extend cache option is enabled for some sites
-* Updated from v4.2.6 - v4.2.7 
+#### **Version 4.2.7 (June 27, 2024)**
 
-= Version 4.2.5 (March 18, 2024) =
+* Fixed bug with <p> tag added to robots.txt code snippet when extend cache option is enabled for some sites
+* Updated from v4.2.6 - v4.2.7
+
+#### **Version 4.2.5 (March 18, 2024)**
+
 * Fixed the warning error bug with DOMDocument – PHP Warning: DOMDocument::loadHTML():
 
-= Version 4.2.2 (December 1, 2023) =
+#### **Version 4.2.2 (December 1, 2023)**
 
 * Fixed footer conflict with Yoursite plugin which causes critical error
 
-= Version 4.2.1 (September 14, 2023) =
+#### **Version 4.2.1 (September 14, 2023)**
 
 * Add notice to disable CDN if Edge Cache is enabled
 * Fixed bug with edge Cache turn on/off not syncing properly with MyPressable Control Panel
 
-= Version 4.2.0 (June 22, 2023) =
+#### **Version 4.2.0 (June 22, 2023)**
 
  * Changed the location for mu-plugins used to flush cache when Woo product is updated via API
 
-= Version 4.1.0 (June 22, 2023) =
+#### **Version 4.1.0 (June 22, 2023)**
 
- * Fixed issue double function deceleration 
+ * Fixed issue double function deceleration
 
-= Version 4.0.0 (June 21, 2023) =
+#### **Version 4.0.0 (June 21, 2023)**
 
  * Removed edge cache purge time stamp from database
 
-= Version 3.10.10 (June 20, 2023) =
+#### **Version 3.10.10 (June 20, 2023)**
 
  * Features to flush WooCommerce product page automatically when product are updated via Woo API
  * Ability for Shop managers to flush cache via Admin top bar
@@ -409,55 +372,55 @@ The plugin can be downloaded from the GitHub repository and installed manually v
  * Resolve conflict that causes Imagify plugin generated .webp images from displaying
  * Ability to auto turn on Edge Cache if it is disabled from MPCP when Edge cache is purged
 
-= Version 3.9.10  (June 8, 2023) =
+#### **Version 3.9.10 (June 8, 2023)**
 
 * Fixed bug of purge CDN button which is displaying when CDN is disabled
 * Hide visible hyperlink on footer page to hide branding
 * Fixed  issue with </link> tag not appending to RSS feed page
 * Fixed bug for broken images inside <picture> tag that uses scr and srcset attribute when Imagify .webp is configures on a site
 
-= Version 3.8.10  (May 12, 2023) =
+#### **Version 3.8.10 (May 12, 2023)**
 
 * Added features and notification to check if Cloudflare is interfering with Batcache
 
-= Version 3.7.10  (May 2, 2023) =
+#### **Version 3.7.10 (May 2, 2023)**
 
 * Code cleanup and changelog update
 
-= Version 3.6.10  (Apr 20, 2023) =
+#### **Version 3.6.10 (Apr 20, 2023)**
 
 * Excluded gclid option from the UI
 * Excluded wpp_ cookies option from the UI
 
-= Version 3.5.10  (Mar 23, 2023) =
+#### **Version 3.5.10 (Mar 23, 2023)**
 
 * Updated new option
 
-= Version 3.4.10  (Mar 23, 2023) =
+#### **Version 3.4.10 (Mar 23, 2023)**
 
 *  Hide option from UI which does not function correctly yet
 
-= Version 3.3.10  (Mar 20, 2023) =
+#### **Version 3.3.10 (Mar 20, 2023)**
 
-* Updated batcache code 
+* Updated batcache code
 
-= Version 3.3.9 (Feb 26, 2023) =
+#### **Version 3.3.9 (Feb 26, 2023)**
 
-* Updated language functionality 
+* Updated language functionality
 
-= Version 3.3.8 (Feb 23, 2023) =
+#### **Version 3.3.8 (Feb 23, 2023)**
 
-* Added support to move mu-plugin from PCM to a private folder 
+* Added support to move mu-plugin from PCM to a private folder
 
-= Version 3.3.7 (Feb 20, 2023) =
+#### **Version 3.3.7 (Feb 20, 2023)**
 
-* Bug fixes and new features added 
+* Bug fixes and new features added
 
-= Version 3.3.6 (Feb 07, 2023) =
+#### **Version 3.3.6 (Feb 07, 2023)**
 
 * Updated footer icon
 
-= Version 3.3.5 (Jan 07, 2023) =
+#### **Version 3.3.5 (Jan 07, 2023)**
 
 * Updated extending cache option to execute via mu-plugin
 * Added option to flush cache when comment is deleted
@@ -466,20 +429,20 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * Add option to flush website cache automatically when page or post is deleted after publishing this works for post types as well
 * Added option to exclude pages from Batcache
 
-= Version 3.3.4 (Aug 12, 2022) =
+#### **Version 3.3.4 (Aug 12, 2022)**
 
 * Fixed function conflict on Flush cache on theme plugin update
 
-= Version 3.3.4 (Aug 12, 2022) =
+#### **Version 3.3.4 (Aug 12, 2022)**
 
 *  Fixed Zend OPcache API is restricted by "restrict_api" configuration directive warning on extended batcache 
 *  Fixed admin notice not displaying when extend batcache is enabled and disabled
 
-= Version 3.3.4 (Aug 4, 2022) =
+#### **Version 3.3.4 (Aug 4, 2022)**
 
 Fixed bug for site id not entering on multi-network site
 
-= Version 3.3.4 (Jul 10, 2022) =
+#### **Version 3.3.4 (Jul 10, 2022)**
 
 * Fixed TTFB performance issue that slows down WordPress admin
 * Renamed authentication button to save option
@@ -496,29 +459,27 @@ Fixed bug for site id not entering on multi-network site
 * Fixed bug that shows CDN option when plugin is not yet connected to the API
 * Added error message to alert user if the plugin is installed on site hosted on another platform
 
-= Version 3.2.3 (Jul 03, 2022) =
+#### **Version 3.2.3 (Jul 03, 2022)**
 
 Fixed CSS conflict issue with some third-party plugin
 
-= Version 3.1.4 (May 21, 2022) =
+#### **Version 3.1.4 (May 21, 2022)**
 
-* Added warning notice to CDN cache extender when enabled to notify user to disable the option if it causes any issue(The CDN extender features is buggy and know 
+* Added warning notice to CDN cache extender when enabled to notify user to disable the option if it causes any issue(The CDN extender features is buggy and know
 
-= Version 3.0.3 (May 21, 2022) =
+#### **Version 3.0.3 (May 21, 2022)**
 
 * Fixed issue with api_connection which adds extra time to site TTFB
 
-= Version 3.0.2 (April 28, 2022) =
+#### **Version 3.0.2 (April 28, 2022)**
 
 * Fixed ?extend_cdn appended to the word style.css which is added to blog post/page
 
-= Version 3.0.2 (April 22, 2022) =
+#### **Version 3.0.2 (April 22, 2022)**
 
 * Applied patch to prevent HTML injection from all CDN exemption features
 cdn_exclude_css, cdn_exclude_js_json, cdn_exclude_jpg_png_webp, cdn_exclude_specificfile.
 
-= Version 3.0.1 (April 17, 2022) =
+#### **Version 3.0.1 (April 17, 2022)**
 
 * Exclude Google Tag Manager gtm.js from Pressable CDN to fix Google tracking issue bug
-
-
