@@ -138,6 +138,16 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 * pressable_cache_management_mu_plugin_index.php: switched all require statements to require_once, so the loader safely skips any file another mechanism has already included.
 * exclude_pages_from_batcache.php: the mu-plugins index and the exclude-pages mu-plugin are now overwritten whenever their content differs from the bundled source (md5 comparison, same approach as the WooCommerce Batcache manager sync), instead of only being written when absent. Previously, live sites kept their original copies indefinitely and never received fixes to these files.
 
+#### **Version 6.6.0 (Nov 11, 2026)**
+
+**Batcache status check: finds the cause, not just the symptom**
+
+* **Runtime trace.** When the homepage is not cached, one traced request (one-time token in a `wp_pcm_trace` cookie, so the edge and Batcache pass it to PHP and never store it) places a check after every hook callback. The first callback after which a `Set-Cookie` header, a blocking `Cache-Control` header or `batcache_cancel()` appears is the source. The alert shows the plugin/theme, `file.php:line`, function and hook. Code in `admin/custom-functions/batcache_trace.php`; every other request leaves that file at its first line.
+* **Code search fallback.** If the trace cannot attribute a cookie, the active plugins, theme and must-use plugins are searched for the cookie name (4 s cap, cached 1 h). Code in `admin/custom-functions/batcache_diagnose.php`.
+* **New statuses.** "Caching Blocked by a Header" (`no-store`, `no-cache`, `private`, `max-age=0`) and "Batcache Switched Off" (`WP_CACHE` false, drop-in missing or replaced, `max_age` 0, read from a visitor's request). Active third-party page cache plugins are listed.
+* **Accuracy.** `Batcache-Set` / same-second `Batcache-Hit` with `max-age=0` or `s-maxage=0` no longer counts as active. A warning is shown when Batcache works but a header blocks Edge Cache.
+* **Less load.** The page renders from the stored result; the server is asked again only when the result is missing or stale (30 min active, 5 min otherwise), after a flush or plugin/theme change, or on refresh.
+
 #### **Version 6.5.1 (Nov 9, 2026)**
 
 **Edge cases on the Edge Cache tab**

@@ -4,7 +4,7 @@ Plugin Name:  Pressable Cache Management
 Description:  Pressable cache management made easy
 Plugin URI:   https://pressable.com/knowledgebase/pressable-cache-management-plugin/#overview
 Author:       Pressable CS Team
-Version:      6.5.1
+Version:      6.6.0
 Requires at least: 5.0
 Tested up to: 6.7
 Requires PHP: 7.4
@@ -92,9 +92,12 @@ if ( is_admin() ) {
     require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/defensive_mode_edge_cache.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/cache_preload.php';
     require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/woo_cart_cache.php';
+    require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/batcache_diagnose.php';
 }
 
 // ─── Front-end + admin cache flush triggers ──────────────────────────────────
+// Leaves at its first line on every request except the status check's own traced request.
+require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/batcache_trace.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_batcache_url.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_theme_plugin_update.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/custom-functions/flush_cache_on_page_edit.php';

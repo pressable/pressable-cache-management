@@ -662,3 +662,6 @@ div.notice.pcm-branded.pcm-warning {
 .pcm-bc-alert li { margin: 0 0 8px; }
 .pcm-bc-alert code { background: #fef2f2; color: #dd3a03; border: 1px solid #fecaca; padding: 1px 6px; border-radius: 4px; font-size: 12px; }
 .pcm-bc-alert .pcm-bc-source { font-weight: 600; color: #040024; }
+
+.pcm-bc-alert code.pcm-bc-file { background: #f1f5f9; color: #334155; border-color: #e2e8f0; word-break: break-all; }
+.pcm-bc-alert .pcm-bc-how { color: #94a3b8; font-size: 12px; }

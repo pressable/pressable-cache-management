@@ -120,15 +120,27 @@ function pcm_get_batcache_status() {
     return array( 'status' => 'unknown', 'cookies' => array(), 'max_age' => 0, 'checked' => 0, 'error' => '', 'primes' => null );
 }
 
+// How long a stored result is trusted before the page asks the server to check again.
+function pcm_batcache_status_is_stale( $r ) {
+    $ttl = 'active' === $r['status'] ? 30 * MINUTE_IN_SECONDS : 5 * MINUTE_IN_SECONDS;
+    return empty( $r['checked'] ) || $r['checked'] < time() - $ttl;
+}
+
 function pcm_batcache_status_labels() {
     return array(
         'active'     => __( 'Batcache Active',             'pressable_cache_management' ),
         'cookies'    => __( 'Batcache Blocked by Cookies', 'pressable_cache_management' ),
+        'headers'    => __( 'Caching Blocked by a Header', 'pressable_cache_management' ),
+        'disabled'   => __( 'Batcache Switched Off',       'pressable_cache_management' ),
         'cloudflare' => __( 'Cloudflare Detected',         'pressable_cache_management' ),
         'broken'     => __( 'Batcache Broken',             'pressable_cache_management' ),
         'unknown'    => __( 'Status Unavailable',          'pressable_cache_management' ),
         'excluded'   => __( 'Homepage Excluded',           'pressable_cache_management' ),
     );
+}
+
+function pcm_batcache_one_at_a_time() {
+    return __( 'Deactivate plugins one at a time and click the refresh button on the badge after each one to find it.', 'pressable_cache_management' );
 }
 
 // Known cookie-name prefixes (matched case-insensitively): where the cookie comes
@@ -137,7 +149,7 @@ function pcm_batcache_status_labels() {
 function pcm_batcache_cookie_hint( $name ) {
     static $hints = null;
     if ( null === $hints ) {
-        $one_at_a_time = __( 'Deactivate plugins one at a time and click the refresh button on the badge after each one to find it.', 'pressable_cache_management' );
+        $one_at_a_time = pcm_batcache_one_at_a_time();
         $consent       = __( 'Consent cookies should be set by JavaScript. Update the plugin and look in its settings for a PHP or server-side cookie option; if the cookie is still sent as a header, deactivate the plugin and re-check.', 'pressable_cache_management' );
         $wpml          = __( 'In WPML > Languages, turn off the browser-language redirect and the language cookie used for AJAX filtering, then re-check. See the Pressable guide "Allowing Caching for WPML and WCML on Pressable".', 'pressable_cache_management' );
         $hints = array(
@@ -193,6 +205,7 @@ function pcm_probe_batcache() {
     $errors         = array();
     $http_codes     = array();
     $seen_cookies   = array();
+    $blocking_header = '';
 
     $home      = home_url( '/' );
     $probe_url = function() use ( $home ) {
@@ -224,8 +237,13 @@ function pcm_probe_batcache() {
         $server   = strtolower( (string) wp_remote_retrieve_header( $resp, 'server' ) );
         $cloudflare = $cloudflare || false !== strpos( $server, 'cloudflare' ) || '' !== (string) wp_remote_retrieve_header( $resp, 'cf-ray' );
 
-        if ( preg_match( '/max-age=(\d+)/i', (string) wp_remote_retrieve_header( $resp, 'cache-control' ), $m ) ) {
+        $cache_control = wp_remote_retrieve_header( $resp, 'cache-control' );
+        $cache_control = is_array( $cache_control ) ? implode( ', ', $cache_control ) : (string) $cache_control;
+        if ( preg_match( '/max-age=(\d+)/i', $cache_control, $m ) ) {
             $result['max_age'] = (int) $m[1];
+        }
+        if ( preg_match( '/no-store|no-cache|private|max-?age=0\b/i', $cache_control ) ) {
+            $blocking_header = $cache_control;
         }
         foreach ( wp_remote_retrieve_cookies( $resp ) as $cookie ) {
             if ( is_object( $cookie ) && ! empty( $cookie->name ) ) {
@@ -234,7 +252,10 @@ function pcm_probe_batcache() {
             }
         }
 
-        if ( false !== strpos( $nananana, 'batcache' ) ) {
+        // x-nananana (Batcache-Set or Batcache-Hit) proves Batcache works, unless the response
+        // says max-age=0 or s-maxage=0: Batcache then still stores the page and can even answer
+        // one Hit within the same second, but the copy expires at once and is never served again.
+        if ( false !== strpos( $nananana, 'batcache' ) && ! preg_match( '/max-?age=0\b/i', $cache_control ) ) {
             $result['status'] = 'active';
             break;
         }
@@ -291,6 +312,36 @@ function pcm_probe_batcache() {
         }
     }
 
+    // Not caching: find out why and who. One traced request names the plugin, theme or code
+    // behind each cookie, cache-blocking header or batcache_cancel() call; a code search covers
+    // cookies the trace could not attribute. None of this runs while Batcache is active.
+    $result += array( 'header' => '', 'config' => array(), 'trace' => null, 'code' => array(), 'cache_plugins' => array() );
+    $active = 'active' === $result['status'];
+    // Batcache can be active while a no-store / private header still keeps Edge Cache from
+    // storing the page; that is reported as a warning with its source.
+    if ( ! $active || $blocking_header ) {
+        $result['cache_plugins'] = $active ? array() : pcm_batcache_cache_plugins();
+        if ( ( $ok_responses > 0 || $active ) && 'excluded' !== $result['status'] ) {
+            $traced = pcm_batcache_run_trace();
+            if ( $traced ) {
+                $result['trace']  = $traced['found'];
+                $result['config'] = $active ? array() : pcm_batcache_config_issues( $traced['env'] );
+            }
+        }
+        $trace            = is_array( $result['trace'] ) ? $result['trace'] : array();
+        $result['header'] = $blocking_header ? $blocking_header : ( isset( $trace['header:cache-control'] ) ? $trace['header:cache-control']['label'] : '' );
+        foreach ( $result['cookies'] as $name ) {
+            if ( empty( $trace[ 'cookie:' . $name ]['component'] ) && empty( $trace[ 'cookie:' . $name ]['candidates'] ) ) {
+                $result['code'][ $name ] = pcm_batcache_search_code( $name );
+            }
+        }
+        if ( $result['config'] ) {
+            $result['status'] = 'disabled';
+        } elseif ( 'broken' === $result['status'] && $result['header'] ) {
+            $result['status'] = 'headers';
+        }
+    }
+
     set_transient( 'pcm_batcache_status', $result, DAY_IN_SECONDS );
     return $result;
 }
@@ -303,6 +354,66 @@ function pcm_batcache_alert_help_step( $template ) {
         sprintf( $link, esc_url( pcm_support_url() ), esc_html__( 'contact Pressable Support', 'pressable_cache_management' ) ),
         sprintf( $link, esc_url( pcm_feedback_url() ), esc_html__( 'send us feedback', 'pressable_cache_management' ) )
     );
+}
+
+// Everything found that blocks caching, each with its source and fix, as escaped <li> contents.
+function pcm_batcache_blocker_items( $r ) {
+    $r    += array( 'header' => '', 'config' => array(), 'trace' => null, 'code' => array(), 'cache_plugins' => array() );
+    $trace = is_array( $r['trace'] ) ? $r['trace'] : array();
+    $items = array();
+    $line  = function( $what, $source, $fix ) {
+        return $what . ( $source ? '<br>' . $source : '' ) . '<br>' . esc_html( $fix );
+    };
+
+    $config = array(
+        'wp_cache_off' => __( "wp-config.php sets WP_CACHE to false (or does not define it), so Batcache never loads. Change the line to define( 'WP_CACHE', true ); or ask Pressable Support to do it.", 'pressable_cache_management' ),
+        'no_batcache'  => __( 'WP_CACHE is on but Batcache is not loaded: advanced-cache.php is missing or was replaced by another caching plugin. Ask Pressable Support to restore it.', 'pressable_cache_management' ),
+        'max_age_zero' => __( "Batcache's max_age is set to 0 by custom code, which turns it off. Remove that setting (look for \$batcache['max_age'] in wp-config.php or a must-use plugin).", 'pressable_cache_management' ),
+    );
+    foreach ( $r['config'] as $code ) {
+        if ( isset( $config[ $code ] ) ) {
+            $items[] = esc_html( $config[ $code ] );
+        }
+    }
+
+    foreach ( $r['cookies'] as $name ) {
+        $hint  = pcm_batcache_cookie_hint( $name );
+        $found = isset( $trace[ 'cookie:' . $name ] ) ? $trace[ 'cookie:' . $name ] : null;
+        $known = $found && $found['component'];
+        $what  = '<code>' . esc_html( $name ) . '</code> ' . esc_html__( 'cookie', 'pressable_cache_management' )
+            . ( $hint['source'] ? ' &mdash; <span class="pcm-bc-source">' . esc_html( $hint['source'] ) . '</span>' : '' );
+        $fix   = $hint['source'] || ! $known
+            ? $hint['fix']
+            : __( 'Look in its settings for the option that sets this cookie and turn it off, or deactivate it, then click the ↻ button to re-check. If you need it, ask its developer to set the cookie with JavaScript or only on the pages that use it.', 'pressable_cache_management' );
+        if ( $known ) {
+            // The source is named, so there is nothing left to hunt for.
+            $fix = trim( preg_replace( '/\s{2,}/', ' ', str_replace( pcm_batcache_one_at_a_time(), '', $fix ) ) );
+        }
+        $items[] = $line( $what, pcm_batcache_source_html( $found, isset( $r['code'][ $name ] ) ? $r['code'][ $name ] : array() ), $fix );
+    }
+
+    if ( $r['header'] ) {
+        $items[] = $line(
+            '<code>Cache-Control: ' . esc_html( $r['header'] ) . '</code> ' . esc_html__( 'header', 'pressable_cache_management' ),
+            pcm_batcache_source_html( isset( $trace['header:cache-control'] ) ? $trace['header:cache-control'] : null ),
+            __( 'This header tells Batcache and Edge Cache not to store the page. Turn off the page cache or "no-cache headers" option in whatever sends it, or deactivate it, then click the ↻ button to re-check.', 'pressable_cache_management' )
+        );
+    }
+
+    if ( isset( $trace['cancel'] ) ) {
+        $items[] = $line(
+            '<code>batcache_cancel()</code>',
+            pcm_batcache_source_html( $trace['cancel'] ),
+            __( 'This call tells Batcache not to store the page. Remove it, or limit it to the pages that must not be cached.', 'pressable_cache_management' )
+        );
+    }
+
+    if ( $r['cache_plugins'] ) {
+        /* translators: %s: plugin name(s) */
+        $items[] = esc_html( sprintf( __( 'A third-party page cache is active: %s. Page caching plugins do not work alongside Batcache and Edge Cache on Pressable and often send no-cache headers. Turn off its page cache (its other optimisations can stay).', 'pressable_cache_management' ), implode( ', ', $r['cache_plugins'] ) ) );
+    }
+
+    return $items;
 }
 
 // The alert panel shown under the header for anything but an active Batcache.
@@ -324,12 +435,6 @@ function pcm_batcache_alert_html( $r ) {
             } else {
                 $text .= ' ' . __( 'PHP builds these pages for every visitor they are set for.', 'pressable_cache_management' );
             }
-            foreach ( $r['cookies'] as $name ) {
-                $hint    = pcm_batcache_cookie_hint( $name );
-                $items[] = '<code>' . esc_html( $name ) . '</code>'
-                    . ( $hint['source'] ? ' &mdash; <span class="pcm-bc-source">' . esc_html( $hint['source'] ) . '</span>' : '' )
-                    . '<br>' . esc_html( $hint['fix'] );
-            }
             $steps = array(
                 esc_html__( 'Fix or deactivate what sets each cookie (see above), then click the ↻ button on the badge to re-check.', 'pressable_cache_management' ),
                 esc_html__( 'If the plugin is needed, ask its developer to set the cookie with JavaScript or only on the pages that use it. Cookies set by JavaScript do not block Batcache; only Set-Cookie headers sent by PHP do.', 'pressable_cache_management' ),
@@ -338,9 +443,30 @@ function pcm_batcache_alert_html( $r ) {
             );
             break;
 
+        case 'disabled':
+            $title = __( 'Batcache is switched off', 'pressable_cache_management' );
+            $text  = __( 'Batcache cannot run on this site, so PHP builds every page for every visitor.', 'pressable_cache_management' );
+            $steps = array(
+                esc_html__( 'Fix what is listed above, then click the ↻ button on the badge to re-check.', 'pressable_cache_management' ),
+                pcm_batcache_alert_help_step( __( 'Need a hand? %1$s, or %2$s about this check.', 'pressable_cache_management' ) ),
+            );
+            break;
+
+        case 'headers':
+            $title = __( 'A response header is blocking the page cache', 'pressable_cache_management' );
+            $text  = __( 'The homepage is sent with a Cache-Control header that tells Batcache and Edge Cache not to store it, so every visit is built by PHP.', 'pressable_cache_management' );
+            $steps = array(
+                esc_html__( 'Fix what is listed above, then click the ↻ button on the badge to re-check.', 'pressable_cache_management' ),
+                pcm_batcache_alert_help_step( __( 'Still stuck? %1$s, or %2$s about this check.', 'pressable_cache_management' ) ),
+            );
+            break;
+
         case 'broken':
             $title = __( 'Batcache is not caching the homepage', 'pressable_cache_management' );
             $text  = __( 'Three requests as a first-time visitor returned no Batcache header and set no cookies, so something else stops Batcache from storing the page.', 'pressable_cache_management' );
+            if ( isset( $r['trace'] ) && is_array( $r['trace'] ) && ! $r['trace'] ) {
+                $text .= ' ' . __( 'A traced request found no cookie, cache-blocking header or batcache_cancel() call either.', 'pressable_cache_management' );
+            }
             if ( $r['max_age'] > 0 && $r['max_age'] < 60 ) {
                 /* translators: %d: seconds */
                 $items[] = esc_html( sprintf( __( 'The response carried Cache-Control max-age=%d, which is too short for Batcache to keep the page.', 'pressable_cache_management' ), $r['max_age'] ) );
@@ -373,8 +499,29 @@ function pcm_batcache_alert_html( $r ) {
             $text  = $r['error'] . ' ' . __( 'Click the ↻ button to try again. If it keeps failing, contact Pressable Support.', 'pressable_cache_management' );
             break;
 
+        case 'active':
+            if ( empty( $r['header'] ) ) {
+                return '';
+            }
+            $tone  = 'warn';
+            $title = __( 'Batcache is working, but a header keeps Edge Cache from storing the page', 'pressable_cache_management' );
+            $text  = __( 'Visitors are served from Batcache on the server, but the homepage is sent with a Cache-Control header that stops the edge locations from keeping a copy, so every visit still travels to the server.', 'pressable_cache_management' );
+            break;
+
         default:
             return '';
+    }
+
+    if ( in_array( $r['status'], array( 'cookies', 'headers', 'disabled', 'broken', 'active' ), true ) ) {
+        $found = pcm_batcache_blocker_items( $r );
+        $items = array_merge( $items, $found );
+        if ( 'broken' === $r['status'] && $found ) {
+            // A cause was found, so point at it instead of the generic hunt.
+            $steps = array(
+                esc_html__( 'Fix what is listed above, then click the ↻ button on the badge to re-check.', 'pressable_cache_management' ),
+                pcm_batcache_alert_help_step( __( 'If it stays broken, %1$s or %2$s.', 'pressable_cache_management' ) ),
+            );
+        }
     }
 
     $html  = '<div class="pcm-bc-alert-title">' . esc_html( $title ) . '</div>';
@@ -392,8 +539,10 @@ function pcm_batcache_alert_html( $r ) {
 // What the badge shows for a stored result.
 function pcm_batcache_status_payload( $r ) {
     $labels = pcm_batcache_status_labels();
+    $badges = array( 'active' => 'active', 'cloudflare' => 'cloudflare', 'unknown' => 'unknown', 'excluded' => 'unknown' );
     return array(
         'status'     => $r['status'],
+        'badge'      => isset( $badges[ $r['status'] ] ) ? $badges[ $r['status'] ] : 'broken',
         'label'      => $labels[ $r['status'] ],
         'alert_html' => pcm_batcache_alert_html( $r ),
         'max_age'    => (int) $r['max_age'],
@@ -436,6 +585,10 @@ function pcm_clear_batcache_status_transient() {
 add_action( 'pcm_after_object_cache_flush', 'pcm_clear_batcache_status_transient' );
 add_action( 'pcm_after_batcache_flush',     'pcm_clear_batcache_status_transient' );
 add_action( 'pcm_after_edge_cache_purge',   'pcm_clear_batcache_status_transient' );
+// A plugin or theme change can break or fix caching, so check again on the next visit.
+add_action( 'activated_plugin',   'pcm_clear_batcache_status_transient' );
+add_action( 'deactivated_plugin', 'pcm_clear_batcache_status_transient' );
+add_action( 'switch_theme',       'pcm_clear_batcache_status_transient' );
 
 // ─── Main page ───────────────────────────────────────────────────────────────
 function pressable_cache_management_display_settings_page() {
@@ -481,7 +634,7 @@ function pressable_cache_management_display_settings_page() {
         $bc_payload = pcm_batcache_status_payload( $bc );
         $bc_never   = ( 'unknown' === $bc['status'] && empty( $bc['checked'] ) );
         $bc_label   = $bc_never ? __( 'Checking…', 'pressable_cache_management' ) : $bc_payload['label'];
-        $bc_class   = ( 'cookies' === $bc['status'] ) ? 'broken' : ( 'excluded' === $bc['status'] ? 'unknown' : $bc['status'] );
+        $bc_class   = $bc_payload['badge'];
     ?>
 
     <!-- Header: logo + status badge -->
@@ -508,8 +661,8 @@ function pressable_cache_management_display_settings_page() {
                 </span>
                 <span class="pcm-bc-tooltip-wrap" style="position:relative;display:inline-flex;align-items:center;">
                     <span style="width:16px;height:16px;border-radius:50%;background:#e2e8f0;color:#64748b;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;cursor:default;font-family:'Inter',sans-serif;line-height:1;flex-shrink:0;" aria-label="Batcache info">&#x3F;</span>
-                    <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:270px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:'Inter',sans-serif;font-weight:400;">
-                        <?php echo esc_html__( 'The status is checked from the server: the homepage is requested up to three times (Batcache stores a page on its second visit) and the response headers are read. A result is reused for one minute; the refresh button re-checks right away. If the homepage sets cookies for anonymous visitors, Batcache never caches it and the cookie names are listed under the badge.', 'pressable_cache_management' ); ?>
+                    <span class="pcm-bc-tooltip" style="display:none;position:absolute;right:0;top:24px;width:320px;background:#1e293b;color:#f1f5f9;font-size:11.5px;line-height:1.55;padding:10px 13px;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,.18);z-index:9999;font-family:'Inter',sans-serif;font-weight:400;">
+                        <?php echo esc_html__( 'Batcache is checked from the server: the homepage is requested as a first-time visitor up to three times (Batcache stores a page on its second visit) and the response headers are read. If the page is not being cached, one more traced request finds what blocks it: a cookie, a no-cache header, batcache_cancel() or Batcache being switched off, and which plugin or theme is responsible. The cause and what to do next are listed below the badge. The result is kept for 30 minutes while active and 5 minutes otherwise, so opening this page does not load your site; click ↻ to check again now.', 'pressable_cache_management' ); ?>
                         <span style="position:absolute;right:8px;top:-5px;width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:5px solid #1e293b;"></span>
                     </span>
                 </span>
@@ -527,7 +680,7 @@ function pressable_cache_management_display_settings_page() {
             var alertBox = document.getElementById('pcm-bc-alert');
             if (!badge || !label) return null;
             label.textContent = d.label;
-            badge.className = 'pcm-batcache-status ' + (d.status === 'cookies' ? 'broken' : d.status === 'excluded' ? 'unknown' : d.status);
+            badge.className = 'pcm-batcache-status ' + d.badge;
             badge.title = d.checked || '';
             if (alertBox) {
                 alertBox.innerHTML = d.alert_html || '';
@@ -590,8 +743,12 @@ function pressable_cache_management_display_settings_page() {
             });
         }
 
-        // On load: confirm the stored status (served from the transient when fresh).
+        // On load the badge and alert are already rendered from the stored result. The server
+        // is asked to check again only when that result is missing or old (30 minutes while
+        // active, 5 minutes otherwise), so opening this page normally costs no request.
+        <?php if ( pcm_batcache_status_is_stale( $bc ) ) : ?>
         pcmProbeBatcache(false);
+        <?php endif; ?>
 
         // Tooltip show/hide
         (function() {
