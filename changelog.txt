@@ -1,5 +1,9 @@
 === Pressable Cache Management Change log ===
 
+= Version 6.6.1 (Nov 13, 2026) =
+* Batcache status check: a response served from a stored copy, in the Edge Cache (x-ac: HIT) or the preload cache (x-sc: HIT), is now skipped. Its headers date from when it was stored, so a copy saved while Batcache worked could show "Batcache Active" after Batcache stopped. The next request uses a new fbclid[] value; if every response is a stored copy, the status is "Status Unavailable" instead of "Batcache Active".
+* Flush Cache on Page Delete: the toggle description said it flushes the specific page. It now says what the setting does: it flushes the whole object cache, which also clears Batcache, when a published post or page is trashed, permanently deleted or restored from the trash.
+
 = Version 6.6.0 (Nov 11, 2026) =
 * Batcache status check: it now names what blocks caching. When the homepage is not being cached, one extra traced request watches every hook callback for the moment a Set-Cookie header, a cache-blocking Cache-Control header or a batcache_cancel() call appears, and reports the plugin, theme or must-use plugin responsible with its file, line, function and hook. It also covers code that runs while a plugin's main file loads and headers sent from an output-buffer callback. The traced request carries a one-time token and is never cached; no other request is affected (admin/custom-functions/batcache_trace.php).
 * Batcache status check: when the trace cannot name the source of a cookie (for example it is set before plugins finish loading), the active plugins, the theme and must-use plugins are searched for the cookie name and the matches are listed. The search is capped at 4 seconds and cached for an hour.

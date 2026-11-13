@@ -234,8 +234,17 @@ function pcm_probe_batcache() {
 
         $nananana = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-nananana' ) );
         $x_ac     = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-ac' ) );
+        $x_sc     = strtolower( (string) wp_remote_retrieve_header( $resp, 'x-sc' ) );
         $server   = strtolower( (string) wp_remote_retrieve_header( $resp, 'server' ) );
         $cloudflare = $cloudflare || false !== strpos( $server, 'cloudflare' ) || '' !== (string) wp_remote_retrieve_header( $resp, 'cf-ray' );
+
+        // A copy served from the Edge Cache (x-ac HIT) or the preload cache (x-sc HIT) carries the
+        // headers from when it was stored, so its x-nananana says nothing about Batcache now. Skip
+        // it; the next request uses a new fbclid[] value. If every response is a stored copy, the
+        // result is "Status Unavailable" rather than "Batcache Active".
+        if ( preg_match( '/\bhit\b/', $x_ac ) || preg_match( '/\bhit\b/', $x_sc ) ) {
+            continue;
+        }
 
         $cache_control = wp_remote_retrieve_header( $resp, 'cache-control' );
         $cache_control = is_array( $cache_control ) ? implode( ', ', $cache_control ) : (string) $cache_control;
@@ -267,10 +276,7 @@ function pcm_probe_batcache() {
             continue;
         }
         $ok_responses++;
-        // An edge HIT was answered without reaching origin, so it says nothing about Batcache either.
-        if ( ! preg_match( '/\bhit\b/', $x_ac ) ) {
-            $reached_origin = true;
-        }
+        $reached_origin = true;
     }
 
     $result['cookies'] = array_values( array_unique( $result['cookies'] ) );
@@ -308,7 +314,7 @@ function pcm_probe_batcache() {
             $result['status'] = 'cloudflare';
         } elseif ( ! $reached_origin ) {
             $result['status'] = 'unknown';
-            $result['error']  = __( 'Every response came from the edge cache, so Batcache could not be observed.', 'pressable_cache_management' );
+            $result['error']  = __( 'Every response came from a stored copy in the Edge Cache or the preload cache, so Batcache could not be observed.', 'pressable_cache_management' );
         }
     }
 
@@ -898,7 +904,7 @@ function pressable_cache_management_display_settings_page() {
                     </label>
                     <div>
                         <div class="pcm-toggle-title"><?php echo esc_html__( 'Flush cache automatically when published pages/posts are deleted.', 'pressable_cache_management' ); ?></div>
-                        <div class="pcm-toggle-desc"><?php echo esc_html__( 'Flushes Batcache for the specific page when it is deleted.', 'pressable_cache_management' ); ?></div>
+                        <div class="pcm-toggle-desc"><?php echo esc_html__( 'Flushes the whole object cache, which also clears Batcache, when a published post or page is trashed, permanently deleted or restored from the trash.', 'pressable_cache_management' ); ?></div>
                         <span class="pcm-ts-inline"><strong><?php echo __('Last flushed at:', 'pressable_cache_management'); ?></strong> <?php echo $del_ts ? wp_kses_post( str_replace( array("\n", "\r"), ' ', $del_ts ) ) : '&#8212;'; ?></span>
                     </div>
                 </div>

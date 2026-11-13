@@ -54,6 +54,11 @@ The plugin can be downloaded from the GitHub repository and installed manually v
 
 ## **Changelog**
 
+#### **Version 6.6.1 (Nov 13, 2026)**
+
+* Batcache status check: responses served from a stored copy (`x-ac: HIT` from the Edge Cache, or `x-sc: HIT` from the preload cache) are skipped, so an old copy saved while Batcache worked can no longer show "Batcache Active". If every response is a stored copy, the status is "Status Unavailable".
+* Flush Cache on Page Delete: the toggle description now matches the code. It flushes the whole object cache (which also clears Batcache) when a published post or page is trashed, permanently deleted or restored from the trash.
+
 #### **Version 6.6.0 (Nov 11, 2026)**
 
 **Batcache status check: finds the cause, not just the symptom**
